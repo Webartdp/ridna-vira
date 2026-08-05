@@ -1,0 +1,189 @@
+/* Continuous ticker without a large empty interval. */
+.announcement__track {
+    gap: 0;
+    padding-left: 0;
+    animation-name: ticker-seamless;
+    animation-duration: 28s;
+}
+
+.announcement__track span {
+    flex: 0 0 auto;
+    padding-right: 28px;
+}
+
+@keyframes ticker-seamless {
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+/* Small arrows vertically centered with their labels. */
+.site-nav .dropdown-toggle,
+.language-switch.dropdown-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.site-nav .dropdown-toggle::after,
+.language-switch.dropdown-toggle::after {
+    width: 6px;
+    height: 6px;
+    margin: 0 0 0 6px;
+    border: 0;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg);
+}
+
+.language-switch {
+    min-height: 30px;
+    padding: 0;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.language-menu__list {
+    min-width: 82px;
+    padding: 8px 14px;
+}
+
+.language-menu__list .dropdown-item {
+    line-height: 23px;
+    text-align: center;
+}
+
+.language-menu__list .dropdown-item.active {
+    color: #c28b2d;
+    background: transparent;
+}
+
+/* More air between the feast icon and its centered label. */
+.holiday-card strong {
+    margin-top: 9px;
+}
+
+.holiday-card--featured strong {
+    margin-top: 11px;
+}
+
+/* Materials: no movement, extra shadows or hover backgrounds — colors only. */
+.feature-material,
+.feature-material > img,
+.feature-material__overlay,
+.feature-material__arrow,
+.material-row,
+.material-row > img,
+.material-row strong,
+.date-badge {
+    transition: color .2s ease, background-color .2s ease, border-color .2s ease;
+}
+
+.feature-material:hover {
+    border-color: #fff;
+    box-shadow: 0 6px 11px rgba(28, 8, 3, .41);
+    transform: none;
+}
+
+.feature-material:hover > img,
+.feature-material:hover .feature-material__arrow,
+.feature-material:hover > .date-badge,
+.material-row:hover,
+.material-row:hover > img {
+    transform: none;
+}
+
+.feature-material:hover > img {
+    filter: none;
+}
+
+.feature-material:hover .feature-material__overlay {
+    opacity: 1;
+}
+
+.feature-material:hover .feature-material__arrow,
+.material-row:hover strong {
+    color: #c28b2d;
+}
+
+.feature-material:hover > .date-badge,
+.material-row:hover .date-badge {
+    background: #401403;
+}
+
+.material-row {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+}
+
+.material-row:hover {
+    background: transparent;
+    box-shadow: none;
+}
+
+.material-row:hover > img {
+    border-color: #fff;
+    box-shadow: 0 6px 11px rgba(28, 8, 3, .41);
+}
+
+.date-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 1px;
+    line-height: 1;
+    text-align: center;
+}
+
+/* Transparent partner exports and a little more vertical space before utilities. */
+.footer-partner,
+.footer-partner img {
+    background: transparent;
+}
+
+.footer-partner:hover {
+    opacity: .9;
+    filter: none;
+    transform: none;
+}
+
+.footer-utilities {
+    top: 236px;
+}
+
+.payment-mark {
+    width: 54px;
+    height: 30px;
+    border-color: rgba(255, 255, 255, .2);
+    background: rgba(255, 255, 255, .96);
+}
+
+.payment-mark img {
+    width: 38px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.payment-mark--apple img {
+    width: 42px;
+    height: 22px;
+}
+
+.footer-rule {
+    top: 296px;
+}
+
+.footer-copy {
+    top: 323px;
+}
+
+.site-footer {
+    height: 365px;
+}
+
+@media (max-width: 767.98px) {
+    .footer-utilities {
+        margin-top: 8px;
+    }
+}
