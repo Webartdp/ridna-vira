@@ -1,6 +1,7 @@
 import '../scss/fonts.scss';
 import '../scss/corrections.scss';
 import '../scss/refinements.scss';
+import '../scss/about.scss';
 import 'bootstrap';
 
 const track = document.querySelector('[data-ticker-track]');
@@ -50,6 +51,46 @@ if (track) {
 const languageSwitch = document.querySelector('.language-switch');
 if (languageSwitch) {
     languageSwitch.textContent = 'UA';
+}
+
+const aboutGallery = document.querySelector('[data-about-gallery]');
+
+if (aboutGallery) {
+    const galleryTrack = aboutGallery.querySelector('[data-about-gallery-track]');
+    const slides = Array.from(galleryTrack?.children ?? []);
+    const previousButton = aboutGallery.querySelector('[data-about-gallery-prev]');
+    const nextButton = aboutGallery.querySelector('[data-about-gallery-next]');
+    let activeIndex = Math.min(1, Math.max(slides.length - 1, 0));
+
+    const renderGallery = () => {
+        if (!galleryTrack || slides.length === 0) return;
+
+        const slideWidth = slides[0].getBoundingClientRect().width;
+        const trackStyles = window.getComputedStyle(galleryTrack);
+        const gap = Number.parseFloat(trackStyles.columnGap || trackStyles.gap) || 0;
+        const shift = -(activeIndex * (slideWidth + gap) + slideWidth / 2);
+
+        galleryTrack.style.setProperty('--about-gallery-shift', `${shift}px`);
+        slides.forEach((slide, index) => {
+            slide.classList.toggle('is-active', index === activeIndex);
+        });
+    };
+
+    const moveGallery = (direction) => {
+        activeIndex = (activeIndex + direction + slides.length) % slides.length;
+        renderGallery();
+    };
+
+    previousButton?.addEventListener('click', () => moveGallery(-1));
+    nextButton?.addEventListener('click', () => moveGallery(1));
+
+    renderGallery();
+
+    let galleryResizeTimer;
+    window.addEventListener('resize', () => {
+        window.clearTimeout(galleryResizeTimer);
+        galleryResizeTimer = window.setTimeout(renderGallery, 120);
+    }, { passive: true });
 }
 
 const header = document.querySelector('[data-site-header]');
