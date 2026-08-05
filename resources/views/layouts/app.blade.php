@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1c0803">
     <title>@yield('title', 'Рідна Віра — Духовний центр')</title>
     <meta name="description" content="@yield('description', 'Офіційний портал Духовного центру Рідна Віра')">
-    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+    @vite(['resources/scss/app.scss', 'resources/scss/corrections.scss', 'resources/js/app.js'])
 </head>
 <body>
 <div class="announcement" aria-label="Оголошення">
@@ -57,7 +57,13 @@
                 </ul>
 
                 <div class="header-actions">
-                    <button class="language-switch" type="button" aria-label="Змінити мову">UA <span aria-hidden="true">⌄</span></button>
+                    <div class="dropdown language-menu">
+                        <button class="language-switch dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Змінити мову">UA / EN</button>
+                        <ul class="dropdown-menu dropdown-menu-end language-menu__list">
+                            <li><a class="dropdown-item active" href="{{ url('/') }}">UA</a></li>
+                            <li><a class="dropdown-item" href="{{ url('/en') }}">EN</a></li>
+                        </ul>
+                    </div>
                     <a class="basket-link" href="{{ url('/koshyk') }}" aria-label="Кошик, 4 товари">
                         <img class="basket-link__image" src="{{ asset('assets/figma/home/basket.png') }}" alt="">
                         <span class="basket-link__badge">
@@ -90,7 +96,7 @@
 
     <div class="footer-partners" aria-label="Ресурси Рідної Віри">
         <a class="footer-partner footer-partner--polumya" href="https://yaro.dp.ua/" target="_blank" rel="noopener noreferrer" aria-label="Полум’я Роду">
-            <img src="{{ asset('assets/figma/home/partner-polumya.png') }}" alt="Полум’я Роду">
+            <img src="{{ asset('assets/figma/home/partner-polumya.svg') }}" alt="Полум’я Роду">
         </a>
 
         <a class="footer-partner footer-partner--ridna" href="https://ridnovir.in.ua/" target="_blank" rel="noopener noreferrer" aria-label="Рідна Віра">
@@ -98,20 +104,20 @@
         </a>
 
         <a class="footer-partner footer-partner--svarga" href="https://svarga.com.ua/" target="_blank" rel="noopener noreferrer" aria-label="Сварга — портал Рідної Віри">
-            <img src="{{ asset('assets/figma/home/partner-svarga.png') }}" alt="Сварга — портал Рідної Віри">
+            <img src="{{ asset('assets/figma/home/partner-svarga.svg') }}" alt="Сварга — портал Рідної Віри">
         </a>
     </div>
 
     <div class="footer-utilities">
         <div class="footer-payments" aria-label="Підтримувані способи оплати">
             <span class="payment-mark" title="Visa" role="img" aria-label="Visa">
-                <svg viewBox="0 0 48 24" aria-hidden="true"><text x="3" y="17" fill="currentColor" font-family="Arial, sans-serif" font-size="16" font-style="italic" font-weight="700">VISA</text></svg>
+                <img src="{{ asset('assets/icons/payment/visa.svg') }}" alt="Visa">
             </span>
             <span class="payment-mark" title="Mastercard" role="img" aria-label="Mastercard">
-                <svg viewBox="0 0 48 24" aria-hidden="true"><circle cx="19" cy="12" r="8" fill="#fff" opacity=".9"/><circle cx="29" cy="12" r="8" fill="#c28b2d" opacity=".88"/><path d="M24 6.5a8 8 0 0 1 0 11 8 8 0 0 1 0-11Z" fill="#e7c474"/></svg>
+                <img src="{{ asset('assets/icons/payment/mastercard.svg') }}" alt="Mastercard">
             </span>
-            <span class="payment-mark" title="Apple Pay" role="img" aria-label="Apple Pay">
-                <svg viewBox="0 0 48 24" aria-hidden="true"><text x="3" y="16" fill="currentColor" font-family="Arial, sans-serif" font-size="11" font-weight="700">Apple Pay</text></svg>
+            <span class="payment-mark payment-mark--apple" title="Apple Pay" role="img" aria-label="Apple Pay">
+                <img src="{{ asset('assets/icons/payment/apple-pay.svg') }}" alt="Apple Pay">
             </span>
         </div>
 
