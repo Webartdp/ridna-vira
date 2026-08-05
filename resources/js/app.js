@@ -57,40 +57,84 @@ const aboutGallery = document.querySelector('[data-about-gallery]');
 
 if (aboutGallery) {
     const galleryTrack = aboutGallery.querySelector('[data-about-gallery-track]');
-    const slides = Array.from(galleryTrack?.children ?? []);
     const previousButton = aboutGallery.querySelector('[data-about-gallery-prev]');
     const nextButton = aboutGallery.querySelector('[data-about-gallery-next]');
-    let activeIndex = Math.min(1, Math.max(slides.length - 1, 0));
+    const originalSlides = Array.from(galleryTrack?.children ?? []);
 
-    const renderGallery = () => {
-        if (!galleryTrack || slides.length === 0) return;
+    if (galleryTrack && originalSlides.length > 0) {
+        let activeOriginalIndex = originalSlides.findIndex((slide) => slide.classList.contains('is-active'));
+        if (activeOriginalIndex < 0) activeOriginalIndex = 0;
 
-        const slideWidth = slides[0].getBoundingClientRect().width;
-        const trackStyles = window.getComputedStyle(galleryTrack);
-        const gap = Number.parseFloat(trackStyles.columnGap || trackStyles.gap) || 0;
-        const shift = -(activeIndex * (slideWidth + gap) + slideWidth / 2);
+        if (originalSlides.length > 1) {
+            const firstClone = originalSlides[0].cloneNode(true);
+            const lastClone = originalSlides.at(-1).cloneNode(true);
 
-        galleryTrack.style.setProperty('--about-gallery-shift', `${shift}px`);
-        slides.forEach((slide, index) => {
-            slide.classList.toggle('is-active', index === activeIndex);
+            firstClone.classList.remove('is-active');
+            lastClone.classList.remove('is-active');
+            firstClone.setAttribute('aria-hidden', 'true');
+            lastClone.setAttribute('aria-hidden', 'true');
+
+            galleryTrack.prepend(lastClone);
+            galleryTrack.append(firstClone);
+        }
+
+        const slides = Array.from(galleryTrack.children);
+        const hasClones = originalSlides.length > 1;
+        let activeIndex = activeOriginalIndex + (hasClones ? 1 : 0);
+        let isAnimating = false;
+
+        const renderGallery = (animate = true) => {
+            if (!animate) galleryTrack.classList.add('is-jumping');
+
+            const slideWidth = slides[0].getBoundingClientRect().width;
+            const trackStyles = window.getComputedStyle(galleryTrack);
+            const gap = Number.parseFloat(trackStyles.columnGap || trackStyles.gap) || 0;
+            const shift = -(activeIndex * (slideWidth + gap) + slideWidth / 2);
+
+            galleryTrack.style.setProperty('--about-gallery-shift', `${shift}px`);
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('is-active', index === activeIndex);
+            });
+
+            if (!animate) {
+                galleryTrack.getBoundingClientRect();
+                requestAnimationFrame(() => galleryTrack.classList.remove('is-jumping'));
+            }
+        };
+
+        const moveGallery = (direction) => {
+            if (isAnimating || slides.length < 2) return;
+
+            isAnimating = true;
+            activeIndex += direction;
+            renderGallery(true);
+        };
+
+        galleryTrack.addEventListener('transitionend', (event) => {
+            if (event.propertyName !== 'transform') return;
+
+            if (hasClones && activeIndex === 0) {
+                activeIndex = originalSlides.length;
+                renderGallery(false);
+            } else if (hasClones && activeIndex === originalSlides.length + 1) {
+                activeIndex = 1;
+                renderGallery(false);
+            }
+
+            isAnimating = false;
         });
-    };
 
-    const moveGallery = (direction) => {
-        activeIndex = (activeIndex + direction + slides.length) % slides.length;
-        renderGallery();
-    };
+        previousButton?.addEventListener('click', () => moveGallery(-1));
+        nextButton?.addEventListener('click', () => moveGallery(1));
 
-    previousButton?.addEventListener('click', () => moveGallery(-1));
-    nextButton?.addEventListener('click', () => moveGallery(1));
+        renderGallery(false);
 
-    renderGallery();
-
-    let galleryResizeTimer;
-    window.addEventListener('resize', () => {
-        window.clearTimeout(galleryResizeTimer);
-        galleryResizeTimer = window.setTimeout(renderGallery, 120);
-    }, { passive: true });
+        let galleryResizeTimer;
+        window.addEventListener('resize', () => {
+            window.clearTimeout(galleryResizeTimer);
+            galleryResizeTimer = window.setTimeout(() => renderGallery(false), 120);
+        }, { passive: true });
+    }
 }
 
 const header = document.querySelector('[data-site-header]');
