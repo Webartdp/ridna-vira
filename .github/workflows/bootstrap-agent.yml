@@ -1,0 +1,57 @@
+name: Build Laravel homepage branch
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/bootstrap-agent.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: agent/laravel-homepage
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, mysql, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Scaffold Laravel and apply design
+        run: |
+          rm -rf /tmp/ridna-vira-laravel
+          composer create-project laravel/laravel:^13.0 /tmp/ridna-vira-laravel --no-interaction --prefer-dist
+          rsync -a --exclude='.git' --exclude='README.md' /tmp/ridna-vira-laravel/ ./
+          chmod +x bootstrap-project.sh
+          ./bootstrap-project.sh
+
+      - name: Validate application
+        run: |
+          npm install --ignore-scripts
+          npm run build
+          php artisan test
+
+      - name: Commit generated project to working branch
+        run: |
+          rm -rf vendor node_modules public/build
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Build Laravel homepage [skip ci]"
+          git push origin HEAD:agent/laravel-homepage
