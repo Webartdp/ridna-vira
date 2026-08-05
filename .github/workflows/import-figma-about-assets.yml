@@ -1,0 +1,49 @@
+name: Import Figma About assets
+
+on:
+  push:
+    branches:
+      - feature/site-build
+    paths:
+      - '.github/workflows/import-figma-about-assets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/site-build
+          fetch-depth: 0
+
+      - name: Download exact About Center assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/figma/about
+
+          curl -fL --retry 3 -o public/assets/figma/about/hero.png "https://www.figma.com/api/mcp/asset/84862814-0d5d-4b46-854e-f26e8d1d657d.png"
+          curl -fL --retry 3 -o public/assets/figma/about/gallery-1.png "https://www.figma.com/api/mcp/asset/536f0892-ba79-4c9c-a9d3-d539f53690d8.png"
+          curl -fL --retry 3 -o public/assets/figma/about/gallery-2.png "https://www.figma.com/api/mcp/asset/a4439dce-f8cd-42d8-9898-4997b9117058.png"
+          curl -fL --retry 3 -o public/assets/figma/about/gallery-3.png "https://www.figma.com/api/mcp/asset/f183bebd-2a59-48db-9bc0-c13009bc68a3.png"
+          curl -fL --retry 3 -o public/assets/figma/about/arrow-right.svg "https://www.figma.com/api/mcp/asset/5bfca4b9-e263-4309-be51-ff8f1502d4ef.svg"
+
+      - name: Commit imported assets
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/figma/about
+
+          if git diff --cached --quiet; then
+            echo "No About Center asset changes"
+          else
+            git commit -m "Import exact Figma About Center assets [skip ci]"
+            git push origin HEAD:feature/site-build
+          fi
