@@ -60,8 +60,8 @@
 }
 
 .about-page {
-    min-height: 1131px;
-    padding: 62px 0 77px;
+    min-height: 0;
+    padding: 62px 0 42px;
     overflow: hidden;
 }
 
@@ -148,6 +148,10 @@
     will-change: transform;
 }
 
+.about-gallery__track.is-jumping {
+    transition: none;
+}
+
 .about-gallery__slide {
     width: var(--about-gallery-slide);
     height: 347px;
@@ -206,10 +210,6 @@
 }
 
 @media (max-width: 991.98px) {
-    .about-page {
-        min-height: 0;
-    }
-
     .about-links {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -225,7 +225,7 @@
     }
 
     .about-page {
-        padding: 42px 0 58px;
+        padding: 42px 0 38px;
     }
 
     .about-links {
