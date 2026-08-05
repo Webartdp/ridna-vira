@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Про центр — Рідна Віра')
-@section('description', 'Духовний центр Рідна Віра: управління, зв’язок, відомості про центр та світлини громади.')
+@section('description', 'Духовний центр Рідна Віра: управління, зв’язок, Академія, Енциклопедія та світлини громади.')
 
 @section('content')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/fancybox/fancybox.css">
@@ -21,10 +21,10 @@
 <section class="about-page">
     <div class="figma-container">
         <nav class="about-links" aria-label="Розділи про центр">
-            <a class="about-link-card" href="{{ url('/pro-tsentr/upravlinnia') }}">Управління</a>
-            <a class="about-link-card" href="{{ url('/zviazok') }}">Зв’язок</a>
-            <a class="about-link-card" href="#about-center">Про нас</a>
-            <a class="about-link-card" href="{{ url('/pro-tsentr/entsyklopediia') }}">Енциклопедія</a>
+            <a class="about-link-card" href="{{ route('about.management') }}">Управління</a>
+            <a class="about-link-card" href="{{ route('contact') }}">Зв’язок</a>
+            <a class="about-link-card" href="https://ridnovir.in.ua/" target="_blank" rel="noopener noreferrer">Академія</a>
+            <a class="about-link-card" href="https://wiki.svit.in.ua/" target="_blank" rel="noopener noreferrer">Енциклопедія</a>
         </nav>
 
         <div class="about-copy" id="about-center">
