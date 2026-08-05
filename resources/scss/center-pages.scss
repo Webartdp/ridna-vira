@@ -1,0 +1,363 @@
+/* Internal pages of the "Про центр" section. */
+.center-page {
+    padding: 64px 0 74px;
+}
+
+.center-intro {
+    max-width: 920px;
+    margin: 0 auto 70px;
+    color: var(--rv-dark);
+    font-family: var(--rv-font-ui);
+    font-size: 18px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.center-intro--narrow {
+    max-width: 850px;
+}
+
+.center-intro p {
+    margin: 0;
+}
+
+.center-section {
+    margin-top: 74px;
+}
+
+.center-section:first-of-type {
+    margin-top: 0;
+}
+
+.center-section__heading {
+    margin-bottom: 38px;
+    text-align: center;
+}
+
+.center-section__heading > span,
+.documents-panel__eyebrow,
+.contact-action-panel > div > span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--rv-gold);
+    font-family: var(--rv-font-ui);
+    font-size: 13px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.center-section__heading h2,
+.documents-panel h2,
+.contact-action-panel h2 {
+    margin: 0;
+    font-family: var(--rv-font-display);
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.15;
+    text-transform: uppercase;
+}
+
+.leadership-grid,
+.contact-main-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.leadership-card,
+.contact-card,
+.structure-card,
+.circle-contact-card {
+    border: 3px solid #fff;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #e8dfce 0%, #fcfdf7 100%);
+    box-shadow: var(--rv-shadow);
+}
+
+.leadership-card,
+.contact-card {
+    min-height: 230px;
+    padding: 30px 32px;
+}
+
+.leadership-card--featured,
+.contact-card--primary {
+    border-color: rgba(194, 139, 45, .55);
+}
+
+.leadership-card__role,
+.contact-card > span {
+    display: block;
+    margin-bottom: 14px;
+    color: var(--rv-gold);
+    font-family: var(--rv-font-ui);
+    font-size: 13px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.leadership-card h3,
+.contact-card h3,
+.structure-card h3,
+.circle-contact-card h3 {
+    margin: 0 0 10px;
+    font-family: var(--rv-font-display);
+    font-size: 21px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.leadership-card p,
+.contact-card p {
+    margin: 0 0 18px;
+    color: rgba(28, 8, 3, .68);
+    font-family: var(--rv-font-ui);
+}
+
+.leadership-card__contacts,
+.contact-card {
+    font-family: var(--rv-font-ui);
+}
+
+.leadership-card__contacts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px 18px;
+}
+
+.leadership-card__contacts a,
+.contact-card > a {
+    color: var(--rv-brown);
+    font-size: 15px;
+    text-decoration: underline;
+    text-decoration-color: rgba(64, 20, 3, .25);
+    text-underline-offset: 4px;
+}
+
+.contact-card > a {
+    display: block;
+    width: fit-content;
+    margin-top: 6px;
+}
+
+.leadership-card__contacts a:hover,
+.contact-card > a:hover {
+    color: var(--rv-gold);
+}
+
+.structure-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.structure-card {
+    min-height: 270px;
+    padding: 27px 24px;
+}
+
+.structure-card > b {
+    display: block;
+    margin-bottom: 24px;
+    color: var(--rv-gold);
+    font-family: var(--rv-font-display);
+    font-size: 42px;
+    line-height: 1;
+}
+
+.structure-card h3 {
+    font-size: 18px;
+}
+
+.structure-card p,
+.documents-panel p,
+.contact-action-panel p,
+.circle-contact-card li,
+.contact-source-note {
+    font-family: var(--rv-font-ui);
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.structure-card p {
+    margin: 0;
+    text-align: left;
+}
+
+.documents-panel,
+.contact-action-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 38px;
+    align-items: center;
+    margin-top: 74px;
+    padding: 36px 40px;
+    border: 3px solid #fff;
+    border-radius: 20px;
+    background: linear-gradient(180deg, #e8dfce 0%, #fcfdf7 100%);
+    box-shadow: var(--rv-shadow);
+}
+
+.documents-panel p,
+.contact-action-panel p {
+    max-width: 720px;
+    margin: 14px 0 0;
+}
+
+.documents-panel .figma-button,
+.contact-action-panel .figma-button,
+.center-cta .figma-button {
+    flex: 0 0 auto;
+    white-space: nowrap;
+}
+
+.center-cta {
+    margin-top: 48px;
+    text-align: center;
+}
+
+.center-cta p {
+    max-width: 690px;
+    margin: 0 auto 22px;
+    font-family: var(--rv-font-ui);
+    font-size: 17px;
+    line-height: 1.45;
+}
+
+.circle-contacts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+}
+
+.circle-contact-card {
+    overflow: hidden;
+}
+
+.circle-contact-card__head {
+    padding: 25px 26px 21px;
+    color: #fff;
+    background: var(--rv-dark);
+}
+
+.circle-contact-card__head > span {
+    display: block;
+    margin-bottom: 7px;
+    color: var(--rv-gold);
+    font-family: var(--rv-font-ui);
+    font-size: 12px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.circle-contact-card__head h3 {
+    margin: 0;
+    font-size: 20px;
+}
+
+.circle-contact-card ul {
+    margin: 0;
+    padding: 18px 25px 24px;
+    list-style: none;
+}
+
+.circle-contact-card li {
+    padding: 13px 0;
+    border-bottom: 1px solid rgba(64, 20, 3, .14);
+}
+
+.circle-contact-card li:last-child {
+    border-bottom: 0;
+}
+
+.circle-contact-card li b,
+.circle-contact-card li span {
+    display: block;
+}
+
+.circle-contact-card li b {
+    margin-bottom: 3px;
+    font-family: var(--rv-font-display);
+    font-size: 15px;
+    text-transform: uppercase;
+}
+
+.circle-contact-card li span {
+    color: rgba(28, 8, 3, .72);
+}
+
+.contact-source-note {
+    max-width: 760px;
+    margin: 30px auto 0;
+    color: rgba(28, 8, 3, .58);
+    text-align: center;
+}
+
+@media (max-width: 991.98px) {
+    .structure-grid,
+    .circle-contacts {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .circle-contact-card:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .center-page {
+        padding: 46px 0 54px;
+    }
+
+    .center-intro {
+        margin-bottom: 50px;
+        font-size: 16px;
+        text-align: left;
+    }
+
+    .center-section {
+        margin-top: 56px;
+    }
+
+    .center-section__heading h2,
+    .documents-panel h2,
+    .contact-action-panel h2 {
+        font-size: 23px;
+    }
+
+    .leadership-grid,
+    .contact-main-grid,
+    .structure-grid,
+    .circle-contacts {
+        grid-template-columns: 1fr;
+    }
+
+    .circle-contact-card:last-child {
+        grid-column: auto;
+    }
+
+    .leadership-card,
+    .contact-card {
+        min-height: 0;
+        padding: 25px 24px;
+    }
+
+    .structure-card {
+        min-height: 0;
+    }
+
+    .documents-panel,
+    .contact-action-panel {
+        grid-template-columns: 1fr;
+        gap: 25px;
+        margin-top: 56px;
+        padding: 30px 25px;
+        text-align: center;
+    }
+
+    .documents-panel .figma-button,
+    .contact-action-panel .figma-button {
+        justify-self: center;
+    }
+}
