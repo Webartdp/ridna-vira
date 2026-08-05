@@ -34,6 +34,15 @@
     padding: 23px 10px 10px;
 }
 
+.leadership-card__role {
+    letter-spacing: 0;
+    text-transform: none;
+}
+
+.leadership-card h3 {
+    text-transform: uppercase;
+}
+
 .leadership-card__contacts {
     justify-content: center;
 }
