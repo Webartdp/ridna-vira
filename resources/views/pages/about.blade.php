@@ -4,6 +4,8 @@
 @section('description', 'Духовний центр Рідна Віра: управління, зв’язок, відомості про центр та світлини громади.')
 
 @section('content')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/fancybox/fancybox.css">
+
 <section class="inner-hero inner-hero--about" aria-labelledby="about-page-title">
     <div class="inner-hero__overlay"></div>
     <div class="inner-hero__content">
@@ -37,13 +39,34 @@
         <div class="about-gallery__viewport">
             <div class="about-gallery__track" data-about-gallery-track>
                 <figure class="about-gallery__slide">
-                    <img src="{{ asset('assets/figma/about/gallery-1.png') }}" alt="Святодійство громади Рідної Віри" loading="lazy">
+                    <a href="{{ asset('assets/figma/about/gallery-1.png') }}" data-fancybox="about-center" data-caption="Святодійство громади Рідної Віри">
+                        <img src="{{ asset('assets/figma/about/gallery-1.png') }}" alt="Святодійство громади Рідної Віри" loading="lazy">
+                    </a>
                 </figure>
                 <figure class="about-gallery__slide is-active">
-                    <img src="{{ asset('assets/figma/about/gallery-2.png') }}" alt="Спільна світлина учасників громади" loading="lazy">
+                    <a href="{{ asset('assets/figma/about/gallery-2.png') }}" data-fancybox="about-center" data-caption="Спільна світлина учасників громади">
+                        <img src="{{ asset('assets/figma/about/gallery-2.png') }}" alt="Спільна світлина учасників громади" loading="lazy">
+                    </a>
                 </figure>
                 <figure class="about-gallery__slide">
-                    <img src="{{ asset('assets/figma/about/gallery-3.png') }}" alt="Учасники святкування Рідної Віри" loading="lazy">
+                    <a href="{{ asset('assets/figma/about/gallery-3.png') }}" data-fancybox="about-center" data-caption="Учасники святкування Рідної Віри">
+                        <img src="{{ asset('assets/figma/about/gallery-3.png') }}" alt="Учасники святкування Рідної Віри" loading="lazy">
+                    </a>
+                </figure>
+                <figure class="about-gallery__slide">
+                    <a href="{{ asset('assets/figma/about/gallery-1.png') }}" data-fancybox="about-center" data-caption="Святодійство громади Рідної Віри">
+                        <img src="{{ asset('assets/figma/about/gallery-1.png') }}" alt="Святодійство громади Рідної Віри" loading="lazy">
+                    </a>
+                </figure>
+                <figure class="about-gallery__slide">
+                    <a href="{{ asset('assets/figma/about/gallery-2.png') }}" data-fancybox="about-center" data-caption="Спільна світлина учасників громади">
+                        <img src="{{ asset('assets/figma/about/gallery-2.png') }}" alt="Спільна світлина учасників громади" loading="lazy">
+                    </a>
+                </figure>
+                <figure class="about-gallery__slide">
+                    <a href="{{ asset('assets/figma/about/gallery-3.png') }}" data-fancybox="about-center" data-caption="Учасники святкування Рідної Віри">
+                        <img src="{{ asset('assets/figma/about/gallery-3.png') }}" alt="Учасники святкування Рідної Віри" loading="lazy">
+                    </a>
                 </figure>
             </div>
         </div>
@@ -58,4 +81,9 @@
         </div>
     </section>
 </section>
+
+<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/fancybox/fancybox.umd.js"></script>
+<script>
+    Fancybox.bind('[data-fancybox="about-center"]', {});
+</script>
 @endsection
