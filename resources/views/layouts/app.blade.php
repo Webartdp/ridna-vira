@@ -30,12 +30,12 @@
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav site-nav ms-auto align-items-xl-center">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->is('pro-tsentr*') ? 'active' : '' }}" href="{{ url('/pro-tsentr') }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">Про центр</a>
+                        <a class="nav-link dropdown-toggle {{ request()->is('pro-tsentr*') ? 'active' : '' }}" href="{{ route('about') }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">Про центр</a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Управління</a></li>
+                            <li><a class="dropdown-item" href="{{ route('about.management') }}">Управління</a></li>
                             <li><a class="dropdown-item" href="{{ url('/zviazok') }}">Зв’язок</a></li>
-                            <li><a class="dropdown-item" href="#">Енциклопедія</a></li>
-                            <li><a class="dropdown-item" href="{{ url('/pro-tsentr') }}">Про нас</a></li>
+                            <li><a class="dropdown-item" href="{{ route('about.encyclopedia') }}">Енциклопедія</a></li>
+                            <li><a class="dropdown-item" href="{{ route('about') }}">Про нас</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -58,7 +58,7 @@
 
                 <div class="header-actions">
                     <div class="dropdown language-menu">
-                        <button class="language-switch dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Змінити мову">UA / EN</button>
+                        <button class="language-switch dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Змінити мову">UA</button>
                         <ul class="dropdown-menu dropdown-menu-end language-menu__list">
                             <li><a class="dropdown-item active" href="{{ url('/') }}">UA</a></li>
                             <li><a class="dropdown-item" href="{{ url('/en') }}">EN</a></li>
@@ -85,7 +85,7 @@
     </div>
 
     <nav class="footer-nav" aria-label="Меню в підвалі">
-        <a href="{{ url('/pro-tsentr') }}">Про центр</a>
+        <a href="{{ route('about') }}">Про центр</a>
         <a href="{{ url('/ridna-vira') }}">Рідна Віра</a>
         <a href="{{ url('/novyny') }}">Новини</a>
         <a href="{{ url('/statti') }}">Статті</a>
