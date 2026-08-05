@@ -1,23 +1,34 @@
-/* Continuous ticker without a large empty interval. */
+/* Continuous ticker: two equal groups move without any empty interval. */
 .announcement__track {
+    display: flex;
+    width: max-content;
+    min-width: 0;
     gap: 0;
     padding-left: 0;
-    animation-name: ticker-seamless;
-    animation-duration: 28s;
+    animation: ticker-seamless 32s linear infinite;
+    will-change: transform;
 }
 
-.announcement__track span {
+.announcement__group {
+    display: flex;
     flex: 0 0 auto;
+    align-items: center;
+    gap: 28px;
     padding-right: 28px;
+}
+
+.announcement__group span {
+    flex: 0 0 auto;
+    padding: 0;
 }
 
 @keyframes ticker-seamless {
     to {
-        transform: translateX(-50%);
+        transform: translateX(var(--ticker-distance, -50%));
     }
 }
 
-/* Small arrows vertically centered with their labels. */
+/* Use the exact supplied SVG arrow in navigation and language selector. */
 .site-nav .dropdown-toggle,
 .language-switch.dropdown-toggle {
     display: inline-flex;
@@ -27,13 +38,12 @@
 
 .site-nav .dropdown-toggle::after,
 .language-switch.dropdown-toggle::after {
-    width: 6px;
-    height: 6px;
-    margin: 0 0 0 6px;
+    width: 11px;
+    height: 11px;
+    margin: 0 0 0 5px;
     border: 0;
-    border-right: 1px solid currentColor;
-    border-bottom: 1px solid currentColor;
-    transform: rotate(45deg);
+    background: url('/assets/icons/arrow.svg') center / 11px 11px no-repeat;
+    transform: none;
 }
 
 .language-switch {
@@ -45,15 +55,38 @@
 
 .language-menu__list {
     min-width: 82px;
+    height: auto;
     padding: 8px 14px;
+    overflow: visible;
+}
+
+.language-menu__list.show {
+    display: block !important;
+    opacity: 1;
+    visibility: visible;
+}
+
+.language-menu__list li,
+.language-menu__list .dropdown-item {
+    display: block !important;
+    width: 100%;
+    opacity: 1;
+    visibility: visible;
 }
 
 .language-menu__list .dropdown-item {
+    color: #1c0803;
     line-height: 23px;
     text-align: center;
 }
 
 .language-menu__list .dropdown-item.active {
+    color: #c28b2d;
+    background: transparent;
+}
+
+.language-menu__list .dropdown-item:hover,
+.language-menu__list .dropdown-item:focus {
     color: #c28b2d;
     background: transparent;
 }
@@ -136,15 +169,10 @@
     text-align: center;
 }
 
-/* Transparent partner exports and a little more vertical space before utilities. */
+/* Exact transparent partner SVGs and spacing before utilities. */
 .footer-partner,
 .footer-partner img {
     background: transparent;
-}
-
-.footer-partner--polumya img,
-.footer-partner--svarga img {
-    mix-blend-mode: screen;
 }
 
 .footer-partner:hover {
