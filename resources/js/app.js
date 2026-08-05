@@ -59,82 +59,86 @@ if (aboutGallery) {
     const galleryTrack = aboutGallery.querySelector('[data-about-gallery-track]');
     const previousButton = aboutGallery.querySelector('[data-about-gallery-prev]');
     const nextButton = aboutGallery.querySelector('[data-about-gallery-next]');
-    const originalSlides = Array.from(galleryTrack?.children ?? []);
+    const anchorIndex = 1;
+    let isAnimating = false;
+    let pendingDirection = 0;
+    let transitionFallback;
 
-    if (galleryTrack && originalSlides.length > 0) {
-        let activeOriginalIndex = originalSlides.findIndex((slide) => slide.classList.contains('is-active'));
-        if (activeOriginalIndex < 0) activeOriginalIndex = 0;
+    const getSlides = () => Array.from(galleryTrack?.children ?? []);
 
-        if (originalSlides.length > 1) {
-            const firstClone = originalSlides[0].cloneNode(true);
-            const lastClone = originalSlides.at(-1).cloneNode(true);
+    const renderGallery = (position = anchorIndex, animate = true) => {
+        if (!galleryTrack) return;
 
-            firstClone.classList.remove('is-active');
-            lastClone.classList.remove('is-active');
-            firstClone.setAttribute('aria-hidden', 'true');
-            lastClone.setAttribute('aria-hidden', 'true');
+        const slides = getSlides();
+        if (slides.length === 0) return;
 
-            galleryTrack.prepend(lastClone);
-            galleryTrack.append(firstClone);
+        if (!animate) {
+            galleryTrack.classList.add('is-jumping');
         }
 
-        const slides = Array.from(galleryTrack.children);
-        const hasClones = originalSlides.length > 1;
-        let activeIndex = activeOriginalIndex + (hasClones ? 1 : 0);
-        let isAnimating = false;
+        const slideWidth = slides[0].getBoundingClientRect().width;
+        const trackStyles = window.getComputedStyle(galleryTrack);
+        const gap = Number.parseFloat(trackStyles.columnGap || trackStyles.gap) || 0;
+        const shift = -(position * (slideWidth + gap) + slideWidth / 2);
 
-        const renderGallery = (animate = true) => {
-            if (!animate) galleryTrack.classList.add('is-jumping');
-
-            const slideWidth = slides[0].getBoundingClientRect().width;
-            const trackStyles = window.getComputedStyle(galleryTrack);
-            const gap = Number.parseFloat(trackStyles.columnGap || trackStyles.gap) || 0;
-            const shift = -(activeIndex * (slideWidth + gap) + slideWidth / 2);
-
-            galleryTrack.style.setProperty('--about-gallery-shift', `${shift}px`);
-            slides.forEach((slide, index) => {
-                slide.classList.toggle('is-active', index === activeIndex);
-            });
-
-            if (!animate) {
-                galleryTrack.getBoundingClientRect();
-                requestAnimationFrame(() => galleryTrack.classList.remove('is-jumping'));
-            }
-        };
-
-        const moveGallery = (direction) => {
-            if (isAnimating || slides.length < 2) return;
-
-            isAnimating = true;
-            activeIndex += direction;
-            renderGallery(true);
-        };
-
-        galleryTrack.addEventListener('transitionend', (event) => {
-            if (event.propertyName !== 'transform') return;
-
-            if (hasClones && activeIndex === 0) {
-                activeIndex = originalSlides.length;
-                renderGallery(false);
-            } else if (hasClones && activeIndex === originalSlides.length + 1) {
-                activeIndex = 1;
-                renderGallery(false);
-            }
-
-            isAnimating = false;
+        galleryTrack.style.setProperty('--about-gallery-shift', `${shift}px`);
+        slides.forEach((slide, index) => {
+            slide.classList.toggle('is-active', index === position);
         });
 
-        previousButton?.addEventListener('click', () => moveGallery(-1));
-        nextButton?.addEventListener('click', () => moveGallery(1));
+        if (!animate) {
+            galleryTrack.getBoundingClientRect();
+            requestAnimationFrame(() => {
+                galleryTrack.classList.remove('is-jumping');
+            });
+        }
+    };
 
-        renderGallery(false);
+    const finishMove = () => {
+        if (!galleryTrack || !isAnimating || pendingDirection === 0) return;
 
-        let galleryResizeTimer;
-        window.addEventListener('resize', () => {
-            window.clearTimeout(galleryResizeTimer);
-            galleryResizeTimer = window.setTimeout(() => renderGallery(false), 120);
-        }, { passive: true });
-    }
+        window.clearTimeout(transitionFallback);
+        galleryTrack.classList.add('is-jumping');
+
+        if (pendingDirection > 0) {
+            const firstSlide = galleryTrack.firstElementChild;
+            if (firstSlide) galleryTrack.append(firstSlide);
+        } else {
+            const lastSlide = galleryTrack.lastElementChild;
+            if (lastSlide) galleryTrack.prepend(lastSlide);
+        }
+
+        pendingDirection = 0;
+        renderGallery(anchorIndex, false);
+        isAnimating = false;
+    };
+
+    const moveGallery = (direction) => {
+        if (!galleryTrack || isAnimating || getSlides().length < 2) return;
+
+        isAnimating = true;
+        pendingDirection = direction;
+        renderGallery(anchorIndex + direction, true);
+
+        transitionFallback = window.setTimeout(finishMove, 550);
+    };
+
+    galleryTrack?.addEventListener('transitionend', (event) => {
+        if (event.propertyName === 'transform') {
+            finishMove();
+        }
+    });
+
+    previousButton?.addEventListener('click', () => moveGallery(-1));
+    nextButton?.addEventListener('click', () => moveGallery(1));
+
+    renderGallery(anchorIndex, false);
+
+    let galleryResizeTimer;
+    window.addEventListener('resize', () => {
+        window.clearTimeout(galleryResizeTimer);
+        galleryResizeTimer = window.setTimeout(() => renderGallery(anchorIndex, false), 120);
+    }, { passive: true });
 }
 
 const header = document.querySelector('[data-site-header]');
