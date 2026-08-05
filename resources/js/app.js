@@ -2,6 +2,7 @@ import '../scss/fonts.scss';
 import '../scss/corrections.scss';
 import '../scss/refinements.scss';
 import '../scss/about.scss';
+import '../scss/center-pages.scss';
 import 'bootstrap';
 
 const track = document.querySelector('[data-ticker-track]');
