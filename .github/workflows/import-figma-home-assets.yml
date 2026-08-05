@@ -1,0 +1,99 @@
+name: Import Figma homepage assets
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/import-figma-home-assets.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/site-build
+          fetch-depth: 0
+
+      - name: Download exact Figma assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/figma/home
+
+          curl -fL --retry 3 -o public/assets/figma/home/texture.png "https://www.figma.com/api/mcp/asset/8ab82322-af0d-44a0-9d64-6f3860435956.png"
+          curl -fL --retry 3 -o public/assets/figma/home/hero.png "https://www.figma.com/api/mcp/asset/2613ff54-9fcf-4686-ba89-86f833a1196c.png"
+          curl -fL --retry 3 -o public/assets/figma/home/logo.png "https://www.figma.com/api/mcp/asset/12e5da5b-f04b-4e21-983b-fe8b2ef1ae0e.png"
+          curl -fL --retry 3 -o public/assets/figma/home/article-thumb.png "https://www.figma.com/api/mcp/asset/ec7574ef-0ed3-4cfe-98a6-21f6fec207b1.png"
+          curl -fL --retry 3 -o public/assets/figma/home/article-feature.png "https://www.figma.com/api/mcp/asset/439a1c1e-5c52-4aca-b125-4f464221c99f.png"
+          curl -fL --retry 3 -o public/assets/figma/home/category-sanctuary.png "https://www.figma.com/api/mcp/asset/749e8d9c-2d6a-43ae-93a6-69d7148e3f68.png"
+          curl -fL --retry 3 -o public/assets/figma/home/category-gods.png "https://www.figma.com/api/mcp/asset/71d401b6-4308-42c2-9693-b2c7f4f83813.png"
+          curl -fL --retry 3 -o public/assets/figma/home/category-rites.png "https://www.figma.com/api/mcp/asset/7c841256-0db9-4600-8ebb-211a97b998f6.png"
+          curl -fL --retry 3 -o public/assets/figma/home/category-glory.png "https://www.figma.com/api/mcp/asset/c59c2eef-5fd8-4a71-ad95-40ccfb4913c6.png"
+          curl -fL --retry 3 -o public/assets/figma/home/communities-bg.png "https://www.figma.com/api/mcp/asset/ddbcd031-99f9-4f7e-a127-1e1b036f713a.png"
+          curl -fL --retry 3 -o public/assets/figma/home/community-card.png "https://www.figma.com/api/mcp/asset/99ce13e9-276b-4771-95fc-d84a39df7fc7.png"
+          curl -fL --retry 3 -o public/assets/figma/home/ornament.png "https://www.figma.com/api/mcp/asset/0d3e94f3-1019-402d-9df0-68b42b874911.png"
+          curl -fL --retry 3 -o public/assets/figma/home/wheel.png "https://www.figma.com/api/mcp/asset/0094e8e1-418e-4857-b002-95af6018d3c3.png"
+          curl -fL --retry 3 -o public/assets/figma/home/footer-logo.png "https://www.figma.com/api/mcp/asset/52b0e97d-f41d-4010-9064-12032159245c.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-kolyada.png "https://www.figma.com/api/mcp/asset/1d367ead-aa16-4970-8c19-c0df14f8b785.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-kupalo.png "https://www.figma.com/api/mcp/asset/4b3018a8-297c-4eb9-8e7e-18876b5e6390.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-radogosh.png "https://www.figma.com/api/mcp/asset/eff6e8c1-f5a9-433c-b0c7-2bf4cca60483.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-velykden.png "https://www.figma.com/api/mcp/asset/dd57041f-4e1d-4680-805a-0cbfef96c608.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-yarylo.png "https://www.figma.com/api/mcp/asset/b31f0daf-947c-4911-be63-4245b69a0538.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-kolodiy.png "https://www.figma.com/api/mcp/asset/d8ddee1e-49d7-4d17-bc56-44a8ea8f1291.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-mokosh.png "https://www.figma.com/api/mcp/asset/178f379d-8c0c-4b38-9a55-eeec34fa5208.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-perun.png "https://www.figma.com/api/mcp/asset/f5255ee4-281b-4166-835b-cd75bfa11eeb.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-spas.png "https://www.figma.com/api/mcp/asset/db623ab3-1d1f-4a32-adad-d1ce4ec4c616.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-veles.png "https://www.figma.com/api/mcp/asset/feaeb0fc-5f87-4968-a238-350ffcc7dca8.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-vodo.png "https://www.figma.com/api/mcp/asset/95364284-681d-4453-a1a8-2c70cf350125.png"
+          curl -fL --retry 3 -o public/assets/figma/home/holiday-zeleni.png "https://www.figma.com/api/mcp/asset/8560e382-3ed5-4bb9-8744-13906b0759f7.png"
+          curl -fL --retry 3 -o public/assets/figma/home/basket.png "https://www.figma.com/api/mcp/asset/8d9ea823-c09c-4b20-93f1-23b2f432a0c1.png"
+          curl -fL --retry 3 -o public/assets/figma/home/footer-line.svg "https://www.figma.com/api/mcp/asset/f5f6f532-2ff0-455b-b4d9-237639bc301c.svg"
+          curl -fL --retry 3 -o public/assets/figma/home/ellipse.svg "https://www.figma.com/api/mcp/asset/4a27c6f5-65eb-4269-a1fe-9a19f82e979c.svg"
+          curl -fL --retry 3 -o public/assets/figma/home/line2.svg "https://www.figma.com/api/mcp/asset/c3c4fef1-a35f-49d7-b2d4-8fa363764a1a.svg"
+          curl -fL --retry 3 -o public/assets/figma/home/line3.svg "https://www.figma.com/api/mcp/asset/eefa3b88-9be0-4c20-abd5-c7555575a40c.svg"
+          curl -fL --retry 3 -o public/assets/figma/home/line4.svg "https://www.figma.com/api/mcp/asset/8abcbb89-e519-4cf3-a2a2-dce9438c4ede.svg"
+          curl -fL --retry 3 -o public/assets/figma/home/logo-sva.svg "https://www.figma.com/api/mcp/asset/225269cb-8d8f-4ced-bf39-9d15830d87cf.svg"
+          curl -fL --retry 3 -o public/assets/figma/home/star.svg "https://www.figma.com/api/mcp/asset/cca281bf-5460-415c-8e87-1fbc5e0f9abb.svg"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, dom, fileinfo, mysql, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Validate build
+        run: |
+          composer install --no-interaction --prefer-dist
+          cp .env.example .env
+          php artisan key:generate
+          npm ci
+          npm run build
+          php artisan test
+
+      - name: Commit imported assets
+        run: |
+          rm -rf vendor node_modules public/build .env
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/figma/home
+          if git diff --cached --quiet; then
+            echo "No asset changes"
+          else
+            git commit -m "Import exact Figma homepage assets [skip ci]"
+            git push origin HEAD:feature/site-build
+          fi
