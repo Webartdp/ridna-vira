@@ -33,9 +33,9 @@
                         <a class="nav-link dropdown-toggle {{ request()->is('pro-tsentr*') ? 'active' : '' }}" href="{{ route('about') }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">Про центр</a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ route('about.management') }}">Управління</a></li>
-                            <li><a class="dropdown-item" href="{{ url('/zviazok') }}">Зв’язок</a></li>
-                            <li><a class="dropdown-item" href="{{ route('about.encyclopedia') }}">Енциклопедія</a></li>
-                            <li><a class="dropdown-item" href="{{ route('about') }}">Про нас</a></li>
+                            <li><a class="dropdown-item" href="{{ route('contact') }}">Зв’язок</a></li>
+                            <li><a class="dropdown-item" href="https://ridnovir.in.ua/" target="_blank" rel="noopener noreferrer">Академія</a></li>
+                            <li><a class="dropdown-item" href="https://wiki.svit.in.ua/" target="_blank" rel="noopener noreferrer">Енциклопедія</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -53,7 +53,7 @@
                     <li class="nav-item"><a class="nav-link {{ request()->is('statti*') ? 'active' : '' }}" href="{{ url('/statti') }}">Статті</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->is('tvorchist*') ? 'active' : '' }}" href="{{ url('/tvorchist') }}">Творчість</a></li>
                     <li class="nav-item"><a class="nav-link {{ request()->is('kramnychka*') ? 'active' : '' }}" href="{{ url('/kramnychka') }}">Крамниця</a></li>
-                    <li class="nav-item"><a class="nav-link {{ request()->is('zviazok*') ? 'active' : '' }}" href="{{ url('/zviazok') }}">Зв’язок</a></li>
+                    <li class="nav-item"><a class="nav-link {{ request()->is('zviazok*') ? 'active' : '' }}" href="{{ route('contact') }}">Зв’язок</a></li>
                 </ul>
 
                 <div class="header-actions">
@@ -91,7 +91,7 @@
         <a href="{{ url('/statti') }}">Статті</a>
         <a href="{{ url('/tvorchist') }}">Творчість</a>
         <a href="{{ url('/kramnychka') }}">Крамниця</a>
-        <a href="{{ url('/zviazok') }}">Зв’язок</a>
+        <a href="{{ route('contact') }}">Зв’язок</a>
     </nav>
 
     <div class="footer-partners" aria-label="Ресурси Рідної Віри">
