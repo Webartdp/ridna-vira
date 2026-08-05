@@ -1,4 +1,5 @@
 import '../scss/fonts.scss';
+import '../scss/corrections.scss';
 import 'bootstrap';
 
 const track = document.querySelector('[data-ticker-track]');
