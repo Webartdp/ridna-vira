@@ -1,0 +1,27 @@
+@font-face {
+    font-family: 'Kyiv Region';
+    src:
+        url('/fonts/KyivRegion-Regular.woff2') format('woff2'),
+        url('/fonts/KyivRegion-Regular.woff') format('woff');
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Holos';
+    src: url('/fonts/Holos-Bold.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
+:root {
+    --rv-font-display: 'Holos', sans-serif;
+    --rv-font-ui: 'Kyiv Region', sans-serif;
+    --rv-font-body: 'Kyiv Region', sans-serif;
+}
+
+body {
+    font-synthesis: none;
+}
