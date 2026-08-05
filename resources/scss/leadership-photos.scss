@@ -8,6 +8,12 @@
     padding: 18px;
 }
 
+.leadership-grid > .leadership-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+    width: calc(50% - 12px);
+    justify-self: center;
+}
+
 .leadership-card__photo {
     width: 154px;
     height: 205px;
@@ -46,6 +52,11 @@
 }
 
 @media (max-width: 767.98px) {
+    .leadership-grid > .leadership-card:last-child:nth-child(odd) {
+        grid-column: auto;
+        width: 100%;
+    }
+
     .leadership-card {
         grid-template-columns: 110px minmax(0, 1fr);
         gap: 17px;
