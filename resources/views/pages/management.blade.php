@@ -32,42 +32,62 @@
 
             <div class="leadership-grid">
                 <article class="leadership-card leadership-card--featured">
-                    <span class="leadership-card__role">Голова Рідної Віри</span>
-                    <h3>Верховний волхв Світовит Пашник</h3>
-                    <p>м. Запоріжжя</p>
-                    <div class="leadership-card__contacts">
-                        <a href="tel:+380686439328">068 643 93 28</a>
-                        <a href="tel:+380661537179">066 153 71 79</a>
-                        <a href="mailto:pashnyk@ukr.net">pashnyk@ukr.net</a>
+                    <div class="leadership-card__photo">
+                        <img src="{{ asset('assets/people/svitovyt.webp') }}" alt="Верховний волхв Світовит Пашник" loading="lazy">
+                    </div>
+                    <div class="leadership-card__content">
+                        <span class="leadership-card__role">Голова Рідної Віри</span>
+                        <h3>Верховний волхв Світовит Пашник</h3>
+                        <p>м. Запоріжжя</p>
+                        <div class="leadership-card__contacts">
+                            <a href="tel:+380686439328">068 643 93 28</a>
+                            <a href="tel:+380661537179">066 153 71 79</a>
+                            <a href="mailto:pashnyk@ukr.net">pashnyk@ukr.net</a>
+                        </div>
                     </div>
                 </article>
 
                 <article class="leadership-card leadership-card--featured">
-                    <span class="leadership-card__role">Голова Управи</span>
-                    <h3>Волхв Яромир Мирошніченко</h3>
-                    <p>м. Дніпро</p>
-                    <div class="leadership-card__contacts">
-                        <a href="tel:+380934142016">093 414 20 16</a>
-                        <a href="mailto:jaromirdp@gmail.com">jaromirdp@gmail.com</a>
+                    <div class="leadership-card__photo">
+                        <img src="{{ asset('assets/people/yaromyr.webp') }}" alt="Волхв Яромир Мирошніченко" loading="lazy">
+                    </div>
+                    <div class="leadership-card__content">
+                        <span class="leadership-card__role">Голова Управи</span>
+                        <h3>Волхв Яромир Мирошніченко</h3>
+                        <p>м. Дніпро</p>
+                        <div class="leadership-card__contacts">
+                            <a href="tel:+380934142016">093 414 20 16</a>
+                            <a href="mailto:jaromirdp@gmail.com">jaromirdp@gmail.com</a>
+                        </div>
                     </div>
                 </article>
 
                 <article class="leadership-card">
-                    <span class="leadership-card__role">Навчально-просвітницький відділ</span>
-                    <h3>Берегиня Ясна Яковенко</h3>
-                    <p>м. Запоріжжя</p>
-                    <div class="leadership-card__contacts">
-                        <a href="tel:+380631532681">063 153 26 81</a>
-                        <a href="mailto:yana.yakovenko@gmail.com">yana.yakovenko@gmail.com</a>
+                    <div class="leadership-card__photo">
+                        <img src="{{ asset('assets/people/yasna.webp') }}" alt="Берегиня Ясна Яковенко" loading="lazy">
+                    </div>
+                    <div class="leadership-card__content">
+                        <span class="leadership-card__role">Навчально-просвітницький відділ</span>
+                        <h3>Берегиня Ясна Яковенко</h3>
+                        <p>м. Запоріжжя</p>
+                        <div class="leadership-card__contacts">
+                            <a href="tel:+380631532681">063 153 26 81</a>
+                            <a href="mailto:yana.yakovenko@gmail.com">yana.yakovenko@gmail.com</a>
+                        </div>
                     </div>
                 </article>
 
                 <article class="leadership-card">
-                    <span class="leadership-card__role">Інформаційний відділ</span>
-                    <h3>Жриця Зореквіта Біленька</h3>
-                    <p>м. Тернопіль</p>
-                    <div class="leadership-card__contacts">
-                        <a href="tel:+380983870395">098 387 03 95</a>
+                    <div class="leadership-card__photo">
+                        <img src="{{ asset('assets/people/zorekvita.webp') }}" alt="Жриця Зореквіта Біленька" loading="lazy">
+                    </div>
+                    <div class="leadership-card__content">
+                        <span class="leadership-card__role">Інформаційний відділ</span>
+                        <h3>Жриця Зореквіта Біленька</h3>
+                        <p>м. Тернопіль</p>
+                        <div class="leadership-card__contacts">
+                            <a href="tel:+380983870395">098 387 03 95</a>
+                        </div>
                     </div>
                 </article>
             </div>
