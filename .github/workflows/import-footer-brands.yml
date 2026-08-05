@@ -1,0 +1,43 @@
+name: Import exact footer brands
+
+on:
+  push:
+    branches:
+      - feature/site-build
+    paths:
+      - .github/workflows/import-footer-brands.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-footer-brands:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/site-build
+          fetch-depth: 0
+
+      - name: Download exact Figma footer brands
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/figma/home
+          curl -fL --retry 3 -o public/assets/figma/home/partner-polumya.png "https://www.figma.com/api/mcp/asset/62b1e53c-2e55-4588-8fd5-75edc15d4731.png"
+          curl -fL --retry 3 -o public/assets/figma/home/partner-svarga.png "https://www.figma.com/api/mcp/asset/6337f1fe-2907-406a-b06d-7925653902de.png"
+
+      - name: Commit assets
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/figma/home/partner-polumya.png public/assets/figma/home/partner-svarga.png
+          if git diff --cached --quiet; then
+            echo "No footer asset changes"
+          else
+            git commit -m "Import exact Figma footer brands [skip ci]"
+            git push origin HEAD:feature/site-build
+          fi
