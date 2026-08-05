@@ -142,6 +142,11 @@
     background: transparent;
 }
 
+.footer-partner--polumya img,
+.footer-partner--svarga img {
+    mix-blend-mode: screen;
+}
+
 .footer-partner:hover {
     opacity: .9;
     filter: none;
