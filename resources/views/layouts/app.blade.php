@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#1c0803">
     <title>@yield('title', 'Рідна Віра — Духовний центр')</title>
     <meta name="description" content="@yield('description', 'Офіційний портал Духовного центру Рідна Віра')">
-    @vite(['resources/scss/app.scss', 'resources/scss/corrections.scss', 'resources/js/app.js'])
+    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
 </head>
 <body>
 <div class="announcement" aria-label="Оголошення">
