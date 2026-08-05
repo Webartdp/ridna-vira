@@ -47,6 +47,11 @@ if (track) {
     }, { passive: true });
 }
 
+const languageSwitch = document.querySelector('.language-switch');
+if (languageSwitch) {
+    languageSwitch.textContent = 'UA';
+}
+
 const header = document.querySelector('[data-site-header]');
 if (header) {
     window.addEventListener('scroll', () => header.classList.toggle('is-scrolled', window.scrollY > 24), { passive: true });
