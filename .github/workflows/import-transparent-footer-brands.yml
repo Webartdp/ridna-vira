@@ -1,4 +1,4 @@
-name: Import transparent footer brands
+name: Prepare supplied footer logos
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 jobs:
-  import-assets:
+  prepare-assets:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout working branch
@@ -21,23 +21,56 @@ jobs:
           ref: feature/site-build
           fetch-depth: 0
 
-      - name: Download transparent Figma SVG exports
+      - name: Remove Figma canvas backgrounds from supplied logo exports
         shell: bash
         run: |
-          set -euo pipefail
-          mkdir -p public/assets/figma/home
-          curl -fL --retry 3 -o public/assets/figma/home/partner-polumya.svg "https://www.figma.com/api/mcp/asset/3cc0624a-0544-47e4-a733-caa0a5b0dde7.svg"
-          curl -fL --retry 3 -o public/assets/figma/home/partner-svarga.svg "https://www.figma.com/api/mcp/asset/e19f8ddb-3ed0-4981-b959-cf680cc81a64.svg"
+          python - <<'PY'
+          from copy import deepcopy
+          from pathlib import Path
+          import xml.etree.ElementTree as ET
 
-      - name: Commit imported SVGs
+          ET.register_namespace('', 'http://www.w3.org/2000/svg')
+          ns = {'svg': 'http://www.w3.org/2000/svg'}
+
+          assets = [
+              ('public/assets/figma/home/partner-polumya.svg', 'Group 2', '150', '42', '0 0 150 42'),
+              ('public/assets/figma/home/partner-svarga.svg', 'Group 3', '164', '54', '0 0 164 54'),
+          ]
+
+          for filename, group_id, width, height, view_box in assets:
+              path = Path(filename)
+              source_root = ET.parse(path).getroot()
+              group = source_root.find(f".//svg:g[@id='{group_id}']", ns)
+              if group is None:
+                  raise RuntimeError(f'{group_id} not found in {filename}')
+
+              root = ET.Element('{http://www.w3.org/2000/svg}svg', {
+                  'width': width,
+                  'height': height,
+                  'viewBox': view_box,
+                  'fill': 'none',
+              })
+
+              for child in list(group):
+                  root.append(deepcopy(child))
+
+              for element in root.iter():
+                  element.attrib.pop('id', None)
+
+              tree = ET.ElementTree(root)
+              ET.indent(tree, space='  ')
+              tree.write(path, encoding='unicode', xml_declaration=False)
+          PY
+
+      - name: Commit clean transparent logos
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add public/assets/figma/home/partner-polumya.svg public/assets/figma/home/partner-svarga.svg
           if git diff --cached --quiet; then
-            echo "No footer asset changes"
+            echo "Footer logos are already clean"
           else
-            git commit -m "Import transparent Figma footer brands [skip ci]"
+            git commit -m "Use supplied transparent footer logos [skip ci]"
             git push origin HEAD:feature/site-build
           fi
