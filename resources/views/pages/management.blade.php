@@ -33,11 +33,11 @@
             <div class="leadership-grid">
                 <article class="leadership-card leadership-card--featured">
                     <div class="leadership-card__photo">
-                        <img src="{{ asset('assets/people/svitovyt.webp') }}" alt="Верховний волхв Світовит Пашник" loading="lazy">
+                        <img src="{{ asset('assets/people/svitovyt.webp') }}" alt="Волхв Світовит Пашник" loading="lazy">
                     </div>
                     <div class="leadership-card__content">
-                        <span class="leadership-card__role">Голова Рідної Віри</span>
-                        <h3>Верховний волхв Світовит Пашник</h3>
+                        <span class="leadership-card__role">Голова ДЦ Рідної Віри, Волхв</span>
+                        <h3>Світовит Пашник</h3>
                         <p>м. Запоріжжя</p>
                         <div class="leadership-card__contacts">
                             <a href="tel:+380686439328">068 643 93 28</a>
@@ -52,8 +52,8 @@
                         <img src="{{ asset('assets/people/yaromyr.webp') }}" alt="Волхв Яромир Мирошніченко" loading="lazy">
                     </div>
                     <div class="leadership-card__content">
-                        <span class="leadership-card__role">Голова Управи</span>
-                        <h3>Волхв Яромир Мирошніченко</h3>
+                        <span class="leadership-card__role">Голова Управи, Волхв</span>
+                        <h3>Яромир Мирошніченко</h3>
                         <p>м. Дніпро</p>
                         <div class="leadership-card__contacts">
                             <a href="tel:+380934142016">093 414 20 16</a>
@@ -67,8 +67,8 @@
                         <img src="{{ asset('assets/people/yasna.webp') }}" alt="Берегиня Ясна Яковенко" loading="lazy">
                     </div>
                     <div class="leadership-card__content">
-                        <span class="leadership-card__role">Навчально-просвітницький відділ</span>
-                        <h3>Берегиня Ясна Яковенко</h3>
+                        <span class="leadership-card__role">Навчально-просвітницький відділ, Берегиня</span>
+                        <h3>Ясна Яковенко</h3>
                         <p>м. Запоріжжя</p>
                         <div class="leadership-card__contacts">
                             <a href="tel:+380631532681">063 153 26 81</a>
