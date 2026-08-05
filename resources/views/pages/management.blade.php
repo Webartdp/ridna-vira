@@ -62,7 +62,7 @@
                     </div>
                 </article>
 
-                <article class="leadership-card">
+                <article class="leadership-card leadership-card--featured">
                     <div class="leadership-card__photo">
                         <img src="{{ asset('assets/people/yasna.webp') }}" alt="Берегиня Ясна Яковенко" loading="lazy">
                     </div>
