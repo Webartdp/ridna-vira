@@ -1,0 +1,70 @@
+name: Bootstrap Laravel project
+
+on:
+  push:
+    branches:
+      - agent/laravel-homepage
+    paths:
+      - bootstrap-project.sh
+      - .github/workflows/bootstrap.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: agent/laravel-homepage
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, mysql, sqlite, pdo_sqlite
+          coverage: none
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Create Laravel 13 application
+        run: |
+          rm -rf /tmp/ridna-vira-laravel
+          composer create-project laravel/laravel:^13.0 /tmp/ridna-vira-laravel --no-interaction --prefer-dist
+          rsync -a --exclude='.git' --exclude='README.md' /tmp/ridna-vira-laravel/ ./
+          chmod +x bootstrap-project.sh
+          ./bootstrap-project.sh
+
+      - name: Install frontend dependencies
+        run: npm install --ignore-scripts
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Run tests
+        run: php artisan test
+
+      - name: Clean dependencies before commit
+        run: rm -rf vendor node_modules public/build
+
+      - name: Commit generated project
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+          else
+            git commit -m "Build Laravel homepage [skip ci]"
+            git push origin HEAD:agent/laravel-homepage
+          fi
