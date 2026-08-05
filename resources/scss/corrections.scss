@@ -1,0 +1,367 @@
+@font-face {
+    font-family: 'Kyiv Region';
+    src:
+        url('/fonts/KyivRegion-Regular.woff2') format('woff2'),
+        url('/fonts/KyivRegion-Regular.woff') format('woff');
+    font-display: swap;
+    font-style: normal;
+    font-weight: 400;
+}
+
+@font-face {
+    font-family: 'Holos';
+    src: url('/fonts/Holos-Bold.ttf') format('truetype');
+    font-display: swap;
+    font-style: normal;
+    font-weight: 700;
+}
+
+:root {
+    --rv-font-display: 'Holos', 'Kyiv Region', sans-serif;
+    --rv-font-ui: 'Kyiv Region', sans-serif;
+    --rv-font-body: 'Kyiv Region', sans-serif;
+}
+
+/* Dropdowns: remove the dead zone between the menu item and submenu. */
+@media (min-width: 1200px) {
+    .site-nav .dropdown {
+        position: relative;
+    }
+
+    .site-nav .dropdown::before {
+        position: absolute;
+        top: 100%;
+        right: -14px;
+        left: -14px;
+        height: 18px;
+        content: '';
+    }
+
+    .site-nav .dropdown-menu {
+        top: calc(100% + 2px);
+        display: block;
+        margin-top: 0 !important;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transform: translateY(7px);
+        transition:
+            opacity .16s ease,
+            transform .16s ease,
+            visibility .16s ease;
+    }
+
+    .site-nav .dropdown:hover > .dropdown-menu,
+    .site-nav .dropdown:focus-within > .dropdown-menu,
+    .site-nav .dropdown-menu.show {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+}
+
+/* Communities: keep the Figma proportions without empty space below the button. */
+.communities-section {
+    min-height: 0;
+    padding-bottom: 82px;
+}
+
+.communities-panel {
+    min-height: 0;
+    padding-bottom: 35px;
+}
+
+.communities-copy {
+    min-height: 164px;
+}
+
+/* Kolo Svarozhe: icon above, title centered below; key feasts protrude above the card. */
+.holiday-card {
+    overflow: visible;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 8px 14px 11px;
+}
+
+.holiday-card img {
+    margin-top: -1px;
+}
+
+.holiday-card strong {
+    display: block;
+    width: 100%;
+    margin-top: 2px;
+    line-height: 1.05;
+    text-align: center;
+}
+
+.holiday-card--featured {
+    padding-top: 0;
+}
+
+.holiday-card--featured img {
+    margin-top: -14px;
+    filter: drop-shadow(0 5px 5px rgba(64, 20, 3, .18));
+}
+
+.holiday-card--featured strong {
+    margin-top: 0;
+    font-size: 20px;
+}
+
+/* Material cards: restrained hover effects matching the gold/brown visual language. */
+.feature-material,
+.material-row,
+.material-row > img,
+.feature-material > img,
+.feature-material__overlay,
+.feature-material__arrow,
+.material-row strong,
+.date-badge {
+    transition:
+        transform .32s ease,
+        color .24s ease,
+        background .24s ease,
+        border-color .24s ease,
+        box-shadow .32s ease,
+        opacity .24s ease;
+}
+
+.feature-material {
+    will-change: transform;
+}
+
+.feature-material__overlay {
+    background: linear-gradient(180deg, rgba(0, 0, 0, .18) 15%, rgba(28, 8, 3, .72) 100%);
+}
+
+.feature-material:hover {
+    border-color: rgba(194, 139, 45, .82);
+    box-shadow: 0 12px 26px rgba(28, 8, 3, .34);
+    transform: translateY(-5px);
+}
+
+.feature-material:hover > img {
+    transform: scale(1.045);
+}
+
+.feature-material:hover .feature-material__overlay {
+    opacity: .88;
+}
+
+.feature-material:hover .feature-material__arrow {
+    color: #d9a646;
+    transform: translateX(7px);
+}
+
+.feature-material:hover > .date-badge {
+    background: #401403;
+    transform: translateY(-2px);
+}
+
+.material-row {
+    margin: -7px;
+    padding: 7px;
+    border-radius: 20px;
+}
+
+.material-row:hover {
+    background: rgba(255, 255, 255, .48);
+    box-shadow: 0 8px 20px rgba(28, 8, 3, .11);
+    transform: translateX(7px);
+}
+
+.material-row:hover > img {
+    border-color: rgba(194, 139, 45, .75);
+    box-shadow: 0 8px 17px rgba(28, 8, 3, .28);
+    transform: scale(1.035);
+}
+
+.material-row:hover strong {
+    color: #c28b2d;
+}
+
+.material-row:hover .date-badge {
+    background: #401403;
+}
+
+/* Footer resources, payment marks and social icons. */
+.site-footer {
+    height: 350px;
+}
+
+.footer-nav {
+    top: 116px;
+}
+
+.footer-partners {
+    top: 154px;
+    width: 722px;
+    grid-template-columns: 150px 169px 169px;
+    justify-content: center;
+    gap: 62px;
+}
+
+.footer-partner {
+    display: flex;
+    min-height: 54px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition:
+        opacity .22s ease,
+        transform .22s ease,
+        filter .22s ease;
+}
+
+.footer-partner:hover {
+    opacity: .88;
+    filter: drop-shadow(0 5px 8px rgba(194, 139, 45, .26));
+    transform: translateY(-3px);
+}
+
+.footer-partner img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.footer-partner--polumya {
+    width: 150px;
+}
+
+.footer-partner--ridna {
+    width: 169px;
+}
+
+.footer-partner--svarga {
+    width: 169px;
+}
+
+.footer-utilities {
+    position: absolute;
+    top: 224px;
+    left: 50%;
+    display: flex;
+    width: 682px;
+    align-items: center;
+    justify-content: space-between;
+    transform: translateX(-50%);
+}
+
+.footer-payments,
+.footer-socials {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.payment-mark {
+    display: grid;
+    width: 48px;
+    height: 28px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, .24);
+    border-radius: 7px;
+    color: #fff;
+    background: rgba(255, 255, 255, .06);
+}
+
+.payment-mark svg {
+    width: 37px;
+    height: 20px;
+}
+
+.footer-social-icon {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid rgba(194, 139, 45, .48);
+    border-radius: 50%;
+    color: #c28b2d;
+    background: rgba(255, 255, 255, .03);
+    transition:
+        color .2s ease,
+        background .2s ease,
+        border-color .2s ease,
+        transform .2s ease;
+}
+
+.footer-social-icon:hover {
+    border-color: #c28b2d;
+    color: #1c0803;
+    background: #c28b2d;
+    transform: translateY(-3px);
+}
+
+.footer-social-icon svg {
+    width: 17px;
+    height: 17px;
+    fill: currentColor;
+}
+
+.footer-rule {
+    top: 282px;
+}
+
+.footer-copy {
+    top: 309px;
+}
+
+@media (max-width: 1199.98px) {
+    .holiday-card,
+    .holiday-card[class*='holiday-card--'] {
+        padding: 8px 12px 10px;
+    }
+
+    .holiday-card--featured img {
+        margin-top: -8px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .communities-copy {
+        min-height: 0;
+    }
+
+    .communities-section {
+        padding-bottom: 62px;
+    }
+
+    .holiday-card,
+    .holiday-card[class*='holiday-card--'] {
+        justify-content: center;
+    }
+
+    .holiday-card--featured img {
+        margin-top: 0;
+    }
+
+    .site-footer {
+        height: auto;
+        min-height: 0;
+        padding: 125px 24px 30px;
+    }
+
+    .footer-partners {
+        width: 100%;
+        gap: 20px;
+    }
+
+    .footer-utilities {
+        position: static;
+        width: 100%;
+        flex-direction: column;
+        gap: 19px;
+        margin-bottom: 25px;
+        transform: none;
+    }
+
+    .footer-payments,
+    .footer-socials {
+        justify-content: center;
+    }
+}
