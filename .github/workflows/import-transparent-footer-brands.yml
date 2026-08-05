@@ -1,0 +1,43 @@
+name: Import transparent footer brands
+
+on:
+  push:
+    branches:
+      - feature/site-build
+    paths:
+      - .github/workflows/import-transparent-footer-brands.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout working branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/site-build
+          fetch-depth: 0
+
+      - name: Download transparent Figma SVG exports
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/figma/home
+          curl -fL --retry 3 -o public/assets/figma/home/partner-polumya.svg "https://www.figma.com/api/mcp/asset/3cc0624a-0544-47e4-a733-caa0a5b0dde7.svg"
+          curl -fL --retry 3 -o public/assets/figma/home/partner-svarga.svg "https://www.figma.com/api/mcp/asset/e19f8ddb-3ed0-4981-b959-cf680cc81a64.svg"
+
+      - name: Commit imported SVGs
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/figma/home/partner-polumya.svg public/assets/figma/home/partner-svarga.svg
+          if git diff --cached --quiet; then
+            echo "No footer asset changes"
+          else
+            git commit -m "Import transparent Figma footer brands [skip ci]"
+            git push origin HEAD:feature/site-build
+          fi
