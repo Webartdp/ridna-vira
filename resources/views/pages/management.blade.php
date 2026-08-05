@@ -44,7 +44,7 @@
 
                 <article class="leadership-card leadership-card--featured">
                     <span class="leadership-card__role">Голова Управи</span>
-                    <h3>Волхв Яромир Мірошніченко</h3>
+                    <h3>Волхв Яромир Мирошніченко</h3>
                     <p>м. Дніпро</p>
                     <div class="leadership-card__contacts">
                         <a href="tel:+380934142016">093 414 20 16</a>
