@@ -27,7 +27,7 @@
         <section class="center-section" aria-labelledby="management-leadership-title">
             <div class="center-section__heading">
                 <span>Провід</span>
-                <h2 id="management-leadership-title">Управа Духовного центру</h2>
+                <h2 id="management-leadership-title">Керівники Духовного центру «Рідна Віра»</h2>
             </div>
 
             <div class="leadership-grid">
@@ -73,20 +73,6 @@
                         <div class="leadership-card__contacts">
                             <a href="tel:+380631532681">063 153 26 81</a>
                             <a href="mailto:yana.yakovenko@gmail.com">yana.yakovenko@gmail.com</a>
-                        </div>
-                    </div>
-                </article>
-
-                <article class="leadership-card">
-                    <div class="leadership-card__photo">
-                        <img src="{{ asset('assets/people/zorekvita.webp') }}" alt="Жриця Зореквіта Біленька" loading="lazy">
-                    </div>
-                    <div class="leadership-card__content">
-                        <span class="leadership-card__role">Інформаційний відділ</span>
-                        <h3>Жриця Зореквіта Біленька</h3>
-                        <p>м. Тернопіль</p>
-                        <div class="leadership-card__contacts">
-                            <a href="tel:+380983870395">098 387 03 95</a>
                         </div>
                     </div>
                 </article>
