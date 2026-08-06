@@ -41,11 +41,11 @@
 @section('content')
 <section class="inner-hero inner-hero--faith" aria-labelledby="faith-page-title">
     <div class="inner-hero__overlay"></div>
-    <div class="figma-container inner-hero__content">
+    <div class="inner-hero__content">
         <h1 id="faith-page-title">Рідна Віра</h1>
-        <nav aria-label="Хлібні крихти">
+        <nav class="inner-breadcrumbs" aria-label="Навігаційний шлях">
             <a href="{{ route('home') }}">Головна</a>
-            <span>/</span>
+            <span aria-hidden="true">/</span>
             <span>Рідна Віра</span>
         </nav>
     </div>
