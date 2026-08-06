@@ -1,0 +1,55 @@
+name: Import management documents
+
+on:
+  push:
+    branches:
+      - feature/site-build
+    paths:
+      - scripts/import-svit-upr-documents.php
+      - .github/workflows/import-svit-upr-documents.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: import-svit-upr-documents
+  cancel-in-progress: false
+
+jobs:
+  import-documents:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout site branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/site-build
+          fetch-depth: 0
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: curl, dom, mbstring
+          coverage: none
+
+      - name: Import local document copies
+        shell: bash
+        run: php scripts/import-svit-upr-documents.php
+
+      - name: Commit imported documents
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/assets/documents
+
+          if git diff --cached --quiet; then
+            echo "No document changes to commit."
+            exit 0
+          fi
+
+          git commit -m "Import local management documents [skip ci]"
+          git pull --rebase origin feature/site-build
+          git push origin HEAD:feature/site-build
