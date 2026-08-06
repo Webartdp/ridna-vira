@@ -1,0 +1,119 @@
+/* Ridna Vira overview page, adapted from the approved Figma frame. */
+.inner-hero--faith {
+    background-image: url('/assets/figma/about/hero.png');
+}
+
+.faith-page {
+    min-height: 0;
+    padding: 62px 0 78px;
+}
+
+.faith-sections {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px 31px;
+    margin-bottom: 72px;
+}
+
+.faith-section-card {
+    display: flex;
+    min-width: 0;
+    height: 160px;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 4px 20px 14px;
+    border: 3px solid #fff;
+    border-radius: 20px;
+    color: var(--rv-dark);
+    background: linear-gradient(180deg, #e8dfce 0%, #fcfdf7 100%);
+    box-shadow: var(--rv-shadow);
+    transition: border-color .2s ease, color .2s ease, box-shadow .2s ease;
+}
+
+.faith-section-card:hover,
+.faith-section-card:focus-visible {
+    border-color: rgba(194, 139, 45, .78);
+    color: var(--rv-gold);
+    box-shadow: 0 8px 15px rgba(28, 8, 3, .34);
+}
+
+.faith-section-card:focus-visible {
+    outline: 3px solid rgba(194, 139, 45, .22);
+    outline-offset: 3px;
+}
+
+.faith-section-card img {
+    width: 98px;
+    height: 98px;
+    flex: 0 0 98px;
+    object-fit: contain;
+}
+
+.faith-section-card strong {
+    display: block;
+    margin-top: 3px;
+    font-family: var(--rv-font-display);
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.faith-copy {
+    color: var(--rv-dark);
+    font-family: var(--rv-font-ui);
+    font-size: 16px;
+    line-height: 1.48;
+    text-align: justify;
+}
+
+.faith-copy p {
+    margin: 0 0 22px;
+}
+
+.faith-copy p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 991.98px) {
+    .faith-sections {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 22px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .faith-page {
+        padding: 42px 0 56px;
+    }
+
+    .faith-sections {
+        grid-template-columns: 1fr;
+        gap: 17px;
+        margin-bottom: 48px;
+    }
+
+    .faith-section-card {
+        height: 145px;
+        padding-bottom: 12px;
+    }
+
+    .faith-section-card img {
+        width: 88px;
+        height: 88px;
+        flex-basis: 88px;
+    }
+
+    .faith-section-card strong {
+        font-size: 18px;
+    }
+
+    .faith-copy {
+        font-size: 15px;
+        line-height: 1.55;
+        text-align: left;
+    }
+}
