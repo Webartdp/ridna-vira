@@ -109,13 +109,107 @@
             </div>
         </section>
 
-        <section class="documents-panel" aria-labelledby="management-documents-title">
-            <div>
-                <span class="documents-panel__eyebrow">Документація</span>
-                <h2 id="management-documents-title">Створення та реєстрація громади</h2>
-                <p>На старому порталі зібрані зразки заяв, статуту, протоколів загальних зборів і документів для державної реєстрації релігійної громади.</p>
+        <section class="document-library" aria-labelledby="management-documents-title">
+            <div class="center-section__heading">
+                <span>Документи та законодавство</span>
+                <h2 id="management-documents-title">Інформаційна база Управи</h2>
             </div>
-            <a class="figma-button" href="https://www.svit.in.ua/upr/up3.htm" target="_blank" rel="noopener noreferrer">Переглянути документи</a>
+            <p class="document-library__intro">Статути, внутрішні положення, документи для громад і законодавчі матеріали зібрані в одному розділі та зберігаються безпосередньо на сервері Духовного центру.</p>
+
+            <div class="document-groups">
+                <article class="document-group">
+                    <header class="document-group__head">
+                        <span class="document-group__number">01</span>
+                        <div>
+                            <small>Документи центру</small>
+                            <h3>Управління Духовного центру «Рідна Віра»</h3>
+                        </div>
+                    </header>
+                    <div class="document-list">
+                        <a class="document-item" href="{{ asset('assets/documents/upravlinnia/statut-duhovnoho-tsentru.html') }}" target="_blank" rel="noopener">
+                            <span class="document-item__type">HTML</span>
+                            <span class="document-item__body"><strong>Статут Духовного центру «Рідна Віра»</strong><small>Відкрити документ</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">›</span>
+                        </a>
+                        <a class="document-item" href="{{ asset('assets/documents/upravlinnia/vnutrishni-polozhennia.html') }}" target="_blank" rel="noopener">
+                            <span class="document-item__type">HTML</span>
+                            <span class="document-item__body"><strong>Внутрішні Положення</strong><small>Відкрити документ</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">›</span>
+                        </a>
+                        <a class="document-item" href="{{ asset('assets/documents/upravlinnia/zaiava-pro-vstup-hromady.docx') }}" download>
+                            <span class="document-item__type">DOCX</span>
+                            <span class="document-item__body"><strong>Заява про вступ релігійної громади до складу Духовного центру «Рідна Віра»</strong><small>Завантажити файл</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">↓</span>
+                        </a>
+                        <a class="document-item" href="{{ asset('assets/documents/upravlinnia/reiestratsiia-statutu-hromady.html') }}" target="_blank" rel="noopener">
+                            <span class="document-item__type">HTML</span>
+                            <span class="document-item__body"><strong>Документи для реєстрації статуту громади</strong><small>Зразки та пояснення</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">›</span>
+                        </a>
+                        <a class="document-item" href="{{ asset('assets/documents/upravlinnia/statut-akademii-ridnoi-viry.html') }}" target="_blank" rel="noopener">
+                            <span class="document-item__type">HTML</span>
+                            <span class="document-item__body"><strong>Статут Академії Рідної Віри</strong><small>Відкрити документ</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">›</span>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="document-group">
+                    <header class="document-group__head">
+                        <span class="document-group__number">02</span>
+                        <div>
+                            <small>Правова база</small>
+                            <h3>Законодавство України</h3>
+                        </div>
+                    </header>
+                    <div class="document-list">
+                        <a class="document-item" href="{{ asset('assets/documents/zakonodavstvo/pro-svobodu-sovisti.docx') }}" download>
+                            <span class="document-item__type">DOCX</span>
+                            <span class="document-item__body"><strong>Закон України «Про свободу совісті та релігійні організації»</strong><small>Редакція, знята з сайту ВР 30.08.2025</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">↓</span>
+                        </a>
+                        <a class="document-item" href="{{ asset('assets/documents/zakonodavstvo/pro-pohovannia.docx') }}" download>
+                            <span class="document-item__type">DOCX</span>
+                            <span class="document-item__body"><strong>Закон України «Про поховання та похоронну справу»</strong><small>Редакція, знята з сайту ВР 30.08.2025</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">↓</span>
+                        </a>
+                        <a class="document-item" href="{{ asset('assets/documents/zakonodavstvo/pro-viiskove-kapelanstvo.docx') }}" download>
+                            <span class="document-item__type">DOCX</span>
+                            <span class="document-item__body"><strong>Закон України «Про Службу військового капеланства»</strong><small>Редакція, знята з сайту ВР 06.09.2025</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">↓</span>
+                        </a>
+                        <a class="document-item" href="{{ asset('assets/documents/zakonodavstvo/vypysky-iz-zakoniv.html') }}" target="_blank" rel="noopener">
+                            <span class="document-item__type">HTML</span>
+                            <span class="document-item__body"><strong>Виписки із законів України</strong><small>Відкрити добірку</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">›</span>
+                        </a>
+                        <a class="document-item" href="{{ asset('assets/documents/zakonodavstvo/komentar-kryminalnoho-kodeksu.rar') }}" download>
+                            <span class="document-item__type document-item__type--rar">RAR</span>
+                            <span class="document-item__body"><strong>Науково-практичний коментар до Кримінального кодексу України</strong><small>Архів, 19 КБ</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">↓</span>
+                        </a>
+                    </div>
+                </article>
+
+                <article class="document-group document-group--wide">
+                    <header class="document-group__head">
+                        <span class="document-group__number">03</span>
+                        <div>
+                            <small>Офіційні ресурси</small>
+                            <h3>Сайти з релігійного питання</h3>
+                        </div>
+                    </header>
+                    <div class="document-list">
+                        <a class="document-item" href="https://dess.gov.ua/" target="_blank" rel="noopener noreferrer">
+                            <span class="document-item__type document-item__type--web">WEB</span>
+                            <span class="document-item__body"><strong>Державна служба України з етнополітики та свободи совісті (ДЕСС)</strong><small>Перейти на офіційний державний сайт</small></span>
+                            <span class="document-item__arrow" aria-hidden="true">↗</span>
+                        </a>
+                    </div>
+                </article>
+            </div>
+
+            <p class="document-library__note">Під час перенесення матеріалів зі старого порталу всі документи копіюються до локального сховища нового сайту. Посилання на старий сервер у публічній частині не використовуються.</p>
         </section>
 
         <div class="center-cta">
