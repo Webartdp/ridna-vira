@@ -9,6 +9,21 @@ Route::view('/', 'home')->name('home');
 Route::view('/pro-tsentr', 'pages.about')->name('about');
 Route::view('/pro-tsentr/upravlinnia', 'pages.management')->name('about.management');
 Route::redirect('/pro-tsentr/entsyklopediia', 'https://wiki.svit.in.ua/', 302)->name('about.encyclopedia');
+
+Route::view('/ridna-vira', 'pages.faith')->name('faith');
+
+foreach ([
+    'calendar' => ['slug' => 'kalendar', 'title' => 'Календар свят'],
+    'books' => ['slug' => 'knyhy', 'title' => 'Книги'],
+    'shrines' => ['slug' => 'sviatyni', 'title' => 'Святині'],
+    'gods' => ['slug' => 'bohy', 'title' => 'Боги'],
+    'rituals' => ['slug' => 'obriady', 'title' => 'Обряди'],
+    'prayers' => ['slug' => 'molytvy', 'title' => 'Молитви'],
+] as $name => $page) {
+    Route::view('/ridna-vira/'.$page['slug'], 'pages.placeholder', ['title' => $page['title']])
+        ->name('faith.'.$name);
+}
+
 Route::view('/zviazok', 'pages.contact')->name('contact');
 Route::post('/zviazok', ContactFormController::class)
     ->middleware('throttle:5,1')
@@ -19,7 +34,6 @@ Route::get('/dokumenti/{document}', DocumentDownloadController::class)
     ->name('documents.download');
 
 foreach ([
-    'ridna-vira' => 'Рідна Віра',
     'novyny' => 'Новини',
     'statti' => 'Статті',
     'tvorchist' => 'Творчість',
