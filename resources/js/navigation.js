@@ -1,24 +1,37 @@
-const aboutLink = document.querySelector('.site-nav .dropdown > .nav-link[href*="/pro-tsentr"]');
+const splitNavigationItems = [
+    {
+        selector: '.site-nav .dropdown > .nav-link[href*="/pro-tsentr"]',
+        label: 'Про центр',
+    },
+    {
+        selector: '.site-nav .dropdown > .nav-link[href*="/ridna-vira"]',
+        label: 'Рідна Віра',
+    },
+];
 
-if (aboutLink) {
-    const dropdown = aboutLink.closest('.dropdown');
+splitNavigationItems.forEach(({ selector, label }) => {
+    const parentLink = document.querySelector(selector);
+
+    if (!parentLink) return;
+
+    const dropdown = parentLink.closest('.dropdown');
     const menu = dropdown?.querySelector(':scope > .dropdown-menu');
 
-    if (dropdown && menu) {
-        aboutLink.classList.remove('dropdown-toggle');
-        aboutLink.removeAttribute('data-bs-toggle');
-        aboutLink.removeAttribute('role');
-        aboutLink.removeAttribute('aria-expanded');
+    if (!dropdown || !menu || dropdown.classList.contains('nav-item--split')) return;
 
-        dropdown.classList.add('nav-item--split');
+    parentLink.classList.remove('dropdown-toggle');
+    parentLink.removeAttribute('data-bs-toggle');
+    parentLink.removeAttribute('role');
+    parentLink.removeAttribute('aria-expanded');
 
-        const toggle = document.createElement('button');
-        toggle.type = 'button';
-        toggle.className = 'site-nav__submenu-toggle dropdown-toggle';
-        toggle.setAttribute('data-bs-toggle', 'dropdown');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.setAttribute('aria-label', 'Відкрити підменю «Про центр»');
+    dropdown.classList.add('nav-item--split');
 
-        dropdown.insertBefore(toggle, menu);
-    }
-}
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'site-nav__submenu-toggle dropdown-toggle';
+    toggle.setAttribute('data-bs-toggle', 'dropdown');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', `Відкрити підменю «${label}»`);
+
+    dropdown.insertBefore(toggle, menu);
+});
