@@ -40,14 +40,14 @@
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->is('ridna-vira*') ? 'active' : '' }}" href="{{ url('/ridna-vira') }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">Рідна Віра</a>
+                        <a class="nav-link dropdown-toggle {{ request()->is('ridna-vira*') ? 'active' : '' }}" href="{{ route('faith') }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">Рідна Віра</a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('home') }}#calendar">Календар</a></li>
-                            <li><a class="dropdown-item" href="#">Книги</a></li>
-                            <li><a class="dropdown-item" href="#">Святині</a></li>
-                            <li><a class="dropdown-item" href="#">Боги</a></li>
-                            <li><a class="dropdown-item" href="#">Обряди</a></li>
-                            <li><a class="dropdown-item" href="#">Молитви</a></li>
+                            <li><a class="dropdown-item" href="{{ route('faith.calendar') }}">Календар свят</a></li>
+                            <li><a class="dropdown-item" href="{{ route('faith.books') }}">Книги</a></li>
+                            <li><a class="dropdown-item" href="{{ route('faith.shrines') }}">Святині</a></li>
+                            <li><a class="dropdown-item" href="{{ route('faith.gods') }}">Боги</a></li>
+                            <li><a class="dropdown-item" href="{{ route('faith.rituals') }}">Обряди</a></li>
+                            <li><a class="dropdown-item" href="{{ route('faith.prayers') }}">Молитви</a></li>
                         </ul>
                     </li>
                     <li class="nav-item"><a class="nav-link {{ request()->is('novyny*') ? 'active' : '' }}" href="{{ url('/novyny') }}">Новини</a></li>
@@ -87,7 +87,7 @@
 
     <nav class="footer-nav" aria-label="Меню в підвалі">
         <a href="{{ route('about') }}">Про центр</a>
-        <a href="{{ url('/ridna-vira') }}">Рідна Віра</a>
+        <a href="{{ route('faith') }}">Рідна Віра</a>
         <a href="{{ url('/novyny') }}">Новини</a>
         <a href="{{ url('/statti') }}">Статті</a>
         <a href="{{ url('/tvorchist') }}">Творчість</a>
