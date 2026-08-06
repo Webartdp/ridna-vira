@@ -24,6 +24,7 @@ final class DocumentDownloadController extends Controller
 
         $entry = $manifest[$document];
         $relativePath = ltrim((string) ($entry['path'] ?? ''), '/');
+        $relativePath = preg_replace('#^public/#', '', $relativePath) ?: $relativePath;
         $extension = strtolower((string) ($entry['extension'] ?? pathinfo($relativePath, PATHINFO_EXTENSION)));
         $title = trim((string) ($entry['title'] ?? $document));
         $absolutePath = public_path($relativePath);
