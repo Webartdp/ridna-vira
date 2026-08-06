@@ -6,7 +6,9 @@ import '../scss/center-pages.scss';
 import '../scss/leadership-photos.scss';
 import '../scss/documents.scss';
 import '../scss/contact-map.scss';
+import '../scss/contact-form.scss';
 import './contact-map.js';
+import './contact-form.js';
 import 'bootstrap';
 
 const track = document.querySelector('[data-ticker-track]');
