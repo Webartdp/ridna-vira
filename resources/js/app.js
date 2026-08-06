@@ -7,6 +7,8 @@ import '../scss/leadership-photos.scss';
 import '../scss/documents.scss';
 import '../scss/contact-map.scss';
 import '../scss/contact-form.scss';
+import '../scss/navigation.scss';
+import './navigation.js';
 import './contact-map.js';
 import './contact-form.js';
 import 'bootstrap';
