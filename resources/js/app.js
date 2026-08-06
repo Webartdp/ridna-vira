@@ -5,6 +5,8 @@ import '../scss/about.scss';
 import '../scss/center-pages.scss';
 import '../scss/leadership-photos.scss';
 import '../scss/documents.scss';
+import '../scss/contact-map.scss';
+import './contact-map.js';
 import 'bootstrap';
 
 const track = document.querySelector('[data-ticker-track]');
