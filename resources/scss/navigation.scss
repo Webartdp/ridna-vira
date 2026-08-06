@@ -1,0 +1,55 @@
+/* Parent menu link remains clickable; the arrow opens its submenu separately. */
+.site-nav .nav-item--split {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.site-nav .nav-item--split > .nav-link {
+    padding-right: 2px !important;
+}
+
+.site-nav__submenu-toggle {
+    display: inline-flex;
+    width: 24px;
+    height: 34px;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    color: var(--rv-brown);
+    background: transparent;
+    cursor: pointer;
+}
+
+.site-nav__submenu-toggle:hover,
+.site-nav__submenu-toggle:focus,
+.site-nav__submenu-toggle.show {
+    color: var(--rv-gold);
+}
+
+.site-nav__submenu-toggle.dropdown-toggle::after {
+    margin: -5px 0 0;
+}
+
+@media (max-width: 1199.98px) {
+    .site-nav .nav-item--split {
+        display: grid;
+        width: 100%;
+        grid-template-columns: minmax(0, 1fr) 40px;
+    }
+
+    .site-nav .nav-item--split > .nav-link {
+        width: 100%;
+    }
+
+    .site-nav .nav-item--split > .dropdown-menu {
+        width: 100%;
+        grid-column: 1 / -1;
+    }
+
+    .site-nav__submenu-toggle {
+        width: 40px;
+        justify-self: end;
+    }
+}
