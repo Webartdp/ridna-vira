@@ -7,6 +7,7 @@
     <title>@yield('title', 'Рідна Віра — Духовний центр')</title>
     <meta name="description" content="@yield('description', 'Офіційний портал Духовного центру Рідна Віра')">
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body>
 <div class="announcement" aria-label="Оголошення">
@@ -137,5 +138,6 @@
     <div class="footer-rule"><img src="{{ asset('assets/figma/home/footer-line.svg') }}" alt=""></div>
     <p class="footer-copy">© 2006–{{ date('Y') }} РІДНА ВІРА — Всі права захищені — Політика конфіденційності</p>
 </footer>
+@stack('scripts')
 </body>
 </html>
