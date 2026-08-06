@@ -184,7 +184,7 @@
                     <ul class="library-list">
                         <li>
                             <a href="https://dess.gov.ua/" target="_blank" rel="noopener noreferrer">Державна служба України з етнополітики та свободи совісті (ДЕСС)</a>
-                            <span class="library-format library-format--web">WEB</span>
+                            <span class="library-format library-format--web">САЙТ</span>
                         </li>
                     </ul>
                 </section>
