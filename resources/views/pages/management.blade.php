@@ -114,102 +114,83 @@
                 <span>Документи та законодавство</span>
                 <h2 id="management-documents-title">Інформаційна база Управи</h2>
             </div>
-            <p class="document-library__intro">Статути, внутрішні положення, документи для громад і законодавчі матеріали зібрані в одному розділі та зберігаються безпосередньо на сервері Духовного центру.</p>
+            <p class="document-library__intro">Матеріали впорядковані як у бібліотечному каталозі: за тематичними розділами, з назвою документа та його форматом.</p>
 
-            <div class="document-groups">
-                <article class="document-group">
-                    <header class="document-group__head">
-                        <span class="document-group__number">01</span>
-                        <div>
-                            <small>Документи центру</small>
-                            <h3>Управління Духовного центру «Рідна Віра»</h3>
-                        </div>
-                    </header>
-                    <div class="document-list">
-                        <a class="document-item" href="{{ route('documents.download', 'statut-duhovnoho-tsentru') }}">
-                            <span class="document-item__type">DOC</span>
-                            <span class="document-item__body"><strong>Статут Духовного центру «Рідна Віра»</strong><small>Завантажити документ</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                        <a class="document-item" href="{{ route('documents.download', 'vnutrishni-polozhennia') }}">
-                            <span class="document-item__type">DOC</span>
-                            <span class="document-item__body"><strong>Внутрішні Положення</strong><small>Завантажити документ</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                        <a class="document-item" href="{{ route('documents.download', 'zaiava-pro-vstup-hromady') }}">
-                            <span class="document-item__type">DOCX</span>
-                            <span class="document-item__body"><strong>Заява про вступ релігійної громади до складу Духовного центру «Рідна Віра»</strong><small>Завантажити документ</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                        <a class="document-item" href="{{ route('documents.download', 'reiestratsiia-statutu-hromady') }}">
-                            <span class="document-item__type">DOC</span>
-                            <span class="document-item__body"><strong>Документи для реєстрації статуту громади</strong><small>Завантажити документ</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                        <a class="document-item" href="{{ route('documents.download', 'statut-akademii-ridnoi-viry') }}">
-                            <span class="document-item__type">DOC</span>
-                            <span class="document-item__body"><strong>Статут Академії Рідної Віри</strong><small>Завантажити документ</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                    </div>
-                </article>
+            <nav class="library-index" aria-label="Розділи каталогу документів">
+                <a href="#documents-center">Документи центру</a>
+                <a href="#documents-law">Законодавство України</a>
+                <a href="#documents-resources">Офіційні ресурси</a>
+            </nav>
 
-                <article class="document-group">
-                    <header class="document-group__head">
-                        <span class="document-group__number">02</span>
-                        <div>
-                            <small>Правова база</small>
-                            <h3>Законодавство України</h3>
-                        </div>
-                    </header>
-                    <div class="document-list">
-                        <a class="document-item" href="{{ route('documents.download', 'pro-svobodu-sovisti') }}">
-                            <span class="document-item__type">DOCX</span>
-                            <span class="document-item__body"><strong>Закон України «Про свободу совісті та релігійні організації»</strong><small>Редакція, знята з сайту ВР 30.08.2025</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                        <a class="document-item" href="{{ route('documents.download', 'pro-pohovannia') }}">
-                            <span class="document-item__type">DOCX</span>
-                            <span class="document-item__body"><strong>Закон України «Про поховання та похоронну справу»</strong><small>Редакція, знята з сайту ВР 30.08.2025</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                        <a class="document-item" href="{{ route('documents.download', 'pro-viiskove-kapelanstvo') }}">
-                            <span class="document-item__type">DOCX</span>
-                            <span class="document-item__body"><strong>Закон України «Про Службу військового капеланства»</strong><small>Редакція, знята з сайту ВР 06.09.2025</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                        <a class="document-item" href="{{ route('documents.download', 'vypysky-iz-zakoniv') }}">
-                            <span class="document-item__type">DOC</span>
-                            <span class="document-item__body"><strong>Виписки із законів України</strong><small>Завантажити документ</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                        <a class="document-item" href="{{ route('documents.download', 'komentar-kryminalnoho-kodeksu') }}">
-                            <span class="document-item__type document-item__type--rar">RAR</span>
-                            <span class="document-item__body"><strong>Науково-практичний коментар до Кримінального кодексу України</strong><small>Архів, 19 КБ</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↓</span>
-                        </a>
-                    </div>
-                </article>
+            <div class="library-directory">
+                <section class="library-section" id="documents-center" aria-labelledby="documents-center-title">
+                    <h3 id="documents-center-title"><span aria-hidden="true">►</span> Управління Духовного центру «Рідна Віра»</h3>
+                    <ul class="library-list">
+                        <li>
+                            <a href="{{ route('documents.download', 'statut-duhovnoho-tsentru') }}">Статут Духовного центру «Рідна Віра»</a>
+                            <span class="library-format">DOC</span>
+                        </li>
+                        <li>
+                            <a href="{{ route('documents.download', 'vnutrishni-polozhennia') }}">Внутрішні Положення</a>
+                            <span class="library-format">DOC</span>
+                        </li>
+                        <li>
+                            <a href="{{ route('documents.download', 'zaiava-pro-vstup-hromady') }}">Заява про вступ релігійної громади до складу Духовного центру «Рідна Віра»</a>
+                            <span class="library-format">DOCX</span>
+                        </li>
+                        <li>
+                            <a href="{{ route('documents.download', 'reiestratsiia-statutu-hromady') }}">Документи для реєстрації статуту громади</a>
+                            <span class="library-format">DOC</span>
+                        </li>
+                        <li>
+                            <a href="{{ route('documents.download', 'statut-akademii-ridnoi-viry') }}">Статут Академії Рідної Віри</a>
+                            <span class="library-format">DOC</span>
+                        </li>
+                    </ul>
+                </section>
 
-                <article class="document-group document-group--wide">
-                    <header class="document-group__head">
-                        <span class="document-group__number">03</span>
-                        <div>
-                            <small>Офіційні ресурси</small>
-                            <h3>Сайти з релігійного питання</h3>
-                        </div>
-                    </header>
-                    <div class="document-list">
-                        <a class="document-item" href="https://dess.gov.ua/" target="_blank" rel="noopener noreferrer">
-                            <span class="document-item__type document-item__type--web">WEB</span>
-                            <span class="document-item__body"><strong>Державна служба України з етнополітики та свободи совісті (ДЕСС)</strong><small>Перейти на офіційний державний сайт</small></span>
-                            <span class="document-item__arrow" aria-hidden="true">↗</span>
-                        </a>
-                    </div>
-                </article>
+                <section class="library-section" id="documents-law" aria-labelledby="documents-law-title">
+                    <h3 id="documents-law-title"><span aria-hidden="true">►</span> Законодавство України</h3>
+                    <ul class="library-list">
+                        <li>
+                            <a href="{{ route('documents.download', 'pro-svobodu-sovisti') }}">Закон України «Про свободу совісті та релігійні організації»</a>
+                            <span class="library-note">Знято з сайту ВР 30.08.2025</span>
+                            <span class="library-format">DOCX</span>
+                        </li>
+                        <li>
+                            <a href="{{ route('documents.download', 'pro-pohovannia') }}">Закон України «Про поховання та похоронну справу»</a>
+                            <span class="library-note">Знято з сайту ВР 30.08.2025</span>
+                            <span class="library-format">DOCX</span>
+                        </li>
+                        <li>
+                            <a href="{{ route('documents.download', 'pro-viiskove-kapelanstvo') }}">Закон України «Про Службу військового капеланства»</a>
+                            <span class="library-note">Знято з сайту ВР 06.09.2025</span>
+                            <span class="library-format">DOCX</span>
+                        </li>
+                        <li>
+                            <a href="{{ route('documents.download', 'vypysky-iz-zakoniv') }}">Виписки із законів України</a>
+                            <span class="library-format">DOC</span>
+                        </li>
+                        <li>
+                            <a href="{{ route('documents.download', 'komentar-kryminalnoho-kodeksu') }}">Науково-практичний коментар до Кримінального кодексу України</a>
+                            <span class="library-note">Архів, 19 КБ</span>
+                            <span class="library-format library-format--archive">RAR</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="library-section" id="documents-resources" aria-labelledby="documents-resources-title">
+                    <h3 id="documents-resources-title"><span aria-hidden="true">►</span> Сайти з релігійного питання</h3>
+                    <ul class="library-list">
+                        <li>
+                            <a href="https://dess.gov.ua/" target="_blank" rel="noopener noreferrer">Державна служба України з етнополітики та свободи совісті (ДЕСС)</a>
+                            <span class="library-format library-format--web">WEB</span>
+                        </li>
+                    </ul>
+                </section>
             </div>
 
-            <p class="document-library__note">Усі файли зберігаються на сервері нового сайту. Публічні посилання на старий портал не використовуються.</p>
+            <p class="document-library__note">Усі документи завантажуються з сервера нового сайту. Посилання на старий портал у публічній частині не використовуються.</p>
         </section>
 
         <div class="center-cta">
