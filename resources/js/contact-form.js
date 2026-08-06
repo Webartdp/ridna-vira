@@ -86,6 +86,12 @@ if (contactPanel) {
     const submitButton = contactPanel.querySelector('[data-contact-form-submit]');
     const status = contactPanel.querySelector('[data-contact-form-status]');
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+    const xsrfCookie = document.cookie
+        .split('; ')
+        .find((cookie) => cookie.startsWith('XSRF-TOKEN='));
+    const xsrfToken = xsrfCookie
+        ? decodeURIComponent(xsrfCookie.substring('XSRF-TOKEN='.length))
+        : '';
 
     const clearErrors = () => {
         form.querySelectorAll('.is-invalid').forEach((field) => {
@@ -135,14 +141,22 @@ if (contactPanel) {
         submitButton.textContent = 'Надсилання…';
 
         try {
+            const headers = {
+                Accept: 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            };
+
+            if (csrfToken) {
+                headers['X-CSRF-TOKEN'] = csrfToken;
+            } else if (xsrfToken) {
+                headers['X-XSRF-TOKEN'] = xsrfToken;
+            }
+
             const response = await fetch(form.action, {
                 method: 'POST',
-                headers: {
-                    Accept: 'application/json',
-                    'X-CSRF-TOKEN': csrfToken,
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
+                headers,
                 body: new FormData(form),
+                credentials: 'same-origin',
             });
 
             const payload = await response.json().catch(() => ({}));
