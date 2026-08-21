@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BookFileController;
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\DocumentDownloadController;
@@ -38,6 +39,14 @@ foreach ([
         ->name('faith.'.$name);
 }
 
+Route::get('/statti', [ArticleController::class, 'index'])->name('articles.index');
+Route::get('/statti/{article}', [ArticleController::class, 'show'])
+    ->where('article', '[a-z0-9\-]+')
+    ->name('articles.show');
+Route::get('/statti/{article}/zavantazhyty', [ArticleController::class, 'download'])
+    ->where('article', '[a-z0-9\-]+')
+    ->name('articles.download');
+
 Route::view('/zviazok', 'pages.contact')->name('contact');
 Route::post('/zviazok', ContactFormController::class)
     ->middleware('throttle:5,1')
@@ -53,7 +62,6 @@ Route::get('/dokumenti/{document}/zavantazhyty', [DocumentDownloadController::cl
 
 foreach ([
     'novyny' => 'Новини',
-    'statti' => 'Статті',
     'tvorchist' => 'Творчість',
     'kramnychka' => 'Крамниця',
     'koshyk' => 'Кошик',
