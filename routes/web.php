@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\DocumentDownloadController;
+use App\Http\Controllers\HolidayController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -12,6 +13,9 @@ Route::redirect('/pro-tsentr/entsyklopediia', 'https://wiki.svit.in.ua/', 302)->
 
 Route::view('/ridna-vira', 'pages.faith')->name('faith');
 Route::view('/ridna-vira/kalendar', 'pages.calendar')->name('faith.calendar');
+Route::get('/ridna-vira/kalendar/{holiday}', HolidayController::class)
+    ->where('holiday', '[a-z0-9\-]+')
+    ->name('faith.holiday');
 
 foreach ([
     'books' => ['slug' => 'knyhy', 'title' => 'Книги'],
