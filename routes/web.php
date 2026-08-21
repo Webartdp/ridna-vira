@@ -11,9 +11,9 @@ Route::view('/pro-tsentr/upravlinnia', 'pages.management')->name('about.manageme
 Route::redirect('/pro-tsentr/entsyklopediia', 'https://wiki.svit.in.ua/', 302)->name('about.encyclopedia');
 
 Route::view('/ridna-vira', 'pages.faith')->name('faith');
+Route::view('/ridna-vira/kalendar', 'pages.calendar')->name('faith.calendar');
 
 foreach ([
-    'calendar' => ['slug' => 'kalendar', 'title' => 'Календар свят'],
     'books' => ['slug' => 'knyhy', 'title' => 'Книги'],
     'shrines' => ['slug' => 'sviatyni', 'title' => 'Святині'],
     'gods' => ['slug' => 'bohy', 'title' => 'Боги'],
