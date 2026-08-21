@@ -1,0 +1,73 @@
+name: Repair Ridna Vira section icons
+
+on:
+  push:
+    branches:
+      - feature/site-build
+    paths:
+      - .github/workflows/repair-faith-icons.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair-icons:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: feature/site-build
+          fetch-depth: 0
+
+      - name: Download exact Figma icons
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p public/assets/figma/faith
+
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://www.figma.com/api/mcp/asset/a0c21d0b-6b23-400e-bfdb-f13de6c9fc42.png' \
+            --output public/assets/figma/faith/calendar.png
+
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://www.figma.com/api/mcp/asset/a46b5cb7-df52-47d0-a840-4410056e0942.png' \
+            --output public/assets/figma/faith/gods.png
+
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://www.figma.com/api/mcp/asset/8c553096-c829-4433-b8a3-487092a7b10b.png' \
+            --output public/assets/figma/faith/shrines.png
+
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://www.figma.com/api/mcp/asset/6c78d06d-435b-43ee-8e9d-d87cb49f5b7f.png' \
+            --output public/assets/figma/faith/books.png
+
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://www.figma.com/api/mcp/asset/3c06b558-e52a-4fee-97f2-ce74572610d6.png' \
+            --output public/assets/figma/faith/rituals.png
+
+          curl --fail --location --retry 3 --retry-delay 2 \
+            'https://www.figma.com/api/mcp/asset/4aca2adb-6690-4abb-8819-76c80b779721.png' \
+            --output public/assets/figma/faith/prayers.png
+
+          for asset in public/assets/figma/faith/*.png; do
+            test -s "$asset"
+            file "$asset" | grep -q 'PNG image data'
+          done
+
+      - name: Commit repaired icons and remove workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          git add public/assets/figma/faith
+          git rm .github/workflows/repair-faith-icons.yml
+
+          git commit -m 'Repair Ridna Vira section icons'
+          git push origin HEAD:feature/site-build
