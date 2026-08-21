@@ -16,9 +16,9 @@ Route::view('/ridna-vira/kalendar', 'pages.calendar')->name('faith.calendar');
 Route::get('/ridna-vira/kalendar/{holiday}', HolidayController::class)
     ->where('holiday', '[a-z0-9\-]+')
     ->name('faith.holiday');
+Route::view('/ridna-vira/knyhy', 'pages.books')->name('faith.books');
 
 foreach ([
-    'books' => ['slug' => 'knyhy', 'title' => 'Книги'],
     'shrines' => ['slug' => 'sviatyni', 'title' => 'Святині'],
     'gods' => ['slug' => 'bohy', 'title' => 'Боги'],
     'rituals' => ['slug' => 'obriady', 'title' => 'Обряди'],
