@@ -11,6 +11,7 @@ import '../scss/contact-form.scss';
 import '../scss/navigation.scss';
 import '../scss/faith.scss';
 import '../scss/faith-calendar.scss';
+import '../scss/faith-books.scss';
 import '../scss/holiday.scss';
 import './navigation.js';
 import './contact-map.js';
