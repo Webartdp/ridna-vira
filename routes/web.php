@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BookFileController;
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\HolidayController;
@@ -17,6 +18,15 @@ Route::get('/ridna-vira/kalendar/{holiday}', HolidayController::class)
     ->where('holiday', '[a-z0-9\-]+')
     ->name('faith.holiday');
 Route::view('/ridna-vira/knyhy', 'pages.books')->name('faith.books');
+Route::get('/ridna-vira/knyhy/{book}/obkladynka', [BookFileController::class, 'cover'])
+    ->where('book', '[a-z0-9\-]+')
+    ->name('faith.books.cover');
+Route::get('/ridna-vira/knyhy/{book}/zavantazhyty/{format}', [BookFileController::class, 'download'])
+    ->where([
+        'book' => '[a-z0-9\-]+',
+        'format' => 'pdf|docx',
+    ])
+    ->name('faith.books.download');
 
 foreach ([
     'shrines' => ['slug' => 'sviatyni', 'title' => 'Святині'],
