@@ -66,6 +66,7 @@
 }
 
 .document-sheet__content {
+    overflow-wrap: anywhere;
     padding: 42px;
     color: var(--rv-dark);
     background: rgba(255, 255, 255, .58);
@@ -106,6 +107,10 @@
     margin: 0 0 18px;
 }
 
+.document-sheet__content p {
+    text-align: justify;
+}
+
 .document-sheet__content a {
     color: var(--rv-gold);
     text-decoration: underline;
@@ -114,14 +119,50 @@
 
 .document-sheet__content table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.document-sheet__content .document-data-table {
+    overflow: hidden;
+    border: 1px solid rgba(64, 20, 3, .16);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .72);
 }
 
 .document-sheet__content th,
 .document-sheet__content td {
-    padding: 10px 12px;
-    border: 1px solid rgba(64, 20, 3, .18);
+    padding: 12px 14px;
+    border-right: 1px solid rgba(64, 20, 3, .14);
+    border-bottom: 1px solid rgba(64, 20, 3, .14);
     vertical-align: top;
+    text-align: left;
+}
+
+.document-sheet__content th:last-child,
+.document-sheet__content td:last-child {
+    border-right: 0;
+}
+
+.document-sheet__content tr:last-child > th,
+.document-sheet__content tr:last-child > td {
+    border-bottom: 0;
+}
+
+.document-sheet__content th {
+    color: var(--rv-brown);
+    background: rgba(232, 223, 206, .72);
+    font-family: var(--rv-font-display);
+    font-weight: 700;
+}
+
+.document-sheet__content tr:nth-child(even) td {
+    background: rgba(232, 223, 206, .18);
+}
+
+.document-sheet__content td p:last-child,
+.document-sheet__content th p:last-child {
+    margin-bottom: 0;
 }
 
 .document-sheet__empty {
@@ -184,6 +225,23 @@
         padding: 30px 24px;
         font-size: 15px;
         line-height: 1.6;
+    }
+
+    .document-sheet__content p {
+        text-align: left;
+    }
+
+    .document-sheet__content .document-data-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: normal;
+    }
+
+    .document-sheet__content th,
+    .document-sheet__content td {
+        min-width: 150px;
+        padding: 10px 11px;
     }
 
     .document-sheet__empty {
