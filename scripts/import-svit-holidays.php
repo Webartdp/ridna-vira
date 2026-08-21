@@ -290,54 +290,233 @@ function fetchUrl(string $url): ?array
 
 function toUtf8(string $content, string $contentType): string
 {
-    // На svit.in.ua частина сторінок оголошує застаріле кодування, хоча фактичні байти вже UTF-8.
-    // Спочатку довіряємо самим байтам, а не заголовку charset.
-    if (mb_check_encoding($content, 'UTF-8')) {
-        return repairMojibake($content);
-    }
+    return normalizeEncoding($content, $contentType);
+}
 
-    $encodings = [];
-    if (preg_match('/charset\s*=\s*["\']?([^;"\'\s]+)/i', $contentType, $m)) {
-        $encodings[] = trim($m[1]);
-    }
-    if (preg_match('/<meta[^>]+charset\s*=\s*["\']?([^"\'\s>]+)/i', substr($content, 0, 8192), $m)) {
-        $encodings[] = trim($m[1]);
-    }
+function normalizeEncoding(string $content, string $contentType = ''): string
+{
+    $candidates = [];
 
-    $encodings = array_merge($encodings, ['Windows-1251', 'CP1251', 'KOI8-U']);
+    addEncodingCandidate($candidates, $content);
 
-    foreach (array_values(array_unique($encodings)) as $encoding) {
+    foreach (detectEncodingCandidates($content, $contentType) as $encoding) {
         if (in_array(strtolower($encoding), ['utf-8', 'utf8'], true)) {
             continue;
         }
 
         $converted = @iconv($encoding, 'UTF-8//IGNORE', $content);
-        if (is_string($converted) && $converted !== '' && mb_check_encoding($converted, 'UTF-8')) {
-            return repairMojibake($converted);
+        if (is_string($converted) && $converted !== '') {
+            addEncodingCandidate($candidates, $converted);
         }
     }
 
-    return repairMojibake($content);
+    if ($candidates === []) {
+        $fallback = @iconv('UTF-8', 'UTF-8//IGNORE', $content);
+
+        return is_string($fallback) && $fallback !== '' ? $fallback : $content;
+    }
+
+    return chooseBestEncodingCandidate($candidates);
+}
+
+/** @return array<int, string> */
+function detectEncodingCandidates(string $content, string $contentType): array
+{
+    $encodings = [];
+
+    if (preg_match('/charset\s*=\s*["\']?([^;"\'\s>]+)/i', $contentType, $m)) {
+        $encodings[] = trim($m[1]);
+    }
+
+    $head = substr($content, 0, 16384);
+    if (preg_match('/<meta[^>]+charset\s*=\s*["\']?([^"\'\s>]+)/i', $head, $m)) {
+        $encodings[] = trim($m[1]);
+    }
+    if (preg_match('/<meta[^>]+content\s*=\s*["\'][^"\']*charset\s*=\s*([^;"\'\s>]+)/i', $head, $m)) {
+        $encodings[] = trim($m[1]);
+    }
+
+    $encodings = array_merge($encodings, [
+        'UTF-8',
+        'Windows-1251',
+        'CP1251',
+        'KOI8-U',
+        'ISO-8859-1',
+        'Windows-1252',
+    ]);
+
+    $unique = [];
+    foreach ($encodings as $encoding) {
+        $encoding = trim($encoding);
+        if ($encoding === '') {
+            continue;
+        }
+
+        $unique[strtolower($encoding)] = $encoding;
+    }
+
+    return array_values($unique);
+}
+
+/** @param array<string, string> $candidates */
+function addEncodingCandidate(array &$candidates, string $text): void
+{
+    if ($text === '' || !mb_check_encoding($text, 'UTF-8')) {
+        return;
+    }
+
+    foreach (array_merge([$text], repairMojibakeCandidates($text)) as $candidate) {
+        if ($candidate === '' || !mb_check_encoding($candidate, 'UTF-8')) {
+            continue;
+        }
+
+        $candidates[sha1($candidate)] = $candidate;
+    }
 }
 
 function repairMojibake(string $text): string
 {
-    $before = mojibakeScore($text);
-    if ($before < 3) {
+    if ($text === '' || !mb_check_encoding($text, 'UTF-8')) {
         return $text;
     }
 
-    $bytes = @iconv('UTF-8', 'Windows-1251//IGNORE', $text);
+    return chooseBestEncodingCandidate(array_merge([$text], repairMojibakeCandidates($text)));
+}
+
+/** @return array<int, string> */
+function repairMojibakeCandidates(string $text): array
+{
+    $candidates = [];
+
+    foreach (['Windows-1251', 'CP1251', 'Windows-1252', 'ISO-8859-1'] as $encoding) {
+        $whole = decodeMojibakeThrough($text, $encoding);
+        if ($whole !== null && $whole !== $text) {
+            $candidates[] = $whole;
+        }
+
+        $chunked = repairMojibakeChunks($text, $encoding);
+        if ($chunked !== $text) {
+            $candidates[] = $chunked;
+        }
+    }
+
+    return $candidates;
+}
+
+function decodeMojibakeThrough(string $text, string $encoding): ?string
+{
+    $bytes = @iconv('UTF-8', $encoding.'//IGNORE', $text);
     if (!is_string($bytes) || $bytes === '' || !mb_check_encoding($bytes, 'UTF-8')) {
+        return null;
+    }
+
+    return $bytes;
+}
+
+function repairMojibakeChunks(string $text, string $encoding): string
+{
+    if (mojibakeScore($text) === 0) {
         return $text;
     }
 
-    return mojibakeScore($bytes) < $before ? $bytes : $text;
+    $parts = preg_split('/(\s+)/u', $text, -1, PREG_SPLIT_DELIM_CAPTURE);
+    if ($parts === false) {
+        return $text;
+    }
+
+    foreach ($parts as $index => $part) {
+        if ($part === '' || mojibakeScore($part) === 0) {
+            continue;
+        }
+
+        $decoded = decodeMojibakeThrough($part, $encoding);
+        if ($decoded !== null && isBetterEncodingStats(encodingCandidateStats($decoded), encodingCandidateStats($part))) {
+            $parts[$index] = $decoded;
+        }
+    }
+
+    return implode('', $parts);
+}
+
+/** @param array<int|string, string> $candidates */
+function chooseBestEncodingCandidate(array $candidates): string
+{
+    $best = null;
+    $bestStats = null;
+
+    foreach ($candidates as $candidate) {
+        if (!is_string($candidate) || $candidate === '' || !mb_check_encoding($candidate, 'UTF-8')) {
+            continue;
+        }
+
+        $stats = encodingCandidateStats($candidate);
+        if ($best === null || $bestStats === null || isBetterEncodingStats($stats, $bestStats)) {
+            $best = $candidate;
+            $bestStats = $stats;
+        }
+    }
+
+    return $best ?? '';
+}
+
+/** @return array{score:int,ukrainian:int,mojibake:int,length:int} */
+function encodingCandidateStats(string $text): array
+{
+    $ukrainian = ukrainianCyrillicCount($text);
+    $mojibake = mojibakeScore($text);
+
+    return [
+        'score' => ($ukrainian * 8) - ($mojibake * 60),
+        'ukrainian' => $ukrainian,
+        'mojibake' => $mojibake,
+        'length' => mb_strlen($text),
+    ];
+}
+
+/** @param array{score:int,ukrainian:int,mojibake:int,length:int} $candidate */
+/** @param array{score:int,ukrainian:int,mojibake:int,length:int} $current */
+function isBetterEncodingStats(array $candidate, array $current): bool
+{
+    if ($candidate['score'] !== $current['score']) {
+        return $candidate['score'] > $current['score'];
+    }
+
+    if ($candidate['mojibake'] !== $current['mojibake']) {
+        return $candidate['mojibake'] < $current['mojibake'];
+    }
+
+    if ($candidate['ukrainian'] !== $current['ukrainian']) {
+        return $candidate['ukrainian'] > $current['ukrainian'];
+    }
+
+    return $candidate['length'] > $current['length'];
+}
+
+function ukrainianCyrillicCount(string $text): int
+{
+    return preg_match_all('/[АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯабвгґдеєжзиіїйклмнопрстуфхцчшщьюя]/u', $text, $m) ?: 0;
 }
 
 function mojibakeScore(string $text): int
 {
-    return preg_match_all('/(?:Р.|С.|вЂ|Рњ|Рљ|Рџ|РЎ|СЃ|С‚|СЏ|С–)/u', $text, $m) ?: 0;
+    $score = 0;
+    $cp1251Marks = preg_quote('ЂЃ‚ѓ„…†‡€‰Љ‹ЊЌЋЏђ‘’“”•–—™љ›њќћџЎўЈ¤¦§Ё©«¬®°±µ¶·ё№»јЅѕ', '/');
+    $weightedPatterns = [
+        '/(?:вЂ.|в„–|в€¦|в‚¬)/u' => 6,
+        '/(?:Ð.|Ñ.|Â.|â€.|â„–|â€¦|â€™|â€œ|â€\x{009d}|â€“)/u' => 5,
+        '/(?:Р|С)['.$cp1251Marks.']/u' => 4,
+        '/[\x{0080}-\x{009F}]/u' => 4,
+        '/�/u' => 20,
+    ];
+
+    foreach ($weightedPatterns as $pattern => $weight) {
+        $matches = preg_match_all($pattern, $text);
+        if ($matches !== false && $matches > 0) {
+            $score += $matches * $weight;
+        }
+    }
+
+    return $score;
 }
 
 /** @return array{day:int,month:int}|null */
