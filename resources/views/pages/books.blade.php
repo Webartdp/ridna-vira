@@ -5,7 +5,6 @@
 
 @php
     $books = config('faith_books.books', []);
-    $featuredBooks = array_slice($books, 0, 3);
     $categories = [];
     foreach ($books as $book) {
         $category = $book['category'] ?? null;
@@ -55,76 +54,32 @@
             </dl>
         </header>
 
-        @if ($featuredBooks !== [])
-            <div class="faith-books-featured" aria-label="Основні книги">
-                @foreach ($featuredBooks as $book)
-                    <article class="faith-book faith-book--featured">
-                        <div class="faith-book__cover" aria-hidden="true">
-                            @if (!empty($book['cover']))
-                                <img src="{{ $book['cover'] }}" alt="" loading="lazy" onerror="this.remove()">
-                            @endif
-                        </div>
-                        <div class="faith-book__body">
-                            <span class="faith-book__category">{{ $book['category'] }}</span>
-                            <h3>{{ $book['title'] }}</h3>
-                            <p class="faith-book__meta">{{ $book['author'] }} · {{ $book['year'] }} · {{ $book['pages'] }} с.</p>
-                            <p>{{ $book['description'] }}</p>
-                            <div class="faith-book__formats" aria-label="Формати книги">
-                                @foreach (($book['formats'] ?? []) as $format => $url)
-                                    <a class="faith-book__format faith-book__format--{{ $format }}" href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ strtoupper($format) }}</a>
-                                @endforeach
-                            </div>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-        @endif
+        <ol class="faith-books-list" aria-label="Список книг">
+            @foreach ($books as $book)
+                <li class="faith-book-row">
+                    <span class="faith-book-row__number">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
 
-        @if ($categories !== [])
-            <nav class="faith-books-categories" aria-label="Категорії книг">
-                @foreach ($categories as $category)
-                    <a href="#books-{{ Str::slug($category) }}">{{ $category }}</a>
-                @endforeach
-            </nav>
-        @endif
+                    <div class="faith-book-row__cover" aria-hidden="true">
+                        @if (!empty($book['cover']))
+                            <img src="{{ $book['cover'] }}" alt="" loading="lazy" onerror="this.remove()">
+                        @endif
+                    </div>
 
-        <div class="faith-books-groups">
-            @foreach ($categories as $category)
-                @php
-                    $categoryBooks = array_values(array_filter($books, fn ($book) => ($book['category'] ?? null) === $category));
-                @endphp
+                    <div class="faith-book-row__content">
+                        <span class="faith-book-row__category">{{ $book['category'] }}</span>
+                        <h3>{{ $book['title'] }}</h3>
+                        <p class="faith-book-row__meta">{{ $book['author'] }} · {{ $book['year'] }} · {{ $book['pages'] }} с.</p>
+                        <p>{{ $book['description'] }}</p>
+                    </div>
 
-                <section class="faith-books-group" id="books-{{ Str::slug($category) }}" aria-labelledby="books-heading-{{ Str::slug($category) }}">
-                    <header class="faith-books-group__header">
-                        <h3 id="books-heading-{{ Str::slug($category) }}">{{ $category }}</h3>
-                        <span>{{ count($categoryBooks) }}</span>
-                    </header>
-
-                    <div class="faith-books-grid">
-                        @foreach ($categoryBooks as $book)
-                            <article class="faith-book">
-                                <div class="faith-book__cover" aria-hidden="true">
-                                    @if (!empty($book['cover']))
-                                        <img src="{{ $book['cover'] }}" alt="" loading="lazy" onerror="this.remove()">
-                                    @endif
-                                </div>
-
-                                <div class="faith-book__body">
-                                    <p class="faith-book__meta">{{ $book['author'] }} · {{ $book['year'] }} · {{ $book['pages'] }} с.</p>
-                                    <h4>{{ $book['title'] }}</h4>
-                                    <p>{{ $book['description'] }}</p>
-                                    <div class="faith-book__formats" aria-label="Формати книги">
-                                        @foreach (($book['formats'] ?? []) as $format => $url)
-                                            <a class="faith-book__format faith-book__format--{{ $format }}" href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ strtoupper($format) }}</a>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </article>
+                    <div class="faith-book-row__formats" aria-label="Формати книги">
+                        @foreach (($book['formats'] ?? []) as $format => $url)
+                            <a class="faith-book-row__format faith-book-row__format--{{ $format }}" href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ strtoupper($format) }}</a>
                         @endforeach
                     </div>
-                </section>
+                </li>
             @endforeach
-        </div>
+        </ol>
 
         <footer class="faith-books-footer">
             <a class="document-back-link" href="{{ route('faith') }}">← До розділу «Рідна Віра»</a>
