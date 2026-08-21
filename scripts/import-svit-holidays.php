@@ -7,7 +7,8 @@ use Illuminate\Support\Str;
 require dirname(__DIR__).'/vendor/autoload.php';
 
 const SOURCE_ROOT = 'https://www.svit.in.ua/';
-const USER_AGENT = 'Mozilla/5.0 (compatible; RidnaViraHolidayMigration/1.0; +https://ridnavira.com.ua)';
+const CALENDAR_SOURCE = 'https://www.svit.in.ua/cal.htm';
+const USER_AGENT = 'Mozilla/5.0 (compatible; RidnaViraHolidayMigration/2.0; +https://ridnavira.com.ua)';
 
 $root = dirname(__DIR__);
 $calendar = require $root.'/config/faith_calendar.php';
@@ -72,10 +73,6 @@ foreach (($calendar['months'] ?? []) as $monthName => $items) {
     }
 }
 
-/**
- * Відомі розгорнуті матеріали, які на старому сайті лежать не тільки в календарній теці.
- * Вони мають пріоритет, якщо дають більший текст за календарну сторінку.
- */
 $preferredSources = [
     'kupalo' => SOURCE_ROOT.'bogy/kupalo.htm',
     'perun' => SOURCE_ROOT.'bogy/perun.htm',
@@ -91,23 +88,25 @@ $preferredSources = [
 
 $report = [
     'generated_at' => date(DATE_ATOM),
+    'calendar_source' => CALENDAR_SOURCE,
     'imported' => [],
     'not_found' => [],
 ];
 
 $best = [];
+$candidateUrls = discoverCalendarUrls();
 
-$calendarUrls = discoverCalendarUrls();
-if ($calendarUrls === []) {
-    // Резервний варіант: старі сторінки мають стабільну схему /pra/{місяць}p{номер}.htm.
-    for ($month = 1; $month <= 12; $month++) {
-        for ($page = 1; $page <= 20; $page++) {
-            $calendarUrls[] = SOURCE_ROOT."pra/{$month}p{$page}.htm";
-        }
+// Резерв: старі сторінки календаря мають стабільну схему /pra/{місяць}p{номер}.htm.
+for ($month = 1; $month <= 12; $month++) {
+    for ($page = 1; $page <= 20; $page++) {
+        $candidateUrls[] = SOURCE_ROOT."pra/{$month}p{$page}.htm";
     }
 }
 
-foreach (array_values(array_unique($calendarUrls)) as $url) {
+$candidateUrls = array_values(array_unique($candidateUrls));
+echo 'Посилань зі старого календаря для перевірки: '.count($candidateUrls).PHP_EOL;
+
+foreach ($candidateUrls as $url) {
     $response = fetchUrl($url);
     if ($response === null) {
         continue;
@@ -115,13 +114,8 @@ foreach (array_values(array_unique($calendarUrls)) as $url) {
 
     $html = toUtf8($response['body'], $response['contentType']);
     $plain = compactText(strip_tags($html));
-    $date = detectHolidayDate($plain, $monthWords);
+    $target = matchTarget($html, $plain, $targets, $monthWords);
 
-    if ($date === null) {
-        continue;
-    }
-
-    $target = $targets[$date['month'].'-'.$date['day']] ?? null;
     if ($target === null) {
         continue;
     }
@@ -134,7 +128,7 @@ foreach (array_values(array_unique($calendarUrls)) as $url) {
     keepBest($best, $target['slug'], $target, $url, $article);
 }
 
-// Перевіряємо відомі великі статті й замінюємо календарний текст, якщо вони змістовніші.
+// Відомі великі статті мають пріоритет, якщо вони довші за календарний матеріал.
 foreach ($preferredSources as $slug => $url) {
     $target = null;
     foreach ($targets as $candidate) {
@@ -162,7 +156,14 @@ foreach ($preferredSources as $slug => $url) {
 
 foreach ($targets as $target) {
     $slug = $target['slug'];
+    $destination = $outputDir.'/'.$slug.'.html';
+
     if (!isset($best[$slug])) {
+        // Прибираємо старий зіпсований імпорт, щоб він не перекривав короткий коректний опис.
+        if (is_file($destination)) {
+            @unlink($destination);
+        }
+
         $report['not_found'][] = [
             'slug' => $slug,
             'name' => $target['name'],
@@ -171,7 +172,6 @@ foreach ($targets as $target) {
         continue;
     }
 
-    $destination = $outputDir.'/'.$slug.'.html';
     file_put_contents($destination, $best[$slug]['html']."\n");
 
     $report['imported'][] = [
@@ -182,7 +182,7 @@ foreach ($targets as $target) {
         'characters' => mb_strlen(strip_tags($best[$slug]['html'])),
     ];
 
-    echo '[OK] '.$target['name'].' -> storage/app/content/holidays/'.$slug.'.html' . PHP_EOL;
+    echo '[OK] '.$target['name'].' -> '.$best[$slug]['url'].' ('.$best[$slug]['length'].' символів)'.PHP_EOL;
 }
 
 file_put_contents(
@@ -197,33 +197,59 @@ echo 'Звіт: storage/app/content/holidays-import.json'.PHP_EOL;
 /** @return array<int, string> */
 function discoverCalendarUrls(): array
 {
-    foreach ([SOURCE_ROOT.'pra.htm', SOURCE_ROOT.'pra/', SOURCE_ROOT] as $indexUrl) {
-        $response = fetchUrl($indexUrl);
-        if ($response === null) {
-            continue;
-        }
-
-        $html = toUtf8($response['body'], $response['contentType']);
-        if (!preg_match_all('~href=["\']([^"\']*pra/\d+p\d+\.htm)["\']~iu', $html, $matches)) {
-            continue;
-        }
-
-        $urls = [];
-        foreach ($matches[1] as $href) {
-            $href = html_entity_decode($href, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-            if (preg_match('~^https?://~i', $href)) {
-                $urls[] = $href;
-            } else {
-                $urls[] = SOURCE_ROOT.ltrim(preg_replace('~^(?:\.\./|\./)+~', '', $href), '/');
-            }
-        }
-
-        if ($urls !== []) {
-            return array_values(array_unique($urls));
-        }
+    $response = fetchUrl(CALENDAR_SOURCE);
+    if ($response === null) {
+        return [];
     }
 
-    return [];
+    $html = toUtf8($response['body'], $response['contentType']);
+    $urls = [];
+
+    if (!preg_match_all('~href\s*=\s*["\']([^"\']+)["\']~iu', $html, $matches)) {
+        return [];
+    }
+
+    foreach ($matches[1] as $href) {
+        $href = trim(html_entity_decode($href, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        if ($href === '' || str_starts_with($href, '#') || preg_match('~^(?:mailto:|tel:|javascript:)~i', $href)) {
+            continue;
+        }
+
+        $url = resolveSourceUrl($href);
+        $parts = parse_url($url);
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        $path = (string) ($parts['path'] ?? '');
+
+        if (!in_array($host, ['svit.in.ua', 'www.svit.in.ua'], true)) {
+            continue;
+        }
+
+        if (!preg_match('~\.(?:html?|php)$~i', $path)) {
+            continue;
+        }
+
+        // Не тягнемо службові архіви/навігацію, але беремо всі тематичні сторінки, на які посилається cal.htm.
+        if (preg_match('~/(?:new_arh|index|forum|shop|gos|upr)~i', $path)) {
+            continue;
+        }
+
+        $urls[] = $url;
+    }
+
+    return array_values(array_unique($urls));
+}
+
+function resolveSourceUrl(string $href): string
+{
+    if (preg_match('~^https?://~i', $href)) {
+        return $href;
+    }
+
+    if (str_starts_with($href, '//')) {
+        return 'https:'.$href;
+    }
+
+    return SOURCE_ROOT.ltrim(preg_replace('~^(?:\.\./|\./)+~', '', $href) ?? $href, '/');
 }
 
 /** @return array{body:string,contentType:string}|null */
@@ -264,27 +290,54 @@ function fetchUrl(string $url): ?array
 
 function toUtf8(string $content, string $contentType): string
 {
-    $encoding = null;
-
-    if (preg_match('/charset\s*=\s*["\']?([^;"\'\s]+)/i', $contentType, $m)) {
-        $encoding = trim($m[1]);
-    } elseif (preg_match('/<meta[^>]+charset\s*=\s*["\']?([^"\'\s>]+)/i', substr($content, 0, 8192), $m)) {
-        $encoding = trim($m[1]);
+    // На svit.in.ua частина сторінок оголошує застаріле кодування, хоча фактичні байти вже UTF-8.
+    // Спочатку довіряємо самим байтам, а не заголовку charset.
+    if (mb_check_encoding($content, 'UTF-8')) {
+        return repairMojibake($content);
     }
 
-    if ($encoding !== null && !in_array(strtolower($encoding), ['utf-8', 'utf8'], true)) {
+    $encodings = [];
+    if (preg_match('/charset\s*=\s*["\']?([^;"\'\s]+)/i', $contentType, $m)) {
+        $encodings[] = trim($m[1]);
+    }
+    if (preg_match('/<meta[^>]+charset\s*=\s*["\']?([^"\'\s>]+)/i', substr($content, 0, 8192), $m)) {
+        $encodings[] = trim($m[1]);
+    }
+
+    $encodings = array_merge($encodings, ['Windows-1251', 'CP1251', 'KOI8-U']);
+
+    foreach (array_values(array_unique($encodings)) as $encoding) {
+        if (in_array(strtolower($encoding), ['utf-8', 'utf8'], true)) {
+            continue;
+        }
+
         $converted = @iconv($encoding, 'UTF-8//IGNORE', $content);
-        if (is_string($converted) && $converted !== '') {
-            return $converted;
+        if (is_string($converted) && $converted !== '' && mb_check_encoding($converted, 'UTF-8')) {
+            return repairMojibake($converted);
         }
     }
 
-    if (mb_check_encoding($content, 'UTF-8')) {
-        return $content;
+    return repairMojibake($content);
+}
+
+function repairMojibake(string $text): string
+{
+    $before = mojibakeScore($text);
+    if ($before < 3) {
+        return $text;
     }
 
-    $converted = @iconv('Windows-1251', 'UTF-8//IGNORE', $content);
-    return is_string($converted) ? $converted : $content;
+    $bytes = @iconv('UTF-8', 'Windows-1251//IGNORE', $text);
+    if (!is_string($bytes) || $bytes === '' || !mb_check_encoding($bytes, 'UTF-8')) {
+        return $text;
+    }
+
+    return mojibakeScore($bytes) < $before ? $bytes : $text;
+}
+
+function mojibakeScore(string $text): int
+{
+    return preg_match_all('/(?:Р.|С.|вЂ|Рњ|Рљ|Рџ|РЎ|СЃ|С‚|СЏ|С–)/u', $text, $m) ?: 0;
 }
 
 /** @return array{day:int,month:int}|null */
@@ -300,6 +353,65 @@ function detectHolidayDate(string $text, array $monthWords): ?array
     }
 
     return null;
+}
+
+/** @param array<string, array{month:int,day:int,name:string,slug:string}> $targets */
+function matchTarget(string $html, string $plain, array $targets, array $monthWords): ?array
+{
+    $date = detectHolidayDate($plain, $monthWords);
+    if ($date !== null) {
+        $byDate = $targets[$date['month'].'-'.$date['day']] ?? null;
+        if ($byDate !== null) {
+            return $byDate;
+        }
+    }
+
+    $pageTitle = extractPageTitle($html);
+    if ($pageTitle === '') {
+        return null;
+    }
+
+    $normalizedTitle = normalizeText($pageTitle);
+    $best = null;
+    $bestScore = 0.0;
+
+    foreach ($targets as $target) {
+        $name = normalizeText($target['name']);
+        similar_text($normalizedTitle, $name, $percent);
+
+        $firstWord = preg_split('/\s+/u', $name)[0] ?? '';
+        if ($firstWord !== '' && str_contains($normalizedTitle, $firstWord)) {
+            $percent += 25;
+        }
+
+        if ($percent > $bestScore) {
+            $bestScore = $percent;
+            $best = $target;
+        }
+    }
+
+    return $bestScore >= 72 ? $best : null;
+}
+
+function extractPageTitle(string $html): string
+{
+    $dom = new DOMDocument();
+    libxml_use_internal_errors(true);
+    $dom->loadHTML('<?xml encoding="UTF-8">'.$html, LIBXML_NOWARNING | LIBXML_NOERROR);
+    libxml_clear_errors();
+
+    foreach (['h1', 'h2', 'h3'] as $tag) {
+        $node = $dom->getElementsByTagName($tag)->item(0);
+        if ($node instanceof DOMElement) {
+            $text = compactText((string) $node->textContent);
+            if ($text !== '') {
+                return $text;
+            }
+        }
+    }
+
+    $title = $dom->getElementsByTagName('title')->item(0);
+    return $title instanceof DOMElement ? compactText((string) $title->textContent) : '';
 }
 
 function extractArticleHtml(string $html, string $targetName): string
@@ -349,6 +461,7 @@ function extractArticleHtml(string $html, string $targetName): string
         $result .= $cleanDom->saveHTML($child);
     }
 
+    $result = repairMojibake($result);
     $result = preg_replace('~<p>\s*(?:Image|Зображення)\s*</p>~iu', '', $result) ?? $result;
     $result = preg_replace('~(?:<[^>]+>\s*)*Пашник\s+С\.Д\.\s*Руський\s+Православний\s+Календар[\s\S]*$~iu', '', $result) ?? $result;
     $result = preg_replace('~https?://(?:www\.)?svit\.in\.ua/?~iu', '', $result) ?? $result;
