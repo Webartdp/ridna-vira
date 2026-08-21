@@ -75,142 +75,84 @@
     text-transform: uppercase;
 }
 
-.faith-books-featured,
-.faith-books-grid {
+.faith-books-list {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px;
-}
-
-.faith-books-featured {
-    margin-bottom: 42px;
-}
-
-.faith-books-categories {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 38px;
-}
-
-.faith-books-categories a {
-    padding: 8px 13px;
-    border: 1px solid rgba(194, 139, 45, .3);
-    border-radius: 999px;
-    color: var(--rv-brown);
-    background: rgba(255, 255, 255, .62);
-    font-family: var(--rv-font-ui);
-    font-size: 13px;
-    transition: color .2s ease, border-color .2s ease, background .2s ease;
-}
-
-.faith-books-categories a:hover,
-.faith-books-categories a:focus-visible {
-    border-color: var(--rv-gold);
-    color: var(--rv-gold);
-    background: #fff;
-}
-
-.faith-books-groups {
-    display: grid;
-    gap: 36px;
-}
-
-.faith-books-group {
-    scroll-margin-top: 24px;
-}
-
-.faith-books-group__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    margin-bottom: 17px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(64, 20, 3, .14);
-}
-
-.faith-books-group__header h3 {
+    gap: 14px;
     margin: 0;
-    color: var(--rv-brown);
-    font-family: var(--rv-font-display);
-    font-size: 24px;
-    font-weight: 700;
-    text-transform: uppercase;
+    padding: 0;
+    list-style: none;
 }
 
-.faith-books-group__header span {
+.faith-book-row {
     display: grid;
-    width: 40px;
-    height: 40px;
-    flex: 0 0 40px;
+    grid-template-columns: 52px 96px minmax(0, 1fr) auto;
+    gap: 20px;
+    align-items: center;
+    min-width: 0;
+    padding: 18px 22px;
+    border: 3px solid #fff;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(232, 223, 206, .82) 0%, rgba(252, 253, 247, .98) 100%);
+    box-shadow: 0 4px 9px rgba(28, 8, 3, .24);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+}
+
+.faith-book-row:hover,
+.faith-book-row:focus-within {
+    border-color: rgba(194, 139, 45, .74);
+    box-shadow: 0 8px 15px rgba(28, 8, 3, .28);
+    transform: translateY(-2px);
+}
+
+.faith-book-row__number {
+    display: grid;
+    width: 42px;
+    height: 42px;
     place-items: center;
-    border: 1px solid rgba(194, 139, 45, .4);
+    border: 1px solid rgba(194, 139, 45, .42);
     border-radius: 50%;
     color: var(--rv-gold);
     background: rgba(255, 255, 255, .72);
     font-family: var(--rv-font-display);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
 }
 
-.faith-book {
+.faith-book-row__cover {
     display: grid;
-    min-width: 0;
-    grid-template-rows: auto 1fr;
-    overflow: hidden;
-    border: 3px solid #fff;
-    border-radius: 20px;
-    background: linear-gradient(180deg, rgba(232, 223, 206, .84) 0%, rgba(252, 253, 247, .97) 100%);
-    box-shadow: var(--rv-shadow);
-}
-
-.faith-book--featured {
-    background: linear-gradient(180deg, rgba(245, 238, 221, .95) 0%, rgba(252, 253, 247, 1) 100%);
-}
-
-.faith-book__cover {
-    display: grid;
-    aspect-ratio: 5 / 3.35;
-    min-height: 176px;
+    width: 96px;
+    height: 132px;
     place-items: center;
     overflow: hidden;
+    border-radius: 10px;
     background:
-        radial-gradient(circle at 50% 18%, rgba(194, 139, 45, .22), transparent 36%),
+        radial-gradient(circle at 50% 18%, rgba(194, 139, 45, .22), transparent 38%),
         linear-gradient(135deg, rgba(64, 20, 3, .92), rgba(28, 8, 3, .86));
 }
 
-.faith-book__cover::before {
+.faith-book-row__cover::before {
     content: '';
-    width: 88px;
-    height: 88px;
+    width: 54px;
+    height: 54px;
     background: url('/assets/figma/faith/books.png') center / contain no-repeat;
     opacity: .58;
 }
 
-.faith-book__cover img {
+.faith-book-row__cover img {
     grid-area: 1 / 1;
     width: 100%;
     height: 100%;
     object-fit: contain;
-    padding: 13px;
+    padding: 6px;
 }
 
-.faith-book__cover img + * {
-    display: none;
-}
-
-.faith-book__body {
-    display: flex;
+.faith-book-row__content {
     min-width: 0;
-    min-height: 0;
-    flex-direction: column;
-    padding: 22px 22px 20px;
 }
 
-.faith-book__category {
-    align-self: flex-start;
-    margin-bottom: 13px;
+.faith-book-row__category {
+    display: inline-flex;
+    margin-bottom: 8px;
     padding: 5px 9px;
     border-radius: 999px;
     color: #fff;
@@ -221,47 +163,41 @@
     text-transform: uppercase;
 }
 
-.faith-book h3,
-.faith-book h4 {
-    margin: 0 0 10px;
+.faith-book-row h3 {
+    margin: 0 0 8px;
     color: var(--rv-dark);
     font-family: var(--rv-font-display);
-    font-size: 20px;
+    font-size: 21px;
     font-weight: 700;
     line-height: 1.18;
     overflow-wrap: anywhere;
 }
 
-.faith-book h4 {
-    font-size: 18px;
-}
-
-.faith-book__meta {
-    margin: 0 0 13px;
+.faith-book-row__meta {
+    margin: 0 0 9px;
     color: rgba(64, 20, 3, .66);
     font-family: var(--rv-font-ui);
     font-size: 13px;
     line-height: 1.38;
 }
 
-.faith-book__body > p:not(.faith-book__meta) {
-    margin: 0 0 18px;
+.faith-book-row__content > p:not(.faith-book-row__meta) {
+    margin: 0;
     color: rgba(28, 8, 3, .78);
     font-family: var(--rv-font-ui);
     font-size: 14px;
     line-height: 1.52;
 }
 
-.faith-book__formats {
-    display: flex;
-    flex-wrap: wrap;
+.faith-book-row__formats {
+    display: grid;
     gap: 9px;
-    margin-top: auto;
+    justify-items: stretch;
 }
 
-.faith-book__format {
+.faith-book-row__format {
     display: inline-grid;
-    min-width: 72px;
+    min-width: 76px;
     height: 36px;
     place-items: center;
     padding: 0 13px;
@@ -273,14 +209,14 @@
     transition: background .2s ease, transform .2s ease;
 }
 
-.faith-book__format:hover,
-.faith-book__format:focus-visible {
+.faith-book-row__format:hover,
+.faith-book-row__format:focus-visible {
     color: #fff;
     background: var(--rv-gold);
     transform: translateY(-2px);
 }
 
-.faith-book__format--docx {
+.faith-book-row__format--docx {
     background: rgba(64, 20, 3, .72);
 }
 
@@ -298,9 +234,22 @@
         max-width: 420px;
     }
 
-    .faith-books-featured,
-    .faith-books-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+    .faith-book-row {
+        grid-template-columns: 42px 82px minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+    }
+
+    .faith-book-row__cover {
+        width: 82px;
+        height: 116px;
+    }
+
+    .faith-book-row__formats {
+        display: flex;
+        grid-column: 3;
+        flex-wrap: wrap;
+        margin-top: 12px;
     }
 }
 
@@ -336,30 +285,55 @@
         font-size: 10px;
     }
 
-    .faith-books-featured,
-    .faith-books-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
+    .faith-books-list {
+        gap: 13px;
     }
 
-    .faith-books-categories {
-        margin-bottom: 31px;
+    .faith-book-row {
+        grid-template-columns: 38px minmax(0, 1fr);
+        gap: 14px;
+        padding: 16px;
+        border-radius: 16px;
+        transform: none;
     }
 
-    .faith-books-group__header h3 {
-        font-size: 21px;
+    .faith-book-row:hover,
+    .faith-book-row:focus-within {
+        transform: none;
     }
 
-    .faith-book__cover {
-        min-height: 150px;
+    .faith-book-row__number {
+        width: 36px;
+        height: 36px;
+        font-size: 12px;
     }
 
-    .faith-book__body {
-        padding: 19px 18px 18px;
+    .faith-book-row__cover {
+        grid-column: 1;
+        width: 38px;
+        height: 54px;
+        border-radius: 8px;
     }
 
-    .faith-book h3,
-    .faith-book h4 {
+    .faith-book-row__cover::before {
+        width: 26px;
+        height: 26px;
+    }
+
+    .faith-book-row__cover img {
+        padding: 3px;
+    }
+
+    .faith-book-row__content,
+    .faith-book-row__formats {
+        grid-column: 2;
+    }
+
+    .faith-book-row h3 {
         font-size: 18px;
+    }
+
+    .faith-book-row__content > p:not(.faith-book-row__meta) {
+        font-size: 14px;
     }
 }
