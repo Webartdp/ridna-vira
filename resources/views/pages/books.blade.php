@@ -58,13 +58,17 @@
             @foreach ($books as $book)
                 @php
                     $bookSlug = $book['slug'] ?? \Illuminate\Support\Str::slug((string) ($book['title'] ?? 'knyha'));
+                    $coverPath = parse_url((string) ($book['cover'] ?? ''), PHP_URL_PATH) ?: '';
+                    $coverExtension = strtolower(pathinfo($coverPath, PATHINFO_EXTENSION) ?: 'jpg');
+                    $coverExtension = $coverExtension === 'jpeg' ? 'jpg' : $coverExtension;
+                    $coverExtension = in_array($coverExtension, ['jpg', 'png', 'webp', 'gif'], true) ? $coverExtension : 'jpg';
                 @endphp
 
                 <li class="faith-book-row">
                     <span class="faith-book-row__number">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
 
                     <div class="faith-book-row__cover" aria-hidden="true">
-                        <img src="{{ route('faith.books.cover', ['book' => $bookSlug]) }}" alt="" loading="lazy">
+                        <img src="{{ asset('assets/books/'.$bookSlug.'/cover.'.$coverExtension) }}" alt="" loading="lazy">
                     </div>
 
                     <div class="faith-book-row__content">
@@ -76,7 +80,7 @@
 
                     <div class="faith-book-row__formats" aria-label="Формати книги">
                         @foreach (array_keys($book['formats'] ?? []) as $format)
-                            <a class="faith-book-row__format faith-book-row__format--{{ $format }}" href="{{ route('faith.books.download', ['book' => $bookSlug, 'format' => $format]) }}" download>{{ strtoupper($format) }}</a>
+                            <a class="faith-book-row__format faith-book-row__format--{{ $format }}" href="{{ asset('assets/books/'.$bookSlug.'/'.$bookSlug.'.'.$format) }}" download>{{ strtoupper($format) }}</a>
                         @endforeach
                     </div>
                 </li>
