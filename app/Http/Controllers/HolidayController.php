@@ -26,14 +26,25 @@ final class HolidayController extends Controller
 
                 $item['description'] = (string) ($item['description'] ?? ($descriptions[$name] ?? ''));
 
-                $contentPath = resource_path('content/holidays/'.$slug.'.html');
-                $content = is_file($contentPath) ? (string) file_get_contents($contentPath) : null;
+                $storageContentPath = storage_path('app/content/holidays/'.$slug.'.html');
+                $resourceContentPath = resource_path('content/holidays/'.$slug.'.html');
+                $content = null;
+                $contentSource = null;
+
+                if (is_file($storageContentPath)) {
+                    $content = (string) file_get_contents($storageContentPath);
+                    $contentSource = 'imported-full';
+                } elseif (is_file($resourceContentPath)) {
+                    $content = (string) file_get_contents($resourceContentPath);
+                    $contentSource = 'editable';
+                }
 
                 return view('pages.holiday', [
                     'holiday' => $item,
                     'holidaySlug' => $slug,
                     'month' => $month,
                     'content' => $content,
+                    'contentSource' => $contentSource,
                 ]);
             }
         }
