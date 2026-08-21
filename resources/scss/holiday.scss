@@ -1,0 +1,162 @@
+/* Individual calendar holiday pages. */
+.holiday-page {
+    padding: 64px 0 82px;
+}
+
+.holiday-sheet {
+    overflow: hidden;
+    border: 3px solid #fff;
+    border-radius: 20px;
+    background: linear-gradient(180deg, rgba(232, 223, 206, .76) 0%, rgba(252, 253, 247, .96) 190px);
+    box-shadow: var(--rv-shadow);
+}
+
+.holiday-sheet__header {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 34px;
+    align-items: center;
+    padding: 42px;
+    border-bottom: 1px solid rgba(64, 20, 3, .14);
+}
+
+.holiday-date-card {
+    display: flex;
+    min-height: 142px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(194, 139, 45, .38);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .72);
+}
+
+.holiday-date-card strong {
+    color: var(--rv-brown);
+    font-family: var(--rv-font-display);
+    font-size: 52px;
+    line-height: 1;
+}
+
+.holiday-date-card span {
+    margin-top: 8px;
+    color: var(--rv-gold);
+    font-family: var(--rv-font-ui);
+    font-size: 13px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.holiday-sheet__eyebrow {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--rv-gold);
+    font-family: var(--rv-font-ui);
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+}
+
+.holiday-sheet__heading h2 {
+    margin: 0;
+    color: var(--rv-dark);
+    font-family: var(--rv-font-display);
+    font-size: clamp(26px, 3.2vw, 38px);
+    font-weight: 700;
+    line-height: 1.18;
+}
+
+.holiday-sheet__heading p {
+    max-width: 780px;
+    margin: 16px 0 0;
+    color: rgba(28, 8, 3, .72);
+    font-family: var(--rv-font-ui);
+    font-size: 16px;
+    line-height: 1.55;
+}
+
+.holiday-sheet__content {
+    padding: 42px;
+    color: var(--rv-dark);
+    background: rgba(255, 255, 255, .58);
+    font-family: var(--rv-font-ui);
+    font-size: 16px;
+    line-height: 1.7;
+}
+
+.holiday-sheet__content--short {
+    font-size: 17px;
+}
+
+.holiday-sheet__content h2,
+.holiday-sheet__content h3,
+.holiday-sheet__content h4 {
+    margin: 1.5em 0 .7em;
+    color: var(--rv-brown);
+    font-family: var(--rv-font-display);
+    font-weight: 700;
+}
+
+.holiday-sheet__content p,
+.holiday-sheet__content ul,
+.holiday-sheet__content ol,
+.holiday-sheet__content blockquote {
+    margin: 0 0 20px;
+}
+
+.holiday-sheet__content > :last-child {
+    margin-bottom: 0;
+}
+
+.holiday-sheet__footer {
+    padding: 24px 42px 30px;
+    border-top: 1px solid rgba(64, 20, 3, .14);
+    background: rgba(255, 255, 255, .42);
+}
+
+.faith-holiday {
+    position: relative;
+}
+
+.faith-holiday > a {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 12px;
+}
+
+.faith-holiday:hover,
+.faith-holiday:focus-within {
+    border-color: rgba(194, 139, 45, .5);
+    background: rgba(194, 139, 45, .07);
+}
+
+@media (max-width: 767.98px) {
+    .holiday-page {
+        padding: 42px 0 56px;
+    }
+
+    .holiday-sheet__header {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 28px 24px;
+    }
+
+    .holiday-date-card {
+        width: 124px;
+        min-height: 112px;
+    }
+
+    .holiday-date-card strong {
+        font-size: 42px;
+    }
+
+    .holiday-sheet__content {
+        padding: 30px 24px;
+        font-size: 15px;
+    }
+
+    .holiday-sheet__footer {
+        padding: 22px 24px 26px;
+    }
+}
