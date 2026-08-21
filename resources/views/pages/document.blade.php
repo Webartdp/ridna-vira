@@ -42,7 +42,7 @@
             @else
                 <div class="document-sheet__empty">
                     <h3>Документ доступний для завантаження</h3>
-                    <p>Цей матеріал збережено у форматі {{ $extension }}. Текстова версія для перегляду та редагування ще не сформована.</p>
+                    <p>Цей матеріал збережено у форматі {{ $extension }}. Текстову версію можна підготувати окремо для публічного перегляду.</p>
                 </div>
             @endif
 
@@ -54,11 +54,6 @@
                 @endif
             </footer>
         </article>
-
-        <div class="document-editor-note">
-            <strong>Редагована версія</strong>
-            <p>Для цього документа передбачено окремий HTML-вміст у <code>resources/content/documents/{{ $documentKey }}.html</code>. Якщо такий файл існує, сайт показує його замість імпортованої версії.</p>
-        </div>
     </div>
 </section>
 @endsection
