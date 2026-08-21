@@ -61,7 +61,9 @@
 
                     <div class="faith-month__list">
                         @foreach ($holidays as $holiday)
+                            @php($holidaySlug = $holiday['slug'] ?? Str::slug($holiday['name']))
                             <article class="faith-holiday">
+                                <a href="{{ route('faith.holiday', $holidaySlug) }}" aria-label="{{ $holiday['name'] }}"></a>
                                 <time datetime="{{ $holiday['day'] }}">{{ $holiday['day'] }}</time>
                                 <div>
                                     <h4>{{ $holiday['name'] }}</h4>
