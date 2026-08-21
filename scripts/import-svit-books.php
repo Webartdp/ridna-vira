@@ -8,20 +8,20 @@ require_once dirname(__DIR__).'/vendor/autoload.php';
 
 /**
  * One-time migration of books from the legacy portal.
- * Public pages must use local routes only; svit.in.ua remains a source for import.
+ * Public pages link to static files under public/assets/books.
  */
 
 const SOURCE_PAGE = 'https://svit.in.ua/kny/Pashnyk.htm';
-const USER_AGENT = 'Mozilla/5.0 (compatible; RidnaViraBookMigration/1.0; +https://ridnavira.com.ua)';
+const USER_AGENT = 'Mozilla/5.0 (compatible; RidnaViraBookMigration/1.1; +https://ridnavira.com.ua)';
 
 $projectRoot = dirname(__DIR__);
-$storageRoot = $projectRoot.'/storage/app/content/books';
+$booksRoot = $projectRoot.'/public/assets/books';
 $reportPath = $projectRoot.'/storage/app/content/books-import.json';
 $config = require $projectRoot.'/config/faith_books.php';
 $books = $config['books'] ?? [];
 
 try {
-    ensureDirectory($storageRoot);
+    ensureDirectory($booksRoot);
     ensureDirectory(dirname($reportPath));
 
     $downloadedBooks = 0;
@@ -32,7 +32,7 @@ try {
     foreach ($books as $book) {
         $title = (string) ($book['title'] ?? 'Без назви');
         $slug = bookSlug($book);
-        $bookDirectory = $storageRoot.'/'.$slug;
+        $bookDirectory = $booksRoot.'/'.$slug;
         $bookFailed = false;
         $entry = [
             'title' => $title,
@@ -95,7 +95,7 @@ try {
     $report = [
         'generated_at' => date(DATE_ATOM),
         'source' => $config['source'] ?? SOURCE_PAGE,
-        'storage' => 'storage/app/content/books',
+        'storage' => 'public/assets/books',
         'books_total' => count($books),
         'books_imported' => $downloadedBooks,
         'files_imported' => $downloadedFiles,
@@ -108,6 +108,7 @@ try {
     echo "\nКниг у списку: ".count($books)."\n";
     echo "Книг повністю перенесено: {$downloadedBooks}\n";
     echo "Файлів перенесено: {$downloadedFiles}\n";
+    echo "Файли: public/assets/books\n";
     echo "Звіт: storage/app/content/books-import.json\n";
 
     if ($failed !== []) {
@@ -134,7 +135,7 @@ function bookSlug(array $book): string
     return $slug !== '' ? $slug : 'knyha-'.substr(sha1($title), 0, 8);
 }
 
-/** @return array{path:string,size:int,content_type:string,source:string} */
+/** @return array{path:string,url:string,size:int,content_type:string,source:string} */
 function downloadCover(string $url, string $directory, string $projectRoot): array
 {
     $response = fetchUrl($url);
@@ -149,7 +150,7 @@ function downloadCover(string $url, string $directory, string $projectRoot): arr
     return fileReport($destination, $response, $url, $projectRoot);
 }
 
-/** @return array{path:string,size:int,content_type:string,source:string} */
+/** @return array{path:string,url:string,size:int,content_type:string,source:string} */
 function downloadFormat(string $url, string $directory, string $slug, string $format, string $projectRoot): array
 {
     $response = fetchUrl($url);
@@ -291,12 +292,15 @@ function removeOtherCoverFiles(string $directory, string $keepFileName): void
 
 /**
  * @param array{body:string, contentType:string, effectiveUrl:string} $response
- * @return array{path:string,size:int,content_type:string,source:string}
+ * @return array{path:string,url:string,size:int,content_type:string,source:string}
  */
 function fileReport(string $path, array $response, string $sourceUrl, string $projectRoot): array
 {
+    $relativePath = relativePath($projectRoot, $path);
+
     return [
-        'path' => relativePath($projectRoot, $path),
+        'path' => $relativePath,
+        'url' => '/'.preg_replace('~^public/~', '', $relativePath),
         'size' => filesize($path) ?: 0,
         'content_type' => $response['contentType'],
         'source' => $sourceUrl,
