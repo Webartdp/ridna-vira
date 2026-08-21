@@ -20,6 +20,21 @@
         'Листопад' => 'lystopad',
         'Грудень' => 'hruden',
     ];
+
+    $mainHolidays = [
+        ['title' => 'Велес', 'name' => 'Велес (Мороз, Микола)', 'image' => 'holiday-veles.png', 'position' => 'top-left'],
+        ['title' => 'Коляда', 'name' => 'Різдво Коляди*', 'image' => 'holiday-kolyada.png', 'position' => 'top-center', 'featured' => true],
+        ['title' => 'Водосвяття', 'name' => 'Водосвяття. Богоявлення', 'image' => 'holiday-vodo.png', 'position' => 'top-right'],
+        ['title' => 'Мокоша', 'name' => 'Мокоша осіння', 'image' => 'holiday-mokosh.png', 'position' => 'left-one'],
+        ['title' => 'Радогощ', 'name' => 'Радогощ. Різдво Миробога', 'image' => 'holiday-radogosh.png', 'position' => 'left-two', 'featured' => true],
+        ['title' => 'Спас', 'name' => '2-й Спас. Яблучний. Великий', 'image' => 'holiday-spas.png', 'position' => 'left-three'],
+        ['title' => 'Колодій', 'name' => 'Народження Колодки. Початок Колодія', 'image' => 'holiday-kolodiy.png', 'position' => 'right-one'],
+        ['title' => 'Великдень', 'name' => 'Великдень*. Благовіщення', 'image' => 'holiday-velykden.png', 'position' => 'right-two', 'featured' => true],
+        ['title' => 'Ярило Вишній', 'name' => 'Ярило Вишній', 'image' => 'holiday-yarylo.png', 'position' => 'right-three'],
+        ['title' => 'Перун', 'name' => 'Перун', 'image' => 'holiday-perun.png', 'position' => 'bottom-left'],
+        ['title' => 'Купайло', 'name' => 'Купало', 'image' => 'holiday-kupalo.png', 'position' => 'bottom-center', 'featured' => true],
+        ['title' => 'Зелені святки', 'name' => 'Трійця', 'image' => 'holiday-zeleni.png', 'position' => 'bottom-right'],
+    ];
 @endphp
 
 @section('content')
@@ -41,8 +56,26 @@
     <div class="figma-container">
         <header class="faith-calendar-intro">
             <span class="faith-calendar-intro__eyebrow">Коло Свароже</span>
-            <h2>Свята протягом року</h2>
-            <p>Календар упорядковано за державним григоріанським стилем. У ньому поєднано сонячне коло року, сезонні переходи, вшанування Рідних Богів і Предків, а також традиційні обрядові дати.</p>
+            <h2>Основні свята</h2>
+            <p>Головні свята річного кола винесені окремо. Натисніть на свято, щоб перейти на його сторінку з описом.</p>
+        </header>
+
+        <div class="calendar-stage faith-calendar-wheel" aria-label="Основні свята Кола Сварожого">
+            <img class="calendar-wheel" src="{{ asset('assets/figma/home/wheel.png') }}" alt="Коло Свароже">
+
+            @foreach ($mainHolidays as $holiday)
+                <a class="holiday-card holiday-card--{{ $holiday['position'] }} {{ !empty($holiday['featured']) ? 'holiday-card--featured' : '' }}"
+                   href="{{ route('faith.holiday', Str::slug($holiday['name'])) }}">
+                    <img src="{{ asset('assets/figma/home/'.$holiday['image']) }}" alt="">
+                    <strong>{{ $holiday['title'] }}</strong>
+                </a>
+            @endforeach
+        </div>
+
+        <header class="faith-calendar-intro faith-calendar-intro--all">
+            <span class="faith-calendar-intro__eyebrow">Повний календар</span>
+            <h2>Усі свята</h2>
+            <p>Нижче подано повний календар за місяцями. Основні свята також залишаються у цьому списку.</p>
         </header>
 
         <nav class="faith-calendar-index" aria-label="Місяці року">
