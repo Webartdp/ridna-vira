@@ -55,8 +55,12 @@
     <div class="figma-container">
         <nav class="faith-sections" aria-label="Розділи Рідної Віри">
             @foreach ($faithSections as $section)
+                @php
+                    $iconPath = public_path($section['icon']);
+                    $iconVersion = is_file($iconPath) ? filemtime($iconPath) : time();
+                @endphp
                 <a class="faith-section-card" href="{{ route($section['route']) }}">
-                    <img src="{{ asset($section['icon']) }}" alt="" width="98" height="98">
+                    <img src="{{ asset($section['icon']) }}?v={{ $iconVersion }}" alt="" width="98" height="98">
                     <strong>{{ $section['title'] }}</strong>
                 </a>
             @endforeach
