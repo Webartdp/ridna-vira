@@ -29,9 +29,13 @@ Route::post('/zviazok', ContactFormController::class)
     ->middleware('throttle:5,1')
     ->name('contact.submit');
 
-Route::get('/dokumenti/{document}', DocumentDownloadController::class)
+Route::get('/dokumenti/{document}', [DocumentDownloadController::class, 'show'])
     ->where('document', '[a-z0-9\-]+')
     ->name('documents.download');
+
+Route::get('/dokumenti/{document}/zavantazhyty', [DocumentDownloadController::class, 'download'])
+    ->where('document', '[a-z0-9\-]+')
+    ->name('documents.download.file');
 
 foreach ([
     'novyny' => 'Новини',
