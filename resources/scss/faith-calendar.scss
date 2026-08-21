@@ -9,6 +9,10 @@
     text-align: center;
 }
 
+.faith-calendar-intro--all {
+    margin-top: 72px;
+}
+
 .faith-calendar-intro__eyebrow {
     display: block;
     margin-bottom: 10px;
@@ -34,6 +38,19 @@
     font-family: var(--rv-font-ui);
     font-size: 16px;
     line-height: 1.6;
+}
+
+.faith-calendar-wheel {
+    margin-bottom: 0;
+}
+
+.faith-calendar-wheel .holiday-card {
+    color: var(--rv-dark);
+}
+
+.faith-calendar-wheel .holiday-card:hover,
+.faith-calendar-wheel .holiday-card:focus-visible {
+    color: var(--rv-gold);
 }
 
 .faith-calendar-index {
@@ -64,8 +81,10 @@
 
 .faith-calendar-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 26px;
+    grid-template-columns: 1fr;
+    gap: 24px;
+    max-width: 1044px;
+    margin: 0 auto;
 }
 
 .faith-month {
@@ -81,7 +100,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
-    padding: 24px 26px 20px;
+    padding: 24px 30px 20px;
     border-bottom: 1px solid rgba(64, 20, 3, .12);
 }
 
@@ -110,26 +129,38 @@
 }
 
 .faith-month__list {
-    padding: 10px 26px 18px;
+    padding: 8px 30px 18px;
 }
 
 .faith-holiday {
+    position: relative;
     display: grid;
-    grid-template-columns: 50px minmax(0, 1fr);
-    align-items: start;
-    gap: 14px;
-    padding: 14px 0;
+    grid-template-columns: 56px minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+    padding: 13px 0;
     border-bottom: 1px solid rgba(64, 20, 3, .1);
+    transition: color .2s ease, padding-left .2s ease;
 }
 
 .faith-holiday:last-child {
     border-bottom: 0;
 }
 
+.faith-holiday > a {
+    position: absolute;
+    z-index: 3;
+    inset: 0;
+}
+
+.faith-holiday:hover {
+    padding-left: 8px;
+}
+
 .faith-holiday time {
     display: grid;
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     place-items: center;
     border-radius: 12px;
     color: #fff;
@@ -137,19 +168,30 @@
     font-family: var(--rv-font-display);
     font-size: 15px;
     font-weight: 700;
+    transition: background .2s ease;
+}
+
+.faith-holiday:hover time {
+    background: var(--rv-gold);
 }
 
 .faith-holiday h4 {
-    margin: 3px 0 0;
+    margin: 0;
     color: var(--rv-dark);
     font-family: var(--rv-font-ui);
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 400;
     line-height: 1.45;
+    transition: color .2s ease;
+}
+
+.faith-holiday:hover h4 {
+    color: var(--rv-gold);
 }
 
 .faith-calendar-notes {
-    margin-top: 32px;
+    max-width: 1044px;
+    margin: 32px auto 0;
     padding: 20px 24px;
     border-left: 3px solid var(--rv-gold);
     border-radius: 0 14px 14px 0;
@@ -169,12 +211,46 @@
 }
 
 .faith-calendar-footer {
-    margin-top: 36px;
+    max-width: 1044px;
+    margin: 36px auto 0;
 }
 
-@media (max-width: 991.98px) {
-    .faith-calendar-grid {
-        grid-template-columns: 1fr;
+@media (max-width: 1099.98px) {
+    .faith-calendar-wheel {
+        transform: scale(.88);
+        transform-origin: top center;
+        margin-bottom: -95px;
+    }
+}
+
+@media (max-width: 899.98px) {
+    .faith-calendar-wheel {
+        display: grid;
+        width: 100%;
+        height: auto;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        transform: none;
+        margin: 0 0 54px;
+    }
+
+    .faith-calendar-wheel .calendar-wheel {
+        position: relative;
+        top: auto;
+        left: auto;
+        width: min(430px, 78vw);
+        height: auto;
+        grid-column: 1 / -1;
+        justify-self: center;
+        transform: none;
+        margin-bottom: 8px;
+    }
+
+    .faith-calendar-wheel .holiday-card {
+        position: relative;
+        inset: auto;
+        width: 100%;
+        height: 130px;
     }
 }
 
@@ -186,6 +262,24 @@
     .faith-calendar-intro {
         margin-bottom: 30px;
         text-align: left;
+    }
+
+    .faith-calendar-intro--all {
+        margin-top: 50px;
+    }
+
+    .faith-calendar-wheel {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-bottom: 44px;
+    }
+
+    .faith-calendar-wheel .calendar-wheel {
+        width: min(360px, 88vw);
+    }
+
+    .faith-calendar-wheel .holiday-card {
+        height: 118px;
     }
 
     .faith-calendar-index {
@@ -209,6 +303,10 @@
         grid-template-columns: 44px minmax(0, 1fr);
         gap: 12px;
         padding: 12px 0;
+    }
+
+    .faith-holiday:hover {
+        padding-left: 0;
     }
 
     .faith-holiday time {
