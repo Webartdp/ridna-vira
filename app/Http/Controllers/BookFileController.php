@@ -99,7 +99,7 @@ final class BookFileController extends Controller
 
     private function downloadFileName(string $title, string $fallback, string $format): string
     {
-        $name = trim((string) preg_replace('/[^\pL\pN._ -]+/u', '-', $title));
+        $name = trim((string) preg_replace('/[^\p{L}\p{N}._ -]+/u', '-', $title));
         $name = trim((string) preg_replace('/\s+/u', ' ', $name));
 
         return ($name !== '' ? $name : $fallback).'.'.$format;
