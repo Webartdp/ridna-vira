@@ -56,13 +56,15 @@
 
         <ol class="faith-books-list" aria-label="Список книг">
             @foreach ($books as $book)
+                @php
+                    $bookSlug = $book['slug'] ?? \Illuminate\Support\Str::slug((string) ($book['title'] ?? 'knyha'));
+                @endphp
+
                 <li class="faith-book-row">
                     <span class="faith-book-row__number">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
 
                     <div class="faith-book-row__cover" aria-hidden="true">
-                        @if (!empty($book['cover']))
-                            <img src="{{ $book['cover'] }}" alt="" loading="lazy" onerror="this.remove()">
-                        @endif
+                        <img src="{{ route('faith.books.cover', ['book' => $bookSlug]) }}" alt="" loading="lazy">
                     </div>
 
                     <div class="faith-book-row__content">
@@ -73,8 +75,8 @@
                     </div>
 
                     <div class="faith-book-row__formats" aria-label="Формати книги">
-                        @foreach (($book['formats'] ?? []) as $format => $url)
-                            <a class="faith-book-row__format faith-book-row__format--{{ $format }}" href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ strtoupper($format) }}</a>
+                        @foreach (array_keys($book['formats'] ?? []) as $format)
+                            <a class="faith-book-row__format faith-book-row__format--{{ $format }}" href="{{ route('faith.books.download', ['book' => $bookSlug, 'format' => $format]) }}" download>{{ strtoupper($format) }}</a>
                         @endforeach
                     </div>
                 </li>
