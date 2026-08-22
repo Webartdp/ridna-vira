@@ -7,13 +7,15 @@ use Illuminate\Support\Str;
 require dirname(__DIR__).'/vendor/autoload.php';
 
 /**
- * Final holiday import pass: every holiday link from cal.htm is treated as a
- * full article source and overwrites short fallback snippets in the calendar.
+ * Final holiday import pass.
+ * Reads cal.htm in order, tracks month/day text around every holiday link, and
+ * writes full linked articles to our calendar pages. Name matching is only a
+ * fallback because the legacy calendar often uses shorter link labels.
  */
 
 const SOURCE_ROOT = 'https://www.svit.in.ua/';
 const CALENDAR_SOURCE = 'https://www.svit.in.ua/cal.htm';
-const USER_AGENT = 'Mozilla/5.0 (compatible; RidnaViraCalendarFullTextMigration/1.0; +https://ridnavira.com.ua)';
+const USER_AGENT = 'Mozilla/5.0 (compatible; RidnaViraCalendarFullTextMigration/2.0; +https://ridnavira.com.ua)';
 
 $root = dirname(__DIR__);
 $calendar = require $root.'/config/faith_calendar.php';
@@ -202,41 +204,212 @@ function fetchUrl(string $url): ?array
  */
 function extractHolidayLinks(string $html, array $targets): array
 {
-    $html = stripDeclaredCharset($html);
+    $tokens = calendarTokens(stripDeclaredCharset($html));
+    $targetsByDate = targetsByDate($targets);
+    $monthNumbers = [
+        'січень' => 1,
+        'лютий' => 2,
+        'березень' => 3,
+        'квітень' => 4,
+        'травень' => 5,
+        'червень' => 6,
+        'липень' => 7,
+        'серпень' => 8,
+        'вересень' => 9,
+        'жовтень' => 10,
+        'листопад' => 11,
+        'грудень' => 12,
+    ];
 
+    $links = [];
+    $currentMonth = null;
+    $currentDay = null;
+    $currentDateKey = null;
+    $dayLinkCount = 0;
+
+    foreach ($tokens as $token) {
+        if ($token['type'] === 'text') {
+            $text = $token['text'];
+            $lower = mb_strtolower($text, 'UTF-8');
+
+            if (calendarFooterReached($lower)) {
+                break;
+            }
+
+            foreach ($monthNumbers as $monthName => $monthNumber) {
+                if (preg_match('/\b'.preg_quote($monthName, '/').'\b/u', $lower)) {
+                    $currentMonth = $monthNumber;
+                    $currentDay = null;
+                    $currentDateKey = null;
+                    $dayLinkCount = 0;
+                    break;
+                }
+            }
+
+            $day = lastCalendarDayInText($text);
+            if ($currentMonth !== null && $day !== null) {
+                $newDateKey = $currentMonth.'-'.$day;
+                if ($newDateKey !== $currentDateKey) {
+                    $dayLinkCount = 0;
+                }
+
+                $currentDay = $day;
+                $currentDateKey = $newDateKey;
+            }
+
+            continue;
+        }
+
+        if ($token['type'] !== 'link') {
+            continue;
+        }
+
+        $url = resolveSourceUrl($token['href'] ?? '');
+        if (!isImportableHtmlUrl($url)) {
+            continue;
+        }
+
+        $target = null;
+        $dateTargets = $currentDateKey !== null ? ($targetsByDate[$currentDateKey] ?? []) : [];
+
+        if ($dateTargets !== []) {
+            $matchedByName = matchHolidayTarget($token['text'], $dateTargets, 45.0);
+            if ($dayLinkCount === 0) {
+                $target = $matchedByName ?? $dateTargets[0];
+            } else {
+                $target = $matchedByName;
+            }
+        }
+
+        $target ??= matchHolidayTarget($token['text'], $targets, 72.0);
+
+        if ($target === null) {
+            continue;
+        }
+
+        $links[$target['slug']][$url] = $url;
+
+        if ($currentMonth !== null && $currentDay !== null) {
+            $dayLinkCount++;
+        }
+    }
+
+    return $links;
+}
+
+/** @return array<int, array{type:string,text:string,href?:string}> */
+function calendarTokens(string $html): array
+{
     $dom = new DOMDocument();
     libxml_use_internal_errors(true);
     $dom->loadHTML('<?xml encoding="UTF-8">'.$html, LIBXML_NOWARNING | LIBXML_NOERROR);
     libxml_clear_errors();
 
-    $links = [];
-
-    foreach ($dom->getElementsByTagName('a') as $anchor) {
-        if (!$anchor instanceof DOMElement) {
-            continue;
-        }
-
-        $href = trim((string) $anchor->getAttribute('href'));
-        $text = cleanText((string) $anchor->textContent);
-
-        if ($href === '' || $text === '') {
-            continue;
-        }
-
-        $target = matchHolidayTarget($text, $targets);
-        if ($target === null) {
-            continue;
-        }
-
-        $url = resolveSourceUrl($href);
-        if (!isImportableHtmlUrl($url)) {
-            continue;
-        }
-
-        $links[$target['slug']][$url] = $url;
+    $body = $dom->getElementsByTagName('body')->item(0);
+    if (!$body instanceof DOMElement) {
+        return [];
     }
 
-    return $links;
+    $tokens = [];
+    appendCalendarTokens($body, $tokens);
+
+    return mergeAdjacentTextTokens($tokens);
+}
+
+/** @param array<int, array{type:string,text:string,href?:string}> $tokens */
+function appendCalendarTokens(DOMNode $node, array &$tokens): void
+{
+    if ($node instanceof DOMText) {
+        $text = cleanText($node->nodeValue ?? '');
+        if ($text !== '') {
+            $tokens[] = ['type' => 'text', 'text' => $text];
+        }
+
+        return;
+    }
+
+    if (!$node instanceof DOMElement) {
+        return;
+    }
+
+    $tag = strtolower($node->tagName);
+    if (in_array($tag, ['script', 'style', 'iframe', 'form', 'select', 'button', 'input', 'noscript'], true)) {
+        return;
+    }
+
+    if ($tag === 'a') {
+        $text = cleanText((string) $node->textContent);
+        $href = trim((string) $node->getAttribute('href'));
+        if ($text !== '' && $href !== '') {
+            $tokens[] = ['type' => 'link', 'text' => $text, 'href' => $href];
+        }
+
+        return;
+    }
+
+    foreach ($node->childNodes as $child) {
+        appendCalendarTokens($child, $tokens);
+    }
+}
+
+/**
+ * @param array<int, array{type:string,text:string,href?:string}> $tokens
+ * @return array<int, array{type:string,text:string,href?:string}>
+ */
+function mergeAdjacentTextTokens(array $tokens): array
+{
+    $merged = [];
+
+    foreach ($tokens as $token) {
+        $lastIndex = count($merged) - 1;
+        if ($lastIndex >= 0 && $token['type'] === 'text' && $merged[$lastIndex]['type'] === 'text') {
+            $merged[$lastIndex]['text'] = cleanText($merged[$lastIndex]['text'].' '.$token['text']);
+            continue;
+        }
+
+        $merged[] = $token;
+    }
+
+    return $merged;
+}
+
+/**
+ * @param array<int, array{month:int,day:int,name:string,slug:string}> $targets
+ * @return array<string, array<int, array{month:int,day:int,name:string,slug:string}>>
+ */
+function targetsByDate(array $targets): array
+{
+    $indexed = [];
+
+    foreach ($targets as $target) {
+        $indexed[$target['month'].'-'.$target['day']][] = $target;
+    }
+
+    return $indexed;
+}
+
+function lastCalendarDayInText(string $text): ?int
+{
+    if (!preg_match_all('/(?<![\p{L}\p{N}])([0-3]?\d)(?![\p{L}\p{N}])/u', $text, $matches)) {
+        return null;
+    }
+
+    for ($index = count($matches[1]) - 1; $index >= 0; $index--) {
+        $day = (int) $matches[1][$index];
+        if ($day >= 1 && $day <= 31) {
+            return $day;
+        }
+    }
+
+    return null;
+}
+
+function calendarFooterReached(string $lowerText): bool
+{
+    return str_contains($lowerText, 'обчислення дат ведеться')
+        || str_contains($lowerText, 'пашник с.д.')
+        || str_contains($lowerText, 'дивіться книжки та статті')
+        || str_contains($lowerText, 'календар пам');
 }
 
 function extractArticleHtml(string $html, string $holidayName): string
@@ -287,10 +460,29 @@ function extractArticleHtml(string $html, string $holidayName): string
 
 function largestArticleContainer(DOMDocument $dom): ?DOMElement
 {
+    $bestBlockquote = null;
+    $bestBlockquoteLength = 0;
+
+    foreach ($dom->getElementsByTagName('blockquote') as $node) {
+        if (!$node instanceof DOMElement) {
+            continue;
+        }
+
+        $length = mb_strlen(cleanText((string) $node->textContent), 'UTF-8');
+        if ($length > $bestBlockquoteLength) {
+            $bestBlockquote = $node;
+            $bestBlockquoteLength = $length;
+        }
+    }
+
+    if ($bestBlockquote instanceof DOMElement && $bestBlockquoteLength >= 250) {
+        return $bestBlockquote;
+    }
+
     $best = null;
     $bestLength = 0;
 
-    foreach (['article', 'main', 'blockquote', 'td', 'div'] as $tag) {
+    foreach (['article', 'main', 'td', 'div'] as $tag) {
         foreach ($dom->getElementsByTagName($tag) as $node) {
             if (!$node instanceof DOMElement) {
                 continue;
@@ -301,10 +493,6 @@ function largestArticleContainer(DOMDocument $dom): ?DOMElement
                 $best = $node;
                 $bestLength = $length;
             }
-        }
-
-        if ($best instanceof DOMElement && $bestLength >= 250 && $tag === 'blockquote') {
-            return $best;
         }
     }
 
@@ -358,7 +546,11 @@ function sanitizeNode(DOMNode $node, DOMDocument $targetDom): ?DOMNode
     return $copy;
 }
 
-function matchHolidayTarget(string $linkText, array $targets): ?array
+/**
+ * @param array<int, array{month:int,day:int,name:string,slug:string}> $targets
+ * @return array{month:int,day:int,name:string,slug:string}|null
+ */
+function matchHolidayTarget(string $linkText, array $targets, float $threshold): ?array
 {
     $link = normalizeTitle($linkText);
     if ($link === '') {
@@ -390,7 +582,7 @@ function matchHolidayTarget(string $linkText, array $targets): ?array
         }
     }
 
-    return $bestScore >= 72 ? $best : null;
+    return $bestScore >= $threshold ? $best : null;
 }
 
 function removeDuplicateHolidayHeadings(string $html, string $holidayName): string
