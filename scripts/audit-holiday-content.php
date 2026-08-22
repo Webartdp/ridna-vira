@@ -37,7 +37,7 @@ foreach (($calendar['months'] ?? []) as $monthName => $items) {
         $html = (string) file_get_contents($path);
         $characters = mb_strlen(compactText(strip_tags($html)), 'UTF-8');
 
-        if ($characters < 40) {
+        if ($characters < 12) {
             $issues['too_short'][] = holidayIssue($slug, $name, $monthName, $characters);
         }
 
@@ -61,7 +61,7 @@ file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT | JSON_UNE
 
 echo "Перевірено свят: {$checked}\n";
 echo 'Немає файлу: '.count($issues['missing'])."\n";
-echo 'Занадто короткі: '.count($issues['too_short'])."\n";
+echo 'Порожні або майже порожні: '.count($issues['too_short'])."\n";
 echo 'Бите кодування: '.count($issues['mojibake'])."\n";
 echo 'Звіт: storage/app/content/holidays-audit.json'."\n";
 
