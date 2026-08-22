@@ -105,7 +105,11 @@ function cleanLegacyImportDecor(string $html): string
 
     $html = preg_replace('~(?:\s|&nbsp;){2,}~u', ' ', $html) ?? $html;
 
-    return $html === '' ? $before : trim($html);
+    if ($html === '' || $html === $before || trim($html) === trim($before)) {
+        return $before;
+    }
+
+    return trim($html);
 }
 
 function isLegacyDecorImageTag(string $tag): bool
