@@ -53,7 +53,10 @@ if (is_dir($assetRoot)) {
 
 foreach (jsonFiles($contentRoot) as $path) {
     $relativePath = relativePath($root, $path);
-    if ($relativePath === 'storage/app/content/legacy-import-decor-cleanup.json') {
+    if (in_array($relativePath, [
+        'storage/app/content/books-import.json',
+        'storage/app/content/legacy-import-decor-cleanup.json',
+    ], true)) {
         continue;
     }
 
@@ -126,10 +129,21 @@ function legacyAssetFiles(string $root): Generator
             continue;
         }
 
+        if (isProtectedAssetPath($file->getPathname())) {
+            continue;
+        }
+
         if (strtolower($file->getExtension()) === 'gif' || isLegacyDecorFilename($file->getBasename())) {
             yield $file->getPathname();
         }
     }
+}
+
+function isProtectedAssetPath(string $path): bool
+{
+    $normalized = str_replace('\\', '/', $path);
+
+    return str_contains($normalized, '/public/assets/books/');
 }
 
 function cleanLegacyImportDecor(string $html): string
