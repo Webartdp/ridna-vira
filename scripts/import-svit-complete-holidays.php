@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 /**
  * Full holiday import runner.
- * 1. Imports long holiday articles when the old site has separate pages.
- * 2. Imports full articles by following the exact holiday links from cal.htm.
- * 3. Fills every remaining holiday page with short text from cal.htm.
- * 4. Forces full text from linked cal.htm articles over short snippets.
- * 5. Binds legacy article links by visible calendar dates for short link labels.
- * 6. Repairs empty/mojibake leftovers and removes duplicate imported headings.
+ * Some shared hosting plans disable PHP process functions. When passthru() is
+ * disabled, use scripts/import-svit-complete-holidays.sh from bash instead.
  */
+
+if (!function_exists('passthru')) {
+    fwrite(STDERR, "[FATAL] У цьому PHP вимкнено passthru().\n");
+    fwrite(STDERR, "Запустіть повний імпорт через bash:\n");
+    fwrite(STDERR, "bash scripts/import-svit-complete-holidays.sh\n");
+    exit(1);
+}
 
 $root = dirname(__DIR__);
 $php = PHP_BINARY ?: 'php';
