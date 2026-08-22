@@ -112,11 +112,11 @@
     .shrine-reading-aside {
         position: sticky;
         top: 24px;
-        padding-top: 12px;
+        padding-top: 14px;
         border-top: 7px solid #35533b;
     }
 
-    .shrine-reading-aside span {
+    .shrine-reading-aside__label {
         display: block;
         color: rgba(64, 20, 3, .68);
         font-family: var(--rv-font-ui);
@@ -126,13 +126,14 @@
         text-transform: uppercase;
     }
 
-    .shrine-reading-aside strong {
+    .shrine-reading-aside__region {
         display: block;
-        margin-top: 12px;
+        margin-top: 10px;
         color: #401403;
         font-family: var(--rv-font-display);
-        font-size: 24px;
-        line-height: 1.08;
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.12;
         text-transform: uppercase;
     }
 
@@ -299,10 +300,10 @@
 <section class="shrine-reading-page">
     <div class="figma-container">
         <div class="shrine-reading-shell">
-            <aside class="shrine-reading-aside" aria-label="Розділ">
-                <span>Святиня</span>
-                <strong>{{ $shrine['region'] ?? 'Рідна Земля' }}</strong>
-                <a class="shrine-reading-back" href="{{ route('faith.shrines') }}">До всіх святинь</a>
+            <aside class="shrine-reading-aside" aria-label="Відомості про святиню">
+                <span class="shrine-reading-aside__label">Область</span>
+                <strong class="shrine-reading-aside__region">{{ $shrine['region'] ?? 'Рідна Земля' }}</strong>
+                <a class="shrine-reading-back" href="{{ route('faith.shrines') }}">← До списку святинь</a>
             </aside>
 
             <article class="shrine-reading-article">
@@ -313,7 +314,7 @@
                 @else
                     <div class="shrine-reading-empty">
                         <h2>Матеріал тимчасово недоступний</h2>
-                        <p>Сторінка святині буде відкрита після оновлення локального архіву.</p>
+                        <p>Сторінка святині буде відкрита після оновлення розділу.</p>
                     </div>
                 @endif
             </article>
