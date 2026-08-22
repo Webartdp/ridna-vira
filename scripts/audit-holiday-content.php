@@ -16,6 +16,7 @@ $issues = [
     'too_short' => [],
     'mojibake' => [],
     'legacy_author_byline' => [],
+    'legacy_svit_link' => [],
 ];
 $checked = 0;
 $totalImages = 0;
@@ -56,6 +57,10 @@ foreach (($calendar['months'] ?? []) as $monthName => $items) {
         if (hasLegacyAuthorByline($html)) {
             $issues['legacy_author_byline'][] = holidayIssue($slug, $name, $monthName, $characters, $images);
         }
+
+        if (hasLegacySvitLink($html)) {
+            $issues['legacy_svit_link'][] = holidayIssue($slug, $name, $monthName, $characters, $images);
+        }
     }
 }
 
@@ -68,6 +73,7 @@ $report = [
     'too_short_count' => count($issues['too_short']),
     'mojibake_count' => count($issues['mojibake']),
     'legacy_author_byline_count' => count($issues['legacy_author_byline']),
+    'legacy_svit_link_count' => count($issues['legacy_svit_link']),
     'issues' => $issues,
 ];
 
@@ -81,9 +87,10 @@ echo 'Немає файлу: '.count($issues['missing'])."\n";
 echo 'Порожні або майже порожні без зображень: '.count($issues['too_short'])."\n";
 echo 'Бите кодування: '.count($issues['mojibake'])."\n";
 echo 'Службовий підпис автора: '.count($issues['legacy_author_byline'])."\n";
+echo 'Старі посилання svit.in.ua: '.count($issues['legacy_svit_link'])."\n";
 echo 'Звіт: storage/app/content/holidays-audit.json'."\n";
 
-if ($issues['missing'] !== [] || $issues['too_short'] !== [] || $issues['mojibake'] !== [] || $issues['legacy_author_byline'] !== []) {
+if ($issues['missing'] !== [] || $issues['too_short'] !== [] || $issues['mojibake'] !== [] || $issues['legacy_author_byline'] !== [] || $issues['legacy_svit_link'] !== []) {
     exit(2);
 }
 
@@ -130,6 +137,13 @@ function hasLegacyAuthorByline(string $html): bool
     }
 
     return false;
+}
+
+function hasLegacySvitLink(string $html): bool
+{
+    $decoded = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+    return preg_match('~https?://(?:www\.)?svit\.in\.ua|(?:^|[\s/"\'>])(?:www\.)?svit\.in\.ua~iu', $decoded) === 1;
 }
 
 function isLegacyAuthorByline(string $html): bool
