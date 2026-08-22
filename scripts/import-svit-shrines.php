@@ -385,7 +385,7 @@ function archiveImageNode(DOMElement $node, DOMDocument $targetDom, string $sour
     }
 
     $remoteUrl = resolveUrl($src, $sourceUrl);
-    $localUrl = archiveRemoteAsset($remoteUrl, $slug, $assetDir, $assets, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+    $localUrl = archiveRemoteAsset($remoteUrl, $slug, $assetDir, $assets, ['jpg', 'jpeg', 'png', 'webp', 'svg']);
     if ($localUrl === null) {
         return null;
     }
@@ -413,7 +413,7 @@ function archiveLinkedAsset(string $href, string $sourceUrl, string $slug, strin
 
     $remoteUrl = resolveUrl($href, $sourceUrl);
 
-    return archiveRemoteAsset($remoteUrl, $slug, $assetDir, $assets, ['pdf', 'doc', 'docx', 'djvu', 'rtf', 'rar', 'zip', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+    return archiveRemoteAsset($remoteUrl, $slug, $assetDir, $assets, ['pdf', 'doc', 'docx', 'djvu', 'rtf', 'rar', 'zip', 'jpg', 'jpeg', 'png', 'webp', 'svg']);
 }
 
 function archiveRemoteAsset(string $remoteUrl, string $slug, string $assetDir, array &$assets, array $allowedExtensions): ?string
