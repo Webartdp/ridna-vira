@@ -3,101 +3,8 @@
 @section('title', $shrineTitle.' — Святині — Рідна Віра')
 @section('description', $shrineTitle.' — матеріал розділу святинь Духовного центру «Рідна Віра».')
 
-@php
-    $heroImage = null;
-
-    foreach (($shrine['assets'] ?? []) as $asset) {
-        $path = (string) ($asset['path'] ?? '');
-
-        if ($path !== '' && preg_match('/\.(?:jpe?g|png|webp|svg)(?:\?.*)?$/i', $path)) {
-            $heroImage = $path;
-            break;
-        }
-    }
-@endphp
-
 @push('styles')
 <style>
-    .shrine-hero {
-        position: relative;
-        min-height: 430px;
-        display: grid;
-        align-items: end;
-        overflow: hidden;
-        color: #fff;
-        background: #263a2c;
-    }
-
-    .shrine-hero__image,
-    .shrine-hero__fallback {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-    }
-
-    .shrine-hero__image {
-        object-fit: cover;
-    }
-
-    .shrine-hero__fallback {
-        background:
-            linear-gradient(90deg, rgba(255, 255, 255, .07) 1px, transparent 1px) 0 0 / 36px 36px,
-            linear-gradient(0deg, rgba(255, 255, 255, .07) 1px, transparent 1px) 0 0 / 36px 36px,
-            #263a2c;
-    }
-
-    .shrine-hero::after {
-        position: absolute;
-        inset: 0;
-        content: '';
-        background: linear-gradient(180deg, rgba(18, 24, 17, .22), rgba(18, 24, 17, .9));
-    }
-
-    .shrine-hero__content {
-        position: relative;
-        z-index: 1;
-        width: min(1044px, calc(100% - 32px));
-        margin-inline: auto;
-        padding: 0 0 58px;
-    }
-
-    .shrine-hero__region {
-        display: block;
-        margin-bottom: 14px;
-        color: rgba(255, 255, 255, .78);
-        font-family: var(--rv-font-ui);
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: .12em;
-        text-transform: uppercase;
-    }
-
-    .shrine-hero h1 {
-        max-width: 860px;
-        margin: 0;
-        font-family: var(--rv-font-display);
-        font-size: clamp(20px, 2.4vw, 30px);
-        font-weight: 700;
-        line-height: 1.18;
-        text-transform: uppercase;
-    }
-
-    .inner-breadcrumbs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-top: 28px;
-        color: rgba(255, 255, 255, .72);
-        font-family: var(--rv-font-ui);
-        font-size: 13px;
-        text-transform: uppercase;
-    }
-
-    .inner-breadcrumbs a:hover {
-        color: #fff;
-    }
-
     .shrine-reading-page {
         padding: 72px 0 94px;
     }
@@ -255,14 +162,6 @@
     }
 
     @media (max-width: 767.98px) {
-        .shrine-hero {
-            min-height: 340px;
-        }
-
-        .shrine-hero__content {
-            padding-bottom: 40px;
-        }
-
         .shrine-reading-page {
             padding: 50px 0 68px;
         }
@@ -275,15 +174,9 @@
 @endpush
 
 @section('content')
-<section class="shrine-hero" aria-labelledby="shrine-page-title">
-    @if ($heroImage)
-        <img class="shrine-hero__image" src="{{ $heroImage }}" alt="{{ $shrineTitle }}">
-    @else
-        <span class="shrine-hero__fallback" aria-hidden="true"></span>
-    @endif
-
-    <div class="shrine-hero__content">
-        <span class="shrine-hero__region">{{ $shrine['region'] ?? 'Святиня' }}</span>
+<section class="inner-hero inner-hero--faith" aria-labelledby="shrine-page-title">
+    <div class="inner-hero__overlay"></div>
+    <div class="inner-hero__content">
         <h1 id="shrine-page-title">{{ $shrineTitle }}</h1>
         <nav class="inner-breadcrumbs" aria-label="Навігаційний шлях">
             <a href="{{ route('home') }}">Головна</a>
