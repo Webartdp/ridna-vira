@@ -77,9 +77,9 @@
         max-width: 860px;
         margin: 0;
         font-family: var(--rv-font-display);
-        font-size: clamp(42px, 7vw, 86px);
+        font-size: clamp(20px, 2.4vw, 30px);
         font-weight: 700;
-        line-height: .98;
+        line-height: 1.18;
         text-transform: uppercase;
     }
 
