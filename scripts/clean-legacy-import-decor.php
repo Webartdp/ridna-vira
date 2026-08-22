@@ -13,6 +13,7 @@ $report = [
     'generated_at' => date(DATE_ATOM),
     'content_root' => 'storage/app/content',
     'cleaned_files' => [],
+    'removed_russian_version_files' => [],
     'removed_asset_files' => [],
 ];
 
@@ -22,6 +23,7 @@ if (!is_dir($contentRoot)) {
 
 foreach (htmlFiles($contentRoot) as $path) {
     $html = (string) file_get_contents($path);
+    $hadRussianVersionReference = containsRussianVersionReference($html);
     $cleaned = cleanLegacyImportDecor($html);
 
     if ($cleaned === $html) {
@@ -29,8 +31,14 @@ foreach (htmlFiles($contentRoot) as $path) {
     }
 
     file_put_contents($path, rtrim($cleaned).PHP_EOL);
-    $report['cleaned_files'][] = relativePath($root, $path);
-    echo '[CLEAN] '.relativePath($root, $path).PHP_EOL;
+    $relativePath = relativePath($root, $path);
+    $report['cleaned_files'][] = $relativePath;
+
+    if ($hadRussianVersionReference && !containsRussianVersionReference($cleaned)) {
+        $report['removed_russian_version_files'][] = $relativePath;
+    }
+
+    echo '[CLEAN] '.$relativePath.PHP_EOL;
 }
 
 if (is_dir($assetRoot)) {
@@ -46,6 +54,7 @@ file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT | JSON_UNE
 
 echo PHP_EOL;
 echo 'Очищено HTML-файлів: '.count($report['cleaned_files']).PHP_EOL;
+echo 'Прибрано посилань на російські версії у файлах: '.count($report['removed_russian_version_files']).PHP_EOL;
 echo 'Видалено службових GIF-файлів: '.count($report['removed_asset_files']).PHP_EOL;
 echo 'Звіт: storage/app/content/legacy-import-decor-cleanup.json'.PHP_EOL;
 
@@ -89,6 +98,8 @@ function cleanLegacyImportDecor(string $html): string
 {
     $before = $html;
 
+    $html = removeRussianVersionReferences($html);
+
     $html = preg_replace_callback(
         '~<img\b[^>]*>~isu',
         static fn (array $match): string => isLegacyDecorImageTag($match[0]) ? '' : $match[0],
@@ -110,6 +121,35 @@ function cleanLegacyImportDecor(string $html): string
     }
 
     return trim($html);
+}
+
+function removeRussianVersionReferences(string $html): string
+{
+    $html = preg_replace_callback(
+        '~<(p|li|h[1-6])\b[^>]*>.*?</\1>\s*~isu',
+        static fn (array $match): string => containsRussianVersionReference($match[0]) ? '' : $match[0],
+        $html
+    ) ?? $html;
+
+    $html = preg_replace_callback(
+        '~<a\b[^>]*>.*?</a>\s*~isu',
+        static fn (array $match): string => containsRussianVersionReference($match[0]) ? '' : $match[0],
+        $html
+    ) ?? $html;
+
+    return preg_replace(
+        '~(?:^|<br\s*/?>)\s*(?:[-–—]\s*)?(?:російськ(?:а|ою|ої)|русск(?:ая|ой|ую)|russian)\s+(?:версі(?:я|ї|ю)|верс(?:ия|ии|ию)|version)(?:\s+(?:статт(?:і|ю|я)|article))?\s*(?=<br\s*/?>|$)~imu',
+        '',
+        $html
+    ) ?? $html;
+}
+
+function containsRussianVersionReference(string $html): bool
+{
+    $text = compactText(strip_tags(str_ireplace(['<br>', '<br/>', '<br />'], ' ', $html)));
+
+    return preg_match('~(?:російськ(?:а|ою|ої)|русск(?:ая|ой|ую)|russian)\s+(?:версі(?:я|ї|ю)|верс(?:ия|ии|ию)|version)(?:\s+(?:статт(?:і|ю|я)|article))?~iu', $text) === 1
+        || preg_match('~(?:статт(?:я|і|ю)|article)\s+(?:російською|русском|russian)~iu', $text) === 1;
 }
 
 function isLegacyDecorImageTag(string $tag): bool
@@ -176,6 +216,11 @@ function imageDimension(string $tag, string $attribute): ?int
     $value = imageAttribute($tag, $attribute);
 
     return $value !== '' && preg_match('/^\d+$/', $value) ? (int) $value : null;
+}
+
+function compactText(string $text): string
+{
+    return trim(preg_replace('/\s+/u', ' ', html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8')) ?? '');
 }
 
 function relativePath(string $root, string $path): string
