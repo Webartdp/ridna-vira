@@ -9,61 +9,9 @@
         padding: 72px 0 94px;
     }
 
-    .shrine-reading-shell {
-        display: grid;
-        grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
-        gap: 48px;
-        align-items: start;
-    }
-
-    .shrine-reading-aside {
-        position: sticky;
-        top: 24px;
-        padding-top: 14px;
-        border-top: 7px solid #35533b;
-    }
-
-    .shrine-reading-aside__label {
-        display: block;
-        color: rgba(64, 20, 3, .68);
-        font-family: var(--rv-font-ui);
-        font-size: 12px;
-        font-weight: 600;
-        letter-spacing: .1em;
-        text-transform: uppercase;
-    }
-
-    .shrine-reading-aside__region {
-        display: block;
-        margin-top: 10px;
-        color: #401403;
-        font-family: var(--rv-font-display);
-        font-size: 22px;
-        font-weight: 700;
-        line-height: 1.12;
-        text-transform: uppercase;
-    }
-
-    .shrine-reading-back {
-        display: inline-block;
-        margin-top: 28px;
-        color: #8a5d16;
-        font-family: var(--rv-font-ui);
-        font-size: 13px;
-        font-weight: 600;
-        text-transform: uppercase;
-        border-bottom: 1px solid rgba(138, 93, 22, .38);
-    }
-
-    .shrine-reading-back:hover {
-        color: #35533b;
-        border-bottom-color: #35533b;
-    }
-
     .shrine-reading-article {
-        min-width: 0;
-        padding: 0 0 0 42px;
-        border-left: 1px solid rgba(64, 20, 3, .16);
+        max-width: 920px;
+        margin: 0 auto;
     }
 
     .shrine-reading-content {
@@ -145,20 +93,9 @@
         line-height: 1.5;
     }
 
-    @media (max-width: 991.98px) {
-        .shrine-reading-shell {
-            grid-template-columns: 1fr;
-            gap: 34px;
-        }
-
-        .shrine-reading-aside {
-            position: static;
-        }
-
-        .shrine-reading-article {
-            padding-left: 0;
-            border-left: 0;
-        }
+    .shrine-reading-footer {
+        max-width: 920px;
+        margin: 42px auto 0;
     }
 
     @media (max-width: 767.98px) {
@@ -192,26 +129,22 @@
 
 <section class="shrine-reading-page">
     <div class="figma-container">
-        <div class="shrine-reading-shell">
-            <aside class="shrine-reading-aside" aria-label="Відомості про святиню">
-                <span class="shrine-reading-aside__label">Область</span>
-                <strong class="shrine-reading-aside__region">{{ $shrine['region'] ?? 'Рідна Земля' }}</strong>
-                <a class="shrine-reading-back" href="{{ route('faith.shrines') }}">← До списку святинь</a>
-            </aside>
+        <article class="shrine-reading-article">
+            @if ($content !== null && trim($content) !== '')
+                <div class="shrine-reading-content">
+                    {!! $content !!}
+                </div>
+            @else
+                <div class="shrine-reading-empty">
+                    <h2>Матеріал тимчасово недоступний</h2>
+                    <p>Сторінка святині буде відкрита після оновлення розділу.</p>
+                </div>
+            @endif
+        </article>
 
-            <article class="shrine-reading-article">
-                @if ($content !== null && trim($content) !== '')
-                    <div class="shrine-reading-content">
-                        {!! $content !!}
-                    </div>
-                @else
-                    <div class="shrine-reading-empty">
-                        <h2>Матеріал тимчасово недоступний</h2>
-                        <p>Сторінка святині буде відкрита після оновлення розділу.</p>
-                    </div>
-                @endif
-            </article>
-        </div>
+        <footer class="shrine-reading-footer">
+            <a class="document-back-link" href="{{ route('faith.shrines') }}">← До списку святинь</a>
+        </footer>
     </div>
 </section>
 @endsection
