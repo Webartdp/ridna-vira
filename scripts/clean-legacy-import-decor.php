@@ -140,8 +140,9 @@ function isLegacyDecorImageTag(string $tag): bool
 function isLegacyDecorFilename(string $filename): bool
 {
     $filename = strtolower(rawurldecode($filename));
+    $normalized = preg_replace('/-\d+(?=\.[a-z0-9]+$)/i', '', $filename) ?? $filename;
 
-    return in_array($filename, [
+    return in_array($normalized, [
         'lin.gif',
         'line.gif',
         'artic.gif',
