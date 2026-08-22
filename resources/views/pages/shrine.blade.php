@@ -9,7 +9,7 @@
     foreach (($shrine['assets'] ?? []) as $asset) {
         $path = (string) ($asset['path'] ?? '');
 
-        if ($path !== '' && preg_match('/\.(?:jpe?g|png|gif|webp|svg)(?:\?.*)?$/i', $path)) {
+        if ($path !== '' && preg_match('/\.(?:jpe?g|png|webp|svg)(?:\?.*)?$/i', $path)) {
             $heroImage = $path;
             break;
         }
