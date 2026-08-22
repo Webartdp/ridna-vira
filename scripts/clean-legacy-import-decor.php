@@ -13,6 +13,7 @@ $report = [
     'generated_at' => date(DATE_ATOM),
     'content_root' => 'storage/app/content',
     'cleaned_files' => [],
+    'cleaned_manifests' => [],
     'removed_russian_version_files' => [],
     'removed_asset_files' => [],
 ];
@@ -50,10 +51,29 @@ if (is_dir($assetRoot)) {
     }
 }
 
+foreach (jsonFiles($contentRoot) as $path) {
+    $relativePath = relativePath($root, $path);
+    if ($relativePath === 'storage/app/content/legacy-import-decor-cleanup.json') {
+        continue;
+    }
+
+    $json = (string) file_get_contents($path);
+    $cleaned = cleanManifestJson($json);
+
+    if ($cleaned === $json) {
+        continue;
+    }
+
+    file_put_contents($path, rtrim($cleaned).PHP_EOL);
+    $report['cleaned_manifests'][] = $relativePath;
+    echo '[MANIFEST] '.$relativePath.PHP_EOL;
+}
+
 file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES).PHP_EOL);
 
 echo PHP_EOL;
 echo 'Очищено HTML-файлів: '.count($report['cleaned_files']).PHP_EOL;
+echo 'Очищено JSON-маніфестів: '.count($report['cleaned_manifests']).PHP_EOL;
 echo 'Прибрано посилань на російські версії у файлах: '.count($report['removed_russian_version_files']).PHP_EOL;
 echo 'Видалено GIF-файлів: '.count($report['removed_asset_files']).PHP_EOL;
 echo 'Звіт: storage/app/content/legacy-import-decor-cleanup.json'.PHP_EOL;
@@ -71,6 +91,24 @@ function htmlFiles(string $root): Generator
         }
 
         if (strtolower($file->getExtension()) === 'html') {
+            yield $file->getPathname();
+        }
+    }
+}
+
+/** @return Generator<int, string> */
+function jsonFiles(string $root): Generator
+{
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS)
+    );
+
+    foreach ($iterator as $file) {
+        if (!$file instanceof SplFileInfo || !$file->isFile()) {
+            continue;
+        }
+
+        if (strtolower($file->getExtension()) === 'json') {
             yield $file->getPathname();
         }
     }
@@ -120,6 +158,129 @@ function cleanLegacyImportDecor(string $html): string
     }
 
     return trim($html);
+}
+
+function cleanManifestJson(string $json): string
+{
+    $data = json_decode($json, true);
+    if (!is_array($data)) {
+        return $json;
+    }
+
+    $cleaned = cleanManifestValue($data);
+    if ($cleaned === $data) {
+        return $json;
+    }
+
+    $encoded = json_encode($cleaned, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+    return is_string($encoded) ? $encoded : $json;
+}
+
+function cleanManifestValue($value)
+{
+    if (!is_array($value)) {
+        return $value;
+    }
+
+    if (isSequentialArray($value)) {
+        $items = [];
+        foreach ($value as $item) {
+            if (is_array($item) && isGifAssetEntry($item)) {
+                continue;
+            }
+
+            $items[] = cleanManifestValue($item);
+        }
+
+        return $items;
+    }
+
+    foreach ($value as $key => $item) {
+        $value[$key] = cleanManifestValue($item);
+    }
+
+    if (isset($value['assets']) && is_array($value['assets'])) {
+        $assets = [];
+        foreach ($value['assets'] as $asset) {
+            if (is_array($asset) && isGifAssetEntry($asset)) {
+                continue;
+            }
+
+            $assets[] = $asset;
+        }
+
+        $value['assets'] = $assets;
+    }
+
+    if (array_key_exists('images', $value) && isset($value['assets']) && is_array($value['assets'])) {
+        $value['images'] = countRealImageAssets($value['assets']);
+    }
+
+    return $value;
+}
+
+function isSequentialArray(array $value): bool
+{
+    return $value === [] || array_keys($value) === range(0, count($value) - 1);
+}
+
+function isGifAssetEntry(array $entry): bool
+{
+    foreach (assetReferenceKeys() as $key) {
+        if (isset($entry[$key]) && is_scalar($entry[$key]) && isGifPath((string) $entry[$key])) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+function countRealImageAssets(array $assets): int
+{
+    $count = 0;
+    foreach ($assets as $asset) {
+        if (!is_array($asset)) {
+            continue;
+        }
+
+        foreach (assetReferenceKeys() as $key) {
+            if (isset($asset[$key]) && is_scalar($asset[$key]) && isRealImagePath((string) $asset[$key])) {
+                $count++;
+                break;
+            }
+        }
+    }
+
+    return $count;
+}
+
+/** @return array<int, string> */
+function assetReferenceKeys(): array
+{
+    return ['path', 'src', 'url', 'href', 'source', 'source_url', 'original_url'];
+}
+
+function isGifPath(string $path): bool
+{
+    $basename = normalizedPathBasename($path);
+
+    return str_ends_with($basename, '.gif') || isLegacyDecorFilename($basename);
+}
+
+function isRealImagePath(string $path): bool
+{
+    $basename = normalizedPathBasename($path);
+
+    return preg_match('~\.(?:jpe?g|png|webp|svg)$~i', $basename) === 1 && !isLegacyDecorFilename($basename);
+}
+
+function normalizedPathBasename(string $path): string
+{
+    $decoded = trim(html_entity_decode($path, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    $urlPath = (string) (parse_url($decoded, PHP_URL_PATH) ?? $decoded);
+
+    return strtolower(rawurldecode(basename($urlPath)));
 }
 
 function removeRussianVersionReferences(string $html): string
@@ -199,7 +360,7 @@ function isLegacyDecorImageTag(string $tag): bool
         return false;
     }
 
-    $basename = strtolower(rawurldecode(basename((string) parse_url(html_entity_decode($src, ENT_QUOTES | ENT_HTML5, 'UTF-8'), PHP_URL_PATH))));
+    $basename = normalizedPathBasename($src);
 
     if (str_ends_with($basename, '.gif') || isLegacyDecorFilename($basename)) {
         return true;
