@@ -7,9 +7,9 @@ use Illuminate\Support\Str;
 require dirname(__DIR__).'/vendor/autoload.php';
 
 /**
- * Removes imported duplicate title headings and legacy author bylines from
- * holiday content files. Page templates already render the holiday title, so
- * imported article bodies should start with the real article content.
+ * Removes imported duplicate title headings, legacy author bylines, and legacy
+ * source links from holiday content files. Page templates already render the
+ * holiday title, so imported article bodies should start with real content.
  */
 
 $root = dirname(__DIR__);
@@ -52,6 +52,11 @@ foreach (($calendar['months'] ?? []) as $monthName => $items) {
         $beforeBylineCleanup = $cleaned;
         $cleaned = removeLegacyAuthorBylines($cleaned);
         $removedLegacyByline = $cleaned !== $beforeBylineCleanup;
+
+        $beforeSvitCleanup = $cleaned;
+        $cleaned = removeLegacySvitLinks($cleaned);
+        $removedLegacySvitLink = $cleaned !== $beforeSvitCleanup;
+
         $cleaned = removeEmptyParagraphs($cleaned);
 
         if ($cleaned === $html) {
@@ -65,6 +70,7 @@ foreach (($calendar['months'] ?? []) as $monthName => $items) {
             'month' => $monthName,
             'duplicate_title' => $removedDuplicateTitle,
             'legacy_author_byline' => $removedLegacyByline,
+            'legacy_svit_link' => $removedLegacySvitLink,
         ];
 
         echo '[CLEAN] '.$name.PHP_EOL;
@@ -73,12 +79,14 @@ foreach (($calendar['months'] ?? []) as $monthName => $items) {
 
 $duplicateTitleCount = count(array_filter($report['cleaned'], static fn (array $item): bool => (bool) ($item['duplicate_title'] ?? false)));
 $legacyBylineCount = count(array_filter($report['cleaned'], static fn (array $item): bool => (bool) ($item['legacy_author_byline'] ?? false)));
+$legacySvitLinkCount = count(array_filter($report['cleaned'], static fn (array $item): bool => (bool) ($item['legacy_svit_link'] ?? false)));
 
 file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n");
 
 echo PHP_EOL;
 echo 'Прибрано дубльованих заголовків: '.$duplicateTitleCount.PHP_EOL;
 echo 'Прибрано службових підписів автора: '.$legacyBylineCount.PHP_EOL;
+echo 'Прибрано старих посилань svit.in.ua: '.$legacySvitLinkCount.PHP_EOL;
 echo 'Немає файлу: '.count($report['missing']).PHP_EOL;
 echo 'Звіт: storage/app/content/holidays-cleanup.json'.PHP_EOL;
 
@@ -114,6 +122,30 @@ function removeLegacyAuthorBylines(string $html): string
         static fn (array $match): string => isLegacyAuthorByline($match[2]) ? '' : $match[0],
         $html
     ) ?? $html;
+}
+
+function removeLegacySvitLinks(string $html): string
+{
+    $html = preg_replace_callback(
+        '~<(p|li|h[1-6])\b[^>]*>(.*?)</\1>\s*~isu',
+        static fn (array $match): string => containsLegacySvitUrl($match[0]) ? '' : $match[0],
+        $html
+    ) ?? $html;
+
+    $html = preg_replace(
+        '~<a\b[^>]*href\s*=\s*(["\'])https?://(?:www\.)?svit\.in\.ua[^"\']*\1[^>]*>.*?</a>\s*~isu',
+        '',
+        $html
+    ) ?? $html;
+
+    return preg_replace('~\s*https?://(?:www\.)?svit\.in\.ua[^\s<"\']*~iu', '', $html) ?? $html;
+}
+
+function containsLegacySvitUrl(string $html): bool
+{
+    $decoded = html_entity_decode($html, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+    return preg_match('~https?://(?:www\.)?svit\.in\.ua|(?:^|[\s/"\'>])(?:www\.)?svit\.in\.ua~iu', $decoded) === 1;
 }
 
 function isLegacyAuthorByline(string $html): bool
