@@ -7,9 +7,9 @@ use Illuminate\Support\Str;
 require dirname(__DIR__).'/vendor/autoload.php';
 
 /**
- * Removes imported duplicate title headings from holiday content files.
- * Page templates already render the holiday title, so imported article bodies
- * should start with byline/body text or a real section heading.
+ * Removes imported duplicate title headings and legacy author bylines from
+ * holiday content files. Page templates already render the holiday title, so
+ * imported article bodies should start with the real article content.
  */
 
 $root = dirname(__DIR__);
@@ -47,6 +47,12 @@ foreach (($calendar['months'] ?? []) as $monthName => $items) {
 
         $html = (string) file_get_contents($path);
         $cleaned = removeDuplicateTitleHeadings($html, $name);
+        $removedDuplicateTitle = $cleaned !== $html;
+
+        $beforeBylineCleanup = $cleaned;
+        $cleaned = removeLegacyAuthorBylines($cleaned);
+        $removedLegacyByline = $cleaned !== $beforeBylineCleanup;
+        $cleaned = removeEmptyParagraphs($cleaned);
 
         if ($cleaned === $html) {
             continue;
@@ -57,16 +63,22 @@ foreach (($calendar['months'] ?? []) as $monthName => $items) {
             'slug' => $slug,
             'name' => $name,
             'month' => $monthName,
+            'duplicate_title' => $removedDuplicateTitle,
+            'legacy_author_byline' => $removedLegacyByline,
         ];
 
         echo '[CLEAN] '.$name.PHP_EOL;
     }
 }
 
+$duplicateTitleCount = count(array_filter($report['cleaned'], static fn (array $item): bool => (bool) ($item['duplicate_title'] ?? false)));
+$legacyBylineCount = count(array_filter($report['cleaned'], static fn (array $item): bool => (bool) ($item['legacy_author_byline'] ?? false)));
+
 file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)."\n");
 
 echo PHP_EOL;
-echo 'Прибрано дубльованих заголовків: '.count($report['cleaned']).PHP_EOL;
+echo 'Прибрано дубльованих заголовків: '.$duplicateTitleCount.PHP_EOL;
+echo 'Прибрано службових підписів автора: '.$legacyBylineCount.PHP_EOL;
 echo 'Немає файлу: '.count($report['missing']).PHP_EOL;
 echo 'Звіт: storage/app/content/holidays-cleanup.json'.PHP_EOL;
 
@@ -93,6 +105,34 @@ function removeDuplicateTitleHeadings(string $html, string $holidayName): string
         $html,
         1
     ) ?? $html;
+}
+
+function removeLegacyAuthorBylines(string $html): string
+{
+    return preg_replace_callback(
+        '~<(p|h[1-6])\b[^>]*>(.*?)</\1>\s*~isu',
+        static fn (array $match): string => isLegacyAuthorByline($match[2]) ? '' : $match[0],
+        $html
+    ) ?? $html;
+}
+
+function isLegacyAuthorByline(string $html): bool
+{
+    $text = compactText(strip_tags(str_ireplace(['<br>', '<br/>', '<br />'], ' ', $html)));
+    $key = preg_replace('/[^\p{L}\p{N}]+/u', '', mb_strtolower($text, 'UTF-8')) ?? '';
+
+    return in_array($key, [
+        'світовитпашник',
+        'волхврідноївіри',
+        'волхврпк',
+        'світовитпашникволхврідноївіри',
+        'світовитпашникволхврпк',
+    ], true);
+}
+
+function removeEmptyParagraphs(string $html): string
+{
+    return preg_replace('~<p\b[^>]*>\s*(?:&nbsp;)?\s*</p>\s*~iu', '', $html) ?? $html;
 }
 
 function headingMatchesHoliday(string $heading, string $holidayName): bool
