@@ -16,6 +16,14 @@
         return null;
     };
 
+    $regionFor = static function (array $item): string {
+        $region = trim((string) ($item['region'] ?? ''));
+        $region = preg_replace('/\s+/u', ' ', $region) ?? $region;
+        $region = preg_replace('/^святині\s+/iu', '', $region) ?? $region;
+
+        return trim($region, " \t\n\r\0\x0B:-—–");
+    };
+
     $shrineCollection = collect($shrines)
         ->filter(static fn ($shrine): bool => is_array($shrine))
         ->values();
@@ -225,6 +233,7 @@
             <ol class="shrines-simple-list" aria-label="Список святинь">
                 @foreach ($shrineCollection as $shrine)
                     @php($imagePath = $imageFor($shrine))
+                    @php($regionLabel = $regionFor($shrine))
                     <li>
                         <a class="shrine-list-row" href="{{ route('faith.shrines.show', ['shrine' => $shrine['slug']]) }}">
                             <span class="shrine-list-row__photo" aria-hidden="true">
@@ -235,7 +244,9 @@
                                 @endif
                             </span>
                             <span>
-                                <span class="shrine-list-row__region">{{ $shrine['region'] ?? 'Святиня' }}</span>
+                                @if ($regionLabel !== '')
+                                    <span class="shrine-list-row__region">{{ $regionLabel }}</span>
+                                @endif
                                 <strong>{{ $shrine['title'] }}</strong>
                             </span>
                             <span class="shrine-list-row__open">Відкрити</span>
