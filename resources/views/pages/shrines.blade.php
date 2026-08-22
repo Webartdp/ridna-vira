@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Святині — Рідна Віра')
-@section('description', 'Локально збережений розділ святинь Духовного центру Рідна Віра.')
+@section('description', 'Святині Рідної Землі у локальному архіві Духовного центру Рідна Віра.')
 
 @php
     $imageFor = static function (array $item): ?string {
@@ -24,50 +24,70 @@
 
         return $region !== '' ? $region : 'Святині';
     });
-    $regionsCount = $groupedShrines->count();
-    $imagesCount = (int) $shrineCollection->sum(static fn (array $shrine): int => (int) ($shrine['images'] ?? 0));
-    $featured = $shrineCollection->first(static fn (array $shrine): bool => ($shrine['images'] ?? 0) > 0) ?? $shrineCollection->first();
+    $featured = $shrineCollection->first(static fn (array $shrine): bool => $imageFor($shrine) !== null) ?? $shrineCollection->first();
     $featuredImage = is_array($featured) ? $imageFor($featured) : null;
 @endphp
 
 @push('styles')
 <style>
-    .inner-hero--shrines {
+    .shrines-hero {
         position: relative;
-        min-height: 324px;
+        min-height: 430px;
         display: grid;
         align-items: end;
         overflow: hidden;
         color: #fff;
         background:
-            linear-gradient(180deg, rgba(28, 8, 3, .38), rgba(28, 8, 3, .78)),
+            linear-gradient(180deg, rgba(18, 24, 17, .28), rgba(18, 24, 17, .88)),
             url('/assets/figma/home/communities-bg.png') center / cover no-repeat;
     }
 
-    .inner-hero--shrines .inner-hero__content {
+    .shrines-hero__content {
         position: relative;
         z-index: 1;
         width: min(1044px, calc(100% - 32px));
         margin-inline: auto;
-        padding: 0 0 54px;
+        padding: 0 0 58px;
     }
 
-    .inner-hero--shrines h1 {
-        margin: 0 0 16px;
+    .shrines-hero__eyebrow {
+        display: block;
+        margin-bottom: 14px;
+        color: rgba(255, 255, 255, .78);
+        font-family: var(--rv-font-ui);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: .12em;
+        text-transform: uppercase;
+    }
+
+    .shrines-hero h1 {
+        max-width: 820px;
+        margin: 0;
         font-family: var(--rv-font-display);
         font-size: clamp(48px, 8vw, 94px);
         font-weight: 700;
-        line-height: .95;
+        line-height: .96;
         text-transform: uppercase;
+    }
+
+    .shrines-hero__lead {
+        max-width: 670px;
+        margin: 22px 0 0;
+        color: rgba(255, 255, 255, .86);
+        font-family: var(--rv-font-ui);
+        font-size: 18px;
+        line-height: 1.58;
     }
 
     .inner-breadcrumbs {
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
-        color: rgba(255, 255, 255, .78);
+        margin-top: 28px;
+        color: rgba(255, 255, 255, .72);
         font-family: var(--rv-font-ui);
-        font-size: 14px;
+        font-size: 13px;
         text-transform: uppercase;
     }
 
@@ -76,33 +96,37 @@
     }
 
     .shrines-page {
-        padding: 72px 0 90px;
+        padding: 76px 0 96px;
     }
 
-    .shrines-intro {
+    .shrines-opening {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(300px, 378px);
-        gap: 42px;
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 392px);
+        gap: 46px;
         align-items: stretch;
-        margin-bottom: 40px;
-        padding-bottom: 36px;
-        border-bottom: 1px solid rgba(64, 20, 3, .18);
+        margin-bottom: 48px;
     }
 
-    .shrines-intro__eyebrow,
+    .shrines-opening__text {
+        display: grid;
+        align-content: center;
+        padding: 6px 0;
+    }
+
+    .shrines-opening__kicker,
     .shrines-feature__region,
-    .shrine-place__label {
+    .shrine-place__kind {
         color: #35533b;
         font-family: var(--rv-font-ui);
         font-size: 12px;
         font-weight: 600;
-        letter-spacing: .08em;
+        letter-spacing: .1em;
         text-transform: uppercase;
     }
 
-    .shrines-intro h2 {
-        max-width: 650px;
-        margin: 8px 0 18px;
+    .shrines-opening h2 {
+        max-width: 660px;
+        margin: 10px 0 20px;
         font-family: var(--rv-font-display);
         font-size: clamp(34px, 5vw, 58px);
         font-weight: 700;
@@ -110,46 +134,26 @@
         text-transform: uppercase;
     }
 
-    .shrines-intro p {
-        max-width: 660px;
-        margin-bottom: 30px;
+    .shrines-opening p {
+        max-width: 680px;
+        margin: 0;
         color: rgba(28, 8, 3, .78);
         font-family: var(--rv-font-ui);
         font-size: 18px;
-        line-height: 1.55;
+        line-height: 1.62;
     }
 
-    .shrines-stats {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 132px));
-        gap: 18px;
-        margin: 0;
-    }
-
-    .shrines-stats div {
-        padding-top: 13px;
-        border-top: 3px solid #35533b;
-    }
-
-    .shrines-stats dt {
-        color: #401403;
-        font-family: var(--rv-font-display);
-        font-size: 34px;
-        font-weight: 700;
-        line-height: 1;
-    }
-
-    .shrines-stats dd {
-        margin: 7px 0 0;
-        color: rgba(64, 20, 3, .7);
-        font-family: var(--rv-font-ui);
-        font-size: 13px;
-        text-transform: uppercase;
+    .shrines-opening__rule {
+        width: min(420px, 100%);
+        height: 7px;
+        margin-top: 34px;
+        background:
+            linear-gradient(90deg, #35533b 0 22%, transparent 22% 28%, #c28b2d 28% 46%, transparent 46% 52%, #401403 52% 100%);
     }
 
     .shrines-feature {
         position: relative;
-        min-height: 318px;
+        min-height: 340px;
         display: flex;
         overflow: hidden;
         align-items: flex-end;
@@ -172,22 +176,22 @@
         position: absolute;
         inset: 0;
         content: '';
-        background: linear-gradient(180deg, rgba(18, 29, 22, .12), rgba(18, 29, 22, .9));
+        background: linear-gradient(180deg, rgba(18, 29, 22, .08), rgba(18, 29, 22, .92));
     }
 
     .shrines-feature__fallback {
         position: absolute;
         inset: 0;
         background:
-            linear-gradient(135deg, rgba(255, 255, 255, .08) 25%, transparent 25%) 0 0 / 28px 28px,
-            linear-gradient(135deg, transparent 75%, rgba(255, 255, 255, .08) 75%) 0 0 / 28px 28px,
+            linear-gradient(90deg, rgba(255, 255, 255, .08) 1px, transparent 1px) 0 0 / 34px 34px,
+            linear-gradient(0deg, rgba(255, 255, 255, .08) 1px, transparent 1px) 0 0 / 34px 34px,
             #263a2c;
     }
 
     .shrines-feature__body {
         position: relative;
         z-index: 1;
-        padding: 24px;
+        padding: 26px;
     }
 
     .shrines-feature__region {
@@ -196,35 +200,28 @@
 
     .shrines-feature strong {
         display: block;
-        margin-top: 9px;
+        margin-top: 10px;
         font-family: var(--rv-font-display);
-        font-size: 30px;
+        font-size: 31px;
         line-height: 1.08;
         text-transform: uppercase;
-    }
-
-    .shrines-feature small {
-        display: block;
-        margin-top: 13px;
-        color: rgba(255, 255, 255, .78);
-        font-family: var(--rv-font-ui);
-        font-size: 14px;
     }
 
     .shrines-region-nav {
         display: flex;
         flex-wrap: wrap;
-        gap: 12px 22px;
-        margin-bottom: 42px;
-        padding-bottom: 24px;
-        border-bottom: 1px solid rgba(64, 20, 3, .12);
+        gap: 13px 24px;
+        margin-bottom: 54px;
+        padding: 22px 0;
+        border-top: 1px solid rgba(64, 20, 3, .16);
+        border-bottom: 1px solid rgba(64, 20, 3, .16);
         font-family: var(--rv-font-ui);
         font-size: 14px;
         text-transform: uppercase;
     }
 
     .shrines-region-nav a {
-        color: rgba(64, 20, 3, .72);
+        color: rgba(64, 20, 3, .74);
         border-bottom: 1px solid transparent;
     }
 
@@ -235,66 +232,57 @@
 
     .shrines-regions {
         display: grid;
-        gap: 52px;
+        gap: 58px;
     }
 
     .shrines-region__header {
-        display: grid;
-        grid-template-columns: 56px minmax(0, 1fr) auto;
+        display: flex;
+        align-items: center;
         gap: 20px;
-        align-items: end;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
     }
 
-    .shrines-region__number {
-        color: #35533b;
-        font-family: var(--rv-font-display);
-        font-size: 42px;
-        font-weight: 700;
-        line-height: .85;
+    .shrines-region__header::after {
+        height: 1px;
+        flex: 1;
+        content: '';
+        background: rgba(64, 20, 3, .18);
     }
 
     .shrines-region h3 {
         margin: 0;
+        color: #401403;
         font-family: var(--rv-font-display);
-        font-size: clamp(26px, 4vw, 38px);
+        font-size: clamp(27px, 4vw, 40px);
         font-weight: 700;
         line-height: 1;
         text-transform: uppercase;
     }
 
-    .shrines-region__count {
-        color: rgba(64, 20, 3, .62);
-        font-family: var(--rv-font-ui);
-        font-size: 13px;
-        text-transform: uppercase;
-        white-space: nowrap;
-    }
-
     .shrines-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 18px;
+        gap: 20px;
         margin: 0;
         padding: 0;
         list-style: none;
     }
 
     .shrine-place {
-        min-height: 264px;
+        min-height: 286px;
         display: grid;
-        grid-template-rows: 148px 1fr;
+        grid-template-rows: 164px 1fr;
         overflow: hidden;
         border: 1px solid rgba(64, 20, 3, .16);
         border-radius: 8px;
-        background: rgba(255, 255, 255, .58);
+        background: rgba(255, 255, 255, .64);
         box-shadow: 0 9px 22px rgba(28, 8, 3, .08);
         transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
     }
 
     .shrine-place:hover {
-        border-color: rgba(53, 83, 59, .45);
-        box-shadow: 0 13px 28px rgba(28, 8, 3, .14);
+        border-color: rgba(53, 83, 59, .48);
+        box-shadow: 0 14px 30px rgba(28, 8, 3, .16);
         transform: translateY(-3px);
     }
 
@@ -321,60 +309,48 @@
         display: grid;
         place-items: center;
         background:
-            linear-gradient(90deg, rgba(53, 83, 59, .18) 1px, transparent 1px) 0 0 / 28px 28px,
-            linear-gradient(0deg, rgba(53, 83, 59, .14) 1px, transparent 1px) 0 0 / 28px 28px,
+            linear-gradient(90deg, rgba(53, 83, 59, .16) 1px, transparent 1px) 0 0 / 32px 32px,
+            linear-gradient(0deg, rgba(53, 83, 59, .12) 1px, transparent 1px) 0 0 / 32px 32px,
             #e6e1d3;
     }
 
     .shrine-place__marker {
-        width: 34px;
-        height: 34px;
+        width: 36px;
+        height: 36px;
         border: 3px solid #35533b;
         border-radius: 50% 50% 50% 0;
         transform: rotate(-45deg);
     }
 
-    .shrine-place__index {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        min-width: 38px;
-        height: 28px;
-        display: grid;
-        place-items: center;
-        color: #fff;
-        background: rgba(28, 8, 3, .78);
-        font-family: var(--rv-font-ui);
-        font-size: 12px;
-    }
-
     .shrine-place__body {
-        display: flex;
-        min-height: 116px;
-        flex-direction: column;
-        justify-content: space-between;
-        padding: 17px 18px 18px;
+        display: grid;
+        align-content: space-between;
+        min-height: 122px;
+        padding: 19px 20px 20px;
     }
 
-    .shrine-place__label {
-        color: rgba(53, 83, 59, .86);
-        letter-spacing: 0;
+    .shrine-place__kind {
+        color: rgba(53, 83, 59, .88);
+        letter-spacing: .04em;
     }
 
     .shrine-place strong {
         display: block;
-        margin: 10px 0 16px;
+        margin-top: 10px;
         font-family: var(--rv-font-display);
-        font-size: 19px;
+        font-size: 20px;
         font-weight: 700;
         line-height: 1.16;
         text-transform: uppercase;
     }
 
-    .shrine-place__meta {
-        color: rgba(64, 20, 3, .64);
+    .shrine-place__read {
+        margin-top: 18px;
+        color: #8a5d16;
         font-family: var(--rv-font-ui);
         font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
     }
 
     .shrines-empty {
@@ -398,12 +374,12 @@
     }
 
     @media (max-width: 991.98px) {
-        .shrines-intro {
+        .shrines-opening {
             grid-template-columns: 1fr;
         }
 
         .shrines-feature {
-            min-height: 278px;
+            min-height: 292px;
         }
 
         .shrines-grid {
@@ -412,33 +388,30 @@
     }
 
     @media (max-width: 767.98px) {
-        .inner-hero--shrines {
-            min-height: 248px;
+        .shrines-hero {
+            min-height: 340px;
         }
 
-        .inner-hero--shrines .inner-hero__content {
-            padding-bottom: 36px;
+        .shrines-hero__content {
+            padding-bottom: 40px;
+        }
+
+        .shrines-hero__lead {
+            font-size: 16px;
         }
 
         .shrines-page {
-            padding: 48px 0 64px;
-        }
-
-        .shrines-stats {
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .shrines-stats dt {
-            font-size: 26px;
+            padding: 50px 0 68px;
         }
 
         .shrines-region__header {
-            grid-template-columns: 42px minmax(0, 1fr);
+            display: block;
         }
 
-        .shrines-region__count {
-            grid-column: 2;
+        .shrines-region__header::after {
+            display: block;
+            width: 100%;
+            margin-top: 16px;
         }
 
         .shrines-grid {
@@ -449,9 +422,11 @@
 @endpush
 
 @section('content')
-<section class="inner-hero inner-hero--shrines" aria-labelledby="shrines-page-title">
-    <div class="inner-hero__content">
-        <h1 id="shrines-page-title">Святині</h1>
+<section class="shrines-hero" aria-labelledby="shrines-page-title">
+    <div class="shrines-hero__content">
+        <span class="shrines-hero__eyebrow">Духовний центр «Рідна Віра»</span>
+        <h1 id="shrines-page-title">Святині Рідної Землі</h1>
+        <p class="shrines-hero__lead">Офіційний локальний архів місць сили, давніх святилищ, городищ, могил, печер і природних пам’яток української рідновірської традиції.</p>
         <nav class="inner-breadcrumbs" aria-label="Навігаційний шлях">
             <a href="{{ route('home') }}">Головна</a>
             <span aria-hidden="true">/</span>
@@ -464,26 +439,12 @@
 
 <section class="shrines-page">
     <div class="figma-container">
-        <header class="shrines-intro">
-            <div class="shrines-intro__copy">
-                <span class="shrines-intro__eyebrow">Священні місця</span>
-                <h2>Святині Рідної Землі</h2>
-                <p>Місця сили, давні святилища, городища, могили, печери й природні пам’ятки, перенесені до локального архіву сайту.</p>
-
-                <dl class="shrines-stats" aria-label="Підсумок архіву святинь">
-                    <div>
-                        <dt>{{ $shrineCollection->count() }}</dt>
-                        <dd>святинь</dd>
-                    </div>
-                    <div>
-                        <dt>{{ $regionsCount }}</dt>
-                        <dd>областей</dd>
-                    </div>
-                    <div>
-                        <dt>{{ $imagesCount }}</dt>
-                        <dd>зображень</dd>
-                    </div>
-                </dl>
+        <header class="shrines-opening">
+            <div class="shrines-opening__text">
+                <span class="shrines-opening__kicker">Священна географія</span>
+                <h2>Жива пам’ять землі</h2>
+                <p>Цей розділ збирає матеріали про місця, де природний ландшафт, історична пам’ять і духовна традиція сходяться в одну присутність.</p>
+                <span class="shrines-opening__rule" aria-hidden="true"></span>
             </div>
 
             @if (is_array($featured))
@@ -496,7 +457,6 @@
                     <span class="shrines-feature__body">
                         <span class="shrines-feature__region">{{ $featured['region'] ?? 'Святиня' }}</span>
                         <strong>{{ $featured['title'] }}</strong>
-                        <small>{{ !empty($featured['images']) ? $featured['images'].' зобр.' : 'Локальний матеріал' }}</small>
                     </span>
                 </a>
             @endif
@@ -518,17 +478,13 @@
                 @foreach ($groupedShrines as $region => $items)
                     <section class="shrines-region" id="shrine-region-{{ $loop->iteration }}" aria-labelledby="shrine-region-title-{{ $loop->iteration }}">
                         <header class="shrines-region__header">
-                            <span class="shrines-region__number">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                             <h3 id="shrine-region-title-{{ $loop->iteration }}">{{ $region }}</h3>
-                            <span class="shrines-region__count">{{ $items->count() }} {{ $items->count() === 1 ? 'місце' : 'місць' }}</span>
                         </header>
 
                         <ol class="shrines-grid" aria-label="Святині: {{ $region }}">
                             @foreach ($items as $shrine)
                                 @php
                                     $imagePath = $imageFor($shrine);
-                                    $characters = (int) ($shrine['characters'] ?? 0);
-                                    $images = (int) ($shrine['images'] ?? 0);
                                 @endphp
                                 <li>
                                     <a class="shrine-place" href="{{ route('faith.shrines.show', ['shrine' => $shrine['slug']]) }}">
@@ -538,23 +494,13 @@
                                             @else
                                                 <span class="shrine-place__fallback" aria-hidden="true"><span class="shrine-place__marker"></span></span>
                                             @endif
-                                            <span class="shrine-place__index">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                                         </span>
                                         <span class="shrine-place__body">
                                             <span>
-                                                <span class="shrine-place__label">{{ $images > 0 ? 'Матеріал з фото' : 'Текстовий матеріал' }}</span>
+                                                <span class="shrine-place__kind">Святиня</span>
                                                 <strong>{{ $shrine['title'] }}</strong>
                                             </span>
-                                            <span class="shrine-place__meta">
-                                                @if ($characters > 0)
-                                                    {{ number_format($characters, 0, ',', ' ') }} знаків
-                                                @else
-                                                    локальний архів
-                                                @endif
-                                                @if ($images > 0)
-                                                    · {{ $images }} зобр.
-                                                @endif
-                                            </span>
+                                            <span class="shrine-place__read">Відкрити матеріал</span>
                                         </span>
                                     </a>
                                 </li>
