@@ -55,7 +55,7 @@ file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT | JSON_UNE
 echo PHP_EOL;
 echo 'Очищено HTML-файлів: '.count($report['cleaned_files']).PHP_EOL;
 echo 'Прибрано посилань на російські версії у файлах: '.count($report['removed_russian_version_files']).PHP_EOL;
-echo 'Видалено службових GIF-файлів: '.count($report['removed_asset_files']).PHP_EOL;
+echo 'Видалено GIF-файлів: '.count($report['removed_asset_files']).PHP_EOL;
 echo 'Звіт: storage/app/content/legacy-import-decor-cleanup.json'.PHP_EOL;
 
 /** @return Generator<int, string> */
@@ -88,7 +88,7 @@ function legacyAssetFiles(string $root): Generator
             continue;
         }
 
-        if (isLegacyDecorFilename($file->getBasename())) {
+        if (strtolower($file->getExtension()) === 'gif' || isLegacyDecorFilename($file->getBasename())) {
             yield $file->getPathname();
         }
     }
@@ -99,6 +99,7 @@ function cleanLegacyImportDecor(string $html): string
     $before = $html;
 
     $html = removeRussianVersionReferences($html);
+    $html = removeLegacyNavigationBlocks($html);
 
     $html = preg_replace_callback(
         '~<img\b[^>]*>~isu',
@@ -106,14 +107,12 @@ function cleanLegacyImportDecor(string $html): string
         $html
     ) ?? $html;
 
-    $html = preg_replace('~<p\b[^>]*>\s*(?:&nbsp;)?\s*</p>\s*~iu', '', $html) ?? $html;
-    $html = preg_replace('~<h([1-6])\b[^>]*>\s*(?:&nbsp;)?\s*</h\1>\s*~iu', '', $html) ?? $html;
-    $html = preg_replace('~<li\b[^>]*>\s*(?:&nbsp;)?\s*</li>\s*~iu', '', $html) ?? $html;
-    $html = preg_replace('~<(?:ul|ol)\b[^>]*>\s*</(?:ul|ol)>\s*~iu', '', $html) ?? $html;
+    $html = removeEmptyStructuralMarkup($html);
 
     // Старий сайт іноді дає криву конструкцію <ol><h5>Джерела</h5></ol>.
     $html = preg_replace('~<ol\b[^>]*>\s*(<h[1-6]\b[^>]*>.*?</h[1-6]>)\s*</ol>\s*~isu', '$1', $html) ?? $html;
 
+    $html = removeEmptyStructuralMarkup($html);
     $html = preg_replace('~(?:\s|&nbsp;){2,}~u', ' ', $html) ?? $html;
 
     if ($html === '' || $html === $before || trim($html) === trim($before)) {
@@ -144,12 +143,50 @@ function removeRussianVersionReferences(string $html): string
     ) ?? $html;
 }
 
+function removeLegacyNavigationBlocks(string $html): string
+{
+    return preg_replace_callback(
+        '~<(p|li|td|th|h[1-6])\b[^>]*>.*?</\1>\s*~isu',
+        static fn (array $match): string => isLegacyNavigationBlock($match[0]) ? '' : $match[0],
+        $html
+    ) ?? $html;
+}
+
+function removeEmptyStructuralMarkup(string $html): string
+{
+    $html = preg_replace('~<p\b[^>]*>\s*(?:&nbsp;)?\s*</p>\s*~iu', '', $html) ?? $html;
+    $html = preg_replace('~<h([1-6])\b[^>]*>\s*(?:&nbsp;)?\s*</h\1>\s*~iu', '', $html) ?? $html;
+    $html = preg_replace('~<li\b[^>]*>\s*(?:&nbsp;)?\s*</li>\s*~iu', '', $html) ?? $html;
+    $html = preg_replace('~<t[dh]\b[^>]*>\s*(?:&nbsp;)?\s*</t[dh]>\s*~iu', '', $html) ?? $html;
+    $html = preg_replace('~<tr\b[^>]*>\s*</tr>\s*~iu', '', $html) ?? $html;
+    $html = preg_replace('~<(?:thead|tbody|tfoot|table|ul|ol)\b[^>]*>\s*</(?:thead|tbody|tfoot|table|ul|ol)>\s*~iu', '', $html) ?? $html;
+
+    return preg_replace_callback(
+        '~<table\b[^>]*>.*?</table>\s*~isu',
+        static fn (array $match): string => compactText(strip_tags($match[0])) === '' ? '' : $match[0],
+        $html
+    ) ?? $html;
+}
+
 function containsRussianVersionReference(string $html): bool
 {
     $text = compactText(strip_tags(str_ireplace(['<br>', '<br/>', '<br />'], ' ', $html)));
 
     return preg_match('~(?:російськ(?:а|ою|ої)|русск(?:ая|ой|ую)|russian)\s+(?:версі(?:я|ї|ю)|верс(?:ия|ии|ию)|version)(?:\s+(?:статт(?:і|ю|я)|article))?~iu', $text) === 1
         || preg_match('~(?:статт(?:я|і|ю)|article)\s+(?:російською|русском|russian)~iu', $text) === 1;
+}
+
+function isLegacyNavigationBlock(string $html): bool
+{
+    $key = preg_replace('/[^\p{L}\p{N}]+/u', '', mb_strtolower(compactText(strip_tags($html)), 'UTF-8')) ?? '';
+
+    return in_array($key, [
+        'дорозділу',
+        'дороздiлу',
+        'достатей',
+        'доматеріалів',
+        'назаддорозділу',
+    ], true);
 }
 
 function isLegacyDecorImageTag(string $tag): bool
@@ -164,11 +201,11 @@ function isLegacyDecorImageTag(string $tag): bool
 
     $basename = strtolower(rawurldecode(basename((string) parse_url(html_entity_decode($src, ENT_QUOTES | ENT_HTML5, 'UTF-8'), PHP_URL_PATH))));
 
-    if (isLegacyDecorFilename($basename)) {
+    if (str_ends_with($basename, '.gif') || isLegacyDecorFilename($basename)) {
         return true;
     }
 
-    if (str_ends_with($basename, '.gif') && $width !== null && $height !== null) {
+    if ($width !== null && $height !== null) {
         if ($height <= 16 && $width >= 120) {
             return true;
         }
