@@ -47,7 +47,53 @@ final class ShrineController extends Controller
 
         $manifest = json_decode((string) file_get_contents($path), true);
 
-        return is_array($manifest) ? $manifest : [];
+        return is_array($manifest) ? $this->normalizeManifest($manifest) : [];
+    }
+
+    /** @param array<string, mixed> $manifest */
+    /** @return array<string, mixed> */
+    private function normalizeManifest(array $manifest): array
+    {
+        $regions = [];
+
+        foreach (($manifest['regions'] ?? []) as $region) {
+            $regionName = self::normalizeRegionName((string) $region);
+            if ($regionName !== '') {
+                $regions[$regionName] = $regionName;
+            }
+        }
+
+        if (isset($manifest['shrines']) && is_array($manifest['shrines'])) {
+            foreach ($manifest['shrines'] as $key => $shrine) {
+                if (!is_array($shrine)) {
+                    continue;
+                }
+
+                $regionName = self::normalizeRegionName((string) ($shrine['region'] ?? ''));
+                if ($regionName !== '') {
+                    $shrine['region'] = $regionName;
+                    $regions[$regionName] = $regionName;
+                } else {
+                    unset($shrine['region']);
+                }
+
+                $manifest['shrines'][$key] = $shrine;
+            }
+        }
+
+        if ($regions !== []) {
+            $manifest['regions'] = array_values($regions);
+        }
+
+        return $manifest;
+    }
+
+    private static function normalizeRegionName(string $region): string
+    {
+        $region = trim(preg_replace('/\s+/u', ' ', $region) ?? $region);
+        $region = preg_replace('/^святині\s+/iu', '', $region) ?? $region;
+
+        return trim($region, " \t\n\r\0\x0B:-—–");
     }
 
     /** @return array<string, mixed> */
