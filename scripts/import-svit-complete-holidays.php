@@ -7,8 +7,9 @@ declare(strict_types=1);
  * 1. Imports long holiday articles when the old site has separate pages.
  * 2. Imports full articles by following the exact holiday links from cal.htm.
  * 3. Fills every remaining holiday page with short text from cal.htm.
- * 4. Forces full text from every linked cal.htm article over short snippets.
- * 5. Repairs empty/mojibake leftovers and removes duplicate imported headings.
+ * 4. Forces full text from linked cal.htm articles over short snippets.
+ * 5. Binds legacy article links by visible calendar dates for short link labels.
+ * 6. Repairs empty/mojibake leftovers and removes duplicate imported headings.
  */
 
 $root = dirname(__DIR__);
@@ -18,6 +19,7 @@ $scripts = [
     'scripts/import-svit-calendar-articles.php',
     'scripts/import-svit-calendar-texts.php',
     'scripts/import-svit-calendar-fulltext.php',
+    'scripts/import-svit-calendar-date-fulltext.php',
     'scripts/repair-holiday-content.php',
     'scripts/clean-holiday-content.php',
 ];
@@ -45,5 +47,6 @@ echo "- storage/app/content/holidays-import.json\n";
 echo "- storage/app/content/holidays-calendar-articles.json\n";
 echo "- storage/app/content/holidays-calendar-texts.json\n";
 echo "- storage/app/content/holidays-calendar-fulltext.json\n";
+echo "- storage/app/content/holidays-calendar-date-fulltext.json\n";
 echo "- storage/app/content/holidays-repair.json\n";
 echo "- storage/app/content/holidays-cleanup.json\n";
