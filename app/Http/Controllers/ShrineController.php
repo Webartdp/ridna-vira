@@ -5,13 +5,18 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 final class ShrineController extends Controller
 {
+    private const SHRINE_ALIASES = [
+        'kamiani-mogili' => 'kamiana-mogila',
+    ];
+
     public function index(): View
     {
         $manifest = $this->manifest();
-        $shrines = array_values($manifest['shrines'] ?? []);
+        $shrines = $this->visibleShrines($manifest['shrines'] ?? []);
 
         return view('pages.shrines', [
             'shrines' => $shrines,
@@ -21,8 +26,12 @@ final class ShrineController extends Controller
         ]);
     }
 
-    public function show(string $shrine): View
+    public function show(string $shrine): View|RedirectResponse
     {
+        if (isset(self::SHRINE_ALIASES[$shrine])) {
+            return redirect()->route('faith.shrines.show', ['shrine' => self::SHRINE_ALIASES[$shrine]], 301);
+        }
+
         $entry = $this->resolveShrine($shrine);
         $path = $this->absolutePath($entry);
         $content = is_file($path) ? (string) file_get_contents($path) : null;
@@ -48,6 +57,45 @@ final class ShrineController extends Controller
         $manifest = json_decode((string) file_get_contents($path), true);
 
         return is_array($manifest) ? $this->normalizeManifest($manifest) : [];
+    }
+
+    /** @param mixed $shrines */
+    /** @return array<int, array<string, mixed>> */
+    private function visibleShrines($shrines): array
+    {
+        if (!is_array($shrines)) {
+            return [];
+        }
+
+        $availableSlugs = [];
+        foreach ($shrines as $key => $shrine) {
+            if (!is_array($shrine)) {
+                continue;
+            }
+
+            $slug = (string) ($shrine['slug'] ?? $key);
+            if ($slug !== '') {
+                $availableSlugs[$slug] = true;
+            }
+        }
+
+        $visible = [];
+        foreach ($shrines as $key => $shrine) {
+            if (!is_array($shrine)) {
+                continue;
+            }
+
+            $slug = (string) ($shrine['slug'] ?? $key);
+            $canonicalSlug = self::SHRINE_ALIASES[$slug] ?? null;
+
+            if ($canonicalSlug !== null && isset($availableSlugs[$canonicalSlug])) {
+                continue;
+            }
+
+            $visible[] = $shrine;
+        }
+
+        return $visible;
     }
 
     /** @param array<string, mixed> $manifest */
