@@ -266,43 +266,183 @@ function sanitizeShrineHtml(string $html, string $title, string $sourceUrl, stri
 
 function largestArticleContainer(DOMDocument $dom): ?DOMElement
 {
-    $bestBlockquote = null;
-    $bestBlockquoteLength = 0;
-
-    foreach ($dom->getElementsByTagName('blockquote') as $node) {
-        if (!$node instanceof DOMElement) {
-            continue;
-        }
-
-        $length = mb_strlen(cleanText((string) $node->textContent), 'UTF-8');
-        if ($length > $bestBlockquoteLength) {
-            $bestBlockquote = $node;
-            $bestBlockquoteLength = $length;
-        }
-    }
-
-    if ($bestBlockquote instanceof DOMElement && $bestBlockquoteLength >= 40) {
-        return $bestBlockquote;
-    }
-
     $best = null;
-    $bestLength = 0;
+    $bestScore = PHP_INT_MIN;
+    $bestStats = null;
 
-    foreach (['article', 'main', 'td', 'div', 'body'] as $tag) {
+    foreach (['article', 'main', 'td', 'div', 'blockquote', 'body'] as $tag) {
         foreach ($dom->getElementsByTagName($tag) as $node) {
             if (!$node instanceof DOMElement) {
                 continue;
             }
 
-            $length = mb_strlen(cleanText((string) $node->textContent), 'UTF-8');
-            if ($length > $bestLength) {
+            $stats = articleContainerStats($node);
+            if ($stats['text'] < 40 && $stats['images'] === 0 && $stats['asset_links'] === 0) {
+                continue;
+            }
+
+            $score = articleContainerScore($tag, $stats);
+            if ($best === null || $bestStats === null || isBetterArticleContainer($score, $stats, $bestScore, $bestStats)) {
                 $best = $node;
-                $bestLength = $length;
+                $bestScore = $score;
+                $bestStats = $stats;
             }
         }
     }
 
     return $best instanceof DOMElement ? $best : null;
+}
+
+/** @return array{text:int,images:int,decor_images:int,asset_links:int,legacy_nav:int} */
+function articleContainerStats(DOMElement $node): array
+{
+    $text = cleanText((string) $node->textContent);
+    $images = 0;
+    $decorImages = 0;
+    $assetLinks = 0;
+
+    foreach ($node->getElementsByTagName('img') as $image) {
+        if (!$image instanceof DOMElement) {
+            continue;
+        }
+
+        $src = trim((string) $image->getAttribute('src'));
+        if (isImportableImageReference($src)) {
+            $images++;
+            continue;
+        }
+
+        if (isLegacyDecorReference($src)) {
+            $decorImages++;
+        }
+    }
+
+    foreach ($node->getElementsByTagName('a') as $link) {
+        if (!$link instanceof DOMElement) {
+            continue;
+        }
+
+        if (isImportableAssetReference(trim((string) $link->getAttribute('href')))) {
+            $assetLinks++;
+        }
+    }
+
+    return [
+        'text' => mb_strlen($text, 'UTF-8'),
+        'images' => $images,
+        'decor_images' => $decorImages,
+        'asset_links' => $assetLinks,
+        'legacy_nav' => legacyNavigationScore($text),
+    ];
+}
+
+/** @param array{text:int,images:int,decor_images:int,asset_links:int,legacy_nav:int} $stats */
+function articleContainerScore(string $tag, array $stats): int
+{
+    $score = $stats['text']
+        + ($stats['images'] * 1000)
+        + ($stats['asset_links'] * 600)
+        - ($stats['decor_images'] * 450)
+        - ($stats['legacy_nav'] * 900);
+
+    if ($tag === 'body') {
+        $score -= 1400;
+    }
+
+    if ($tag === 'div') {
+        $score -= 250;
+    }
+
+    if ($tag === 'blockquote' && $stats['images'] === 0 && $stats['asset_links'] === 0 && $stats['text'] < 900) {
+        $score -= 2500;
+    }
+
+    if ($stats['text'] < 120 && $stats['images'] === 0 && $stats['asset_links'] === 0) {
+        $score -= 1200;
+    }
+
+    return $score;
+}
+
+/** @param array{text:int,images:int,decor_images:int,asset_links:int,legacy_nav:int} $candidate */
+/** @param array{text:int,images:int,decor_images:int,asset_links:int,legacy_nav:int} $current */
+function isBetterArticleContainer(int $candidateScore, array $candidate, int $currentScore, array $current): bool
+{
+    if ($candidateScore !== $currentScore) {
+        return $candidateScore > $currentScore;
+    }
+
+    if ($candidate['images'] !== $current['images']) {
+        return $candidate['images'] > $current['images'];
+    }
+
+    if ($candidate['asset_links'] !== $current['asset_links']) {
+        return $candidate['asset_links'] > $current['asset_links'];
+    }
+
+    if ($candidate['legacy_nav'] !== $current['legacy_nav']) {
+        return $candidate['legacy_nav'] < $current['legacy_nav'];
+    }
+
+    return $candidate['text'] > $current['text'];
+}
+
+function legacyNavigationScore(string $text): int
+{
+    $normalized = mb_strtolower(cleanText($text), 'UTF-8');
+    $score = 0;
+
+    foreach (['до розділу', 'http://www.svit.in.ua', 'www.svit.in.ua', '_uacct', 'urchintracker'] as $marker) {
+        $score += substr_count($normalized, $marker);
+    }
+
+    return $score;
+}
+
+function isImportableImageReference(string $reference): bool
+{
+    return isImportableAssetReference($reference)
+        && preg_match('~\.(?:jpe?g|png|webp|svg)$~i', normalizedReferencePath($reference)) === 1
+        && !isLegacyDecorReference($reference);
+}
+
+function isImportableAssetReference(string $reference): bool
+{
+    $path = normalizedReferencePath($reference);
+
+    return preg_match('~\.(?:pdf|docx?|djvu|rtf|rar|zip|jpe?g|png|webp|svg)$~i', $path) === 1
+        && !isLegacyDecorReference($reference);
+}
+
+function isLegacyDecorReference(string $reference): bool
+{
+    $basename = basename(normalizedReferencePath($reference));
+    $normalized = preg_replace('/-\d+(?=\.[a-z0-9]+$)/i', '', $basename) ?? $basename;
+
+    return str_ends_with($basename, '.gif')
+        || in_array($normalized, [
+            'rozdil.gif',
+            'lin.gif',
+            'line.gif',
+            'artic.gif',
+            'article.gif',
+            'spacer.gif',
+            'space.gif',
+            'blank.gif',
+            'pixel.gif',
+            'dot.gif',
+            'hr.gif',
+            'punkt.gif',
+            'bullet.gif',
+        ], true);
+}
+
+function normalizedReferencePath(string $reference): string
+{
+    $decoded = trim(html_entity_decode($reference, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    $path = (string) (parse_url($decoded, PHP_URL_PATH) ?? $decoded);
+
+    return strtolower(rawurldecode($path));
 }
 
 function sanitizeNode(DOMNode $node, DOMDocument $targetDom, string $sourceUrl, string $slug, string $assetDir, array &$assets): ?DOMNode
