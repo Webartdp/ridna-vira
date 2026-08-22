@@ -5,6 +5,7 @@ use App\Http\Controllers\BookFileController;
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\ShrineController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home')->name('home');
@@ -28,9 +29,12 @@ Route::get('/ridna-vira/knyhy/{book}/zavantazhyty/{format}', [BookFileController
         'format' => 'pdf|docx',
     ])
     ->name('faith.books.download');
+Route::get('/ridna-vira/sviatyni', [ShrineController::class, 'index'])->name('faith.shrines');
+Route::get('/ridna-vira/sviatyni/{shrine}', [ShrineController::class, 'show'])
+    ->where('shrine', '[a-z0-9\-]+')
+    ->name('faith.shrines.show');
 
 foreach ([
-    'shrines' => ['slug' => 'sviatyni', 'title' => 'Святині'],
     'gods' => ['slug' => 'bohy', 'title' => 'Боги'],
     'rituals' => ['slug' => 'obriady', 'title' => 'Обряди'],
     'prayers' => ['slug' => 'molytvy', 'title' => 'Молитви'],
