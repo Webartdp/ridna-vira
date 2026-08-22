@@ -10,6 +10,7 @@ scripts=(
   "scripts/import-svit-calendar-fulltext.php"
   "scripts/import-svit-calendar-date-fulltext.php"
   "scripts/repair-holiday-content.php"
+  "scripts/import-svit-calendar-pages.php"
   "scripts/clean-holiday-content.php"
 )
 
@@ -32,5 +33,6 @@ echo "- storage/app/content/holidays-calendar-articles.json"
 echo "- storage/app/content/holidays-calendar-texts.json"
 echo "- storage/app/content/holidays-calendar-fulltext.json"
 echo "- storage/app/content/holidays-calendar-date-fulltext.json"
+echo "- storage/app/content/holidays-calendar-pages.json"
 echo "- storage/app/content/holidays-repair.json"
 echo "- storage/app/content/holidays-cleanup.json"
