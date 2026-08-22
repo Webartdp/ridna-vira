@@ -30,19 +30,20 @@ foreach (($calendar['months'] ?? []) as $monthName => $items) {
         $path = $outputDir.'/'.$slug.'.html';
 
         if (!is_file($path)) {
-            $issues['missing'][] = holidayIssue($slug, $name, $monthName, 0);
+            $issues['missing'][] = holidayIssue($slug, $name, $monthName, 0, 0);
             continue;
         }
 
         $html = (string) file_get_contents($path);
         $characters = mb_strlen(compactText(strip_tags($html)), 'UTF-8');
+        $images = substr_count($html, '<img ');
 
-        if ($characters < 12) {
-            $issues['too_short'][] = holidayIssue($slug, $name, $monthName, $characters);
+        if ($characters < 12 && $images === 0) {
+            $issues['too_short'][] = holidayIssue($slug, $name, $monthName, $characters, $images);
         }
 
         if (hasMojibake($html)) {
-            $issues['mojibake'][] = holidayIssue($slug, $name, $monthName, $characters);
+            $issues['mojibake'][] = holidayIssue($slug, $name, $monthName, $characters, $images);
         }
     }
 }
@@ -61,7 +62,7 @@ file_put_contents($reportPath, json_encode($report, JSON_PRETTY_PRINT | JSON_UNE
 
 echo "Перевірено свят: {$checked}\n";
 echo 'Немає файлу: '.count($issues['missing'])."\n";
-echo 'Порожні або майже порожні: '.count($issues['too_short'])."\n";
+echo 'Порожні або майже порожні без зображень: '.count($issues['too_short'])."\n";
 echo 'Бите кодування: '.count($issues['mojibake'])."\n";
 echo 'Звіт: storage/app/content/holidays-audit.json'."\n";
 
@@ -69,14 +70,15 @@ if ($issues['missing'] !== [] || $issues['too_short'] !== [] || $issues['mojibak
     exit(2);
 }
 
-/** @return array{slug:string,name:string,month:string,characters:int} */
-function holidayIssue(string $slug, string $name, string $month, int $characters): array
+/** @return array{slug:string,name:string,month:string,characters:int,images:int} */
+function holidayIssue(string $slug, string $name, string $month, int $characters, int $images): array
 {
     return [
         'slug' => $slug,
         'name' => $name,
         'month' => $month,
         'characters' => $characters,
+        'images' => $images,
     ];
 }
 
@@ -87,7 +89,11 @@ function compactText(string $text): string
 
 function hasMojibake(string $text): bool
 {
-    foreach (['Р’', 'Р°', 'Рµ', 'Рё', 'Рґ', 'Р¶', 'Р·', 'Р№', 'Рє', 'Р»', 'Рј', 'РЅ', 'Рѕ', 'Рї', 'СЂ', 'СЃ', 'С‚', 'Сѓ', 'С„', 'С…', 'С†', 'С‡', 'С€', 'С‰', 'СЊ', 'СЋ', 'СЏ', 'С–', 'С—', 'С”', 'Р†', 'Р™', 'вЂ', 'Ð', 'Ñ', 'Â', '�'] as $marker) {
+    foreach ([
+        'Р’', 'Рђ', 'Р†', 'Р™', 'РЋ', 'Р°', 'Р±', 'РІ', 'Рі', 'Рґ', 'Рµ', 'Р¶', 'Р·', 'Рё', 'Р№', 'Рє', 'Р»', 'Рј', 'РЅ', 'Рѕ', 'Рї',
+        'СЂ', 'СЃ', 'С‚', 'Сѓ', 'С„', 'С…', 'С†', 'С‡', 'С€', 'С‰', 'СЊ', 'СЋ', 'СЏ', 'С–', 'С—', 'С”',
+        'вЂ', 'в„', 'в€¦', 'в‚', 'Ð', 'Ñ', 'Â', 'Ã', 'ЃР', 'ЃС', '�',
+    ] as $marker) {
         if (str_contains($text, $marker)) {
             return true;
         }
