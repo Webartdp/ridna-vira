@@ -14,18 +14,18 @@
     $communities = ['Полум’я Роду', 'Права', 'Росичі'];
 
     $holidays = [
-        ['name' => 'Велес', 'image' => 'holiday-veles.png', 'position' => 'top-left'],
-        ['name' => 'Коляда', 'image' => 'holiday-kolyada.png', 'position' => 'top-center', 'featured' => true],
-        ['name' => 'ВОДОсвяття', 'image' => 'holiday-vodo.png', 'position' => 'top-right'],
-        ['name' => 'Мокоша', 'image' => 'holiday-mokosh.png', 'position' => 'left-one'],
-        ['name' => 'Радогощ', 'image' => 'holiday-radogosh.png', 'position' => 'left-two', 'featured' => true],
-        ['name' => 'Спас', 'image' => 'holiday-spas.png', 'position' => 'left-three'],
-        ['name' => 'Колодій', 'image' => 'holiday-kolodiy.png', 'position' => 'right-one'],
-        ['name' => 'Великдень', 'image' => 'holiday-velykden.png', 'position' => 'right-two', 'featured' => true],
-        ['name' => 'Ярило Вишній', 'image' => 'holiday-yarylo.png', 'position' => 'right-three'],
-        ['name' => 'Перун', 'image' => 'holiday-perun.png', 'position' => 'bottom-left'],
-        ['name' => 'Купайло', 'image' => 'holiday-kupalo.png', 'position' => 'bottom-center', 'featured' => true],
-        ['name' => 'Зелені святки', 'image' => 'holiday-zeleni.png', 'position' => 'bottom-right'],
+        ['title' => 'Велес', 'name' => 'Велес (Мороз, Микола)', 'image' => 'holiday-veles.png', 'position' => 'top-left'],
+        ['title' => 'Коляда', 'name' => 'Різдво Коляди*', 'image' => 'holiday-kolyada.png', 'position' => 'top-center', 'featured' => true],
+        ['title' => 'Водосвяття', 'name' => 'Водосвяття. Богоявлення', 'image' => 'holiday-vodo.png', 'position' => 'top-right'],
+        ['title' => 'Мокоша', 'name' => 'Мокоша осіння', 'image' => 'holiday-mokosh.png', 'position' => 'left-one'],
+        ['title' => 'Радогощ', 'name' => 'Радогощ. Різдво Миробога', 'image' => 'holiday-radogosh.png', 'position' => 'left-two', 'featured' => true],
+        ['title' => 'Спас', 'name' => '2-й Спас. Яблучний. Великий', 'image' => 'holiday-spas.png', 'position' => 'left-three'],
+        ['title' => 'Колодій', 'name' => 'Народження Колодки. Початок Колодія', 'image' => 'holiday-kolodiy.png', 'position' => 'right-one'],
+        ['title' => 'Великдень', 'name' => 'Великдень*. Благовіщення', 'image' => 'holiday-velykden.png', 'position' => 'right-two', 'featured' => true],
+        ['title' => 'Ярило Вишній', 'name' => 'Ярило Вишній', 'image' => 'holiday-yarylo.png', 'position' => 'right-three'],
+        ['title' => 'Перун', 'name' => 'Перун', 'image' => 'holiday-perun.png', 'position' => 'bottom-left'],
+        ['title' => 'Купайло', 'name' => 'Купало', 'image' => 'holiday-kupalo.png', 'position' => 'bottom-center', 'featured' => true],
+        ['title' => 'Зелені святки', 'name' => 'Трійця', 'image' => 'holiday-zeleni.png', 'position' => 'bottom-right'],
     ];
 
     $sections = [
@@ -91,14 +91,16 @@
             <img class="calendar-wheel" src="{{ asset('assets/figma/home/wheel.png') }}" alt="Коло Свароже">
 
             @foreach ($holidays as $holiday)
-                <a class="holiday-card holiday-card--{{ $holiday['position'] }} {{ !empty($holiday['featured']) ? 'holiday-card--featured' : '' }}" href="#">
+                <a class="holiday-card holiday-card--{{ $holiday['position'] }} {{ !empty($holiday['featured']) ? 'holiday-card--featured' : '' }}"
+                   href="{{ route('faith.holiday', Str::slug($holiday['name'])) }}"
+                   aria-label="{{ $holiday['name'] }}">
                     <img src="{{ asset('assets/figma/home/'.$holiday['image']) }}" alt="">
-                    <strong>{{ $holiday['name'] }}</strong>
+                    <strong>{{ $holiday['title'] }}</strong>
                 </a>
             @endforeach
         </div>
 
-        <a class="figma-button" href="#">Всі Свята</a>
+        <a class="figma-button" href="{{ route('faith.calendar') }}">Всі Свята</a>
     </div>
 </section>
 
