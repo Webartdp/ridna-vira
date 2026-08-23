@@ -5,10 +5,10 @@
 
 @php
     $primaryLinks = [
-        ['title' => 'Святині', 'image' => 'category-sanctuary.png'],
-        ['title' => 'Рідні Боги', 'image' => 'category-gods.png'],
-        ['title' => 'Обряди', 'image' => 'category-rites.png'],
-        ['title' => 'Слави', 'image' => 'category-glory.png'],
+        ['title' => 'Святині', 'image' => 'category-sanctuary.png', 'route' => 'faith.shrines'],
+        ['title' => 'Рідні Боги', 'image' => 'category-gods.png', 'route' => 'faith.gods'],
+        ['title' => 'Обряди', 'image' => 'category-rites.png', 'route' => 'faith.rituals'],
+        ['title' => 'Слави', 'image' => 'category-glory.png', 'route' => 'faith.prayers'],
     ];
 
     $communities = ['Полум’я Роду', 'Права', 'Росичі'];
@@ -49,7 +49,7 @@
     <div class="figma-container">
         <div class="primary-links__grid">
             @foreach ($primaryLinks as $item)
-                <a class="primary-card" href="#">
+                <a class="primary-card" href="{{ route($item['route']) }}">
                     <img src="{{ asset('assets/figma/home/'.$item['image']) }}" alt="{{ $item['title'] }}">
                     <strong>{{ $item['title'] }}</strong>
                 </a>
