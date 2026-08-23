@@ -67,10 +67,10 @@
     }
 
     .shrine-reading-content blockquote {
-        margin: 28px 0;
-        padding: 22px 26px;
-        border-left: 6px solid #35533b;
-        background: rgba(255, 255, 255, .54);
+        margin: 0 0 18px;
+        padding: 0;
+        border: 0;
+        background: transparent;
     }
 
     .shrine-reading-empty {
