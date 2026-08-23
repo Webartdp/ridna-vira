@@ -5,7 +5,7 @@ declare(strict_types=1);
 require_once dirname(__DIR__).'/vendor/autoload.php';
 
 const SOURCE_PAGE = 'https://www.svit.in.ua/bog.htm';
-const USER_AGENT = 'Mozilla/5.0 (compatible; RidnaViraGodMigration/1.0; +https://ridnavira.com.ua)';
+const USER_AGENT = 'Mozilla/5.0 (compatible; RidnaViraGodMigration/2.0; +https://ridnavira.com.ua)';
 
 $projectRoot = dirname(__DIR__);
 $storageRoot = $projectRoot.'/storage/app/content/gods';
@@ -14,6 +14,7 @@ $assetRoot = $projectRoot.'/public/assets/gods';
 $manifestPath = $storageRoot.'/manifest.json';
 $config = require $projectRoot.'/config/faith_gods.php';
 $gods = $config['gods'] ?? [];
+$editorials = godEditorials();
 
 try {
     ensureDirectory($pagesRoot);
@@ -34,6 +35,8 @@ try {
         $motif = (string) ($god['motif'] ?? 'world');
         $assetDir = $assetRoot.'/'.$slug;
         $assets = [];
+        $warnings = [];
+        $documentUrl = null;
         $entry = [
             'slug' => $slug,
             'title' => $title,
@@ -44,33 +47,27 @@ try {
             'characters' => 0,
             'images' => 0,
             'summary' => null,
+            'warnings' => [],
         ];
 
         try {
             ensureDirectory($assetDir);
             writeGodPortrait($title, $slug, $motif, $assetDir.'/portrait.svg');
 
-            if ($sourceUrl === '') {
-                throw new RuntimeException('не задано джерело');
-            }
-
-            if (isDocumentUrl($sourceUrl)) {
-                $localUrl = archiveRemoteAsset($sourceUrl, $slug, $assetDir, $assets, documentExtensions());
-                if ($localUrl === null) {
-                    throw new RuntimeException('не вдалося перенести документ');
+            if ($sourceUrl !== '' && isDocumentUrl($sourceUrl)) {
+                try {
+                    $documentUrl = archiveRemoteDocument($sourceUrl, $slug, $assetDir, $assets);
+                } catch (Throwable $exception) {
+                    $warnings[] = 'документ не перенесено: '.$exception->getMessage();
                 }
-
-                $content = documentContent($title, $localUrl);
-            } else {
-                $response = fetchUrl($sourceUrl);
-                $html = normalizeEncoding($response['body'], $response['contentType']);
-                $content = sanitizeGodHtml($html, $title, $sourceUrl, $slug, $assetDir, $assets);
             }
 
+            $editorial = $editorials[$slug] ?? fallbackEditorial($title);
+            $content = renderGodContent($title, $editorial, $documentUrl);
             $characters = textLength($content);
-            $images = substr_count($content, '<img ');
+            $images = 1;
 
-            if ($characters < 40 && $images === 0) {
+            if ($characters < 120) {
                 throw new RuntimeException('отримано надто короткий матеріал');
             }
 
@@ -82,10 +79,14 @@ try {
             $entry['images'] = $images;
             $entry['assets'] = $assets;
             $entry['summary'] = makeSummary($content);
+            $entry['warnings'] = $warnings;
             $entries[$slug] = $entry;
             $imported++;
 
-            echo '[OK] '.$title.' -> '.$entry['path'].' ('.$characters.' знаків, '.$images.' зобр.)'.PHP_EOL;
+            echo '[OK] '.$title.' -> '.$entry['path'].' ('.$characters.' знаків)'.PHP_EOL;
+            foreach ($warnings as $warning) {
+                fwrite(STDERR, '[WARN] '.$title.': '.$warning.PHP_EOL);
+            }
         } catch (Throwable $exception) {
             $failed[] = $title.': '.$exception->getMessage();
             $entries[$slug] = $entry;
@@ -113,12 +114,426 @@ try {
     echo 'Звіт: storage/app/content/gods/manifest.json'.PHP_EOL;
 
     if ($failed !== []) {
-        fwrite(STDERR, PHP_EOL.'Не перенесено '.count($failed).' матеріал(ів):'.PHP_EOL.'- '.implode(PHP_EOL.'- ', $failed).PHP_EOL);
+        fwrite(STDERR, PHP_EOL.'Не створено '.count($failed).' матеріал(ів):'.PHP_EOL.'- '.implode(PHP_EOL.'- ', $failed).PHP_EOL);
         exit(2);
     }
 } catch (Throwable $exception) {
     fwrite(STDERR, '[FATAL] '.$exception->getMessage().PHP_EOL);
     exit(1);
+}
+
+/** @return array<string, array{lead:string,paragraphs:array<int,string>,symbols:array<int,string>}> */
+function godEditorials(): array
+{
+    return [
+        'bilobog' => [
+            'lead' => 'Білобог уособлює ясну, творчу і відкриту сторону світу.',
+            'paragraphs' => [
+                'Його образ пов’язаний зі світлом, правдою, добрим початком і силою, яка виводить людину з темряви сумніву до ясної дії. У Рідній Вірі це не відрив від нічної чи прихованої сторони буття, а нагадування про рівновагу світових сил.',
+                'Звернення до Білобога доречне там, де потрібні чистота наміру, чесне рішення, примирення і відновлення ладу в родині чи громаді.',
+            ],
+            'symbols' => ['світло', 'чистота', 'згода', 'ранкове Сонце'],
+        ],
+        'bog' => [
+            'lead' => 'Бог у Рідній Вірі сприймається як жива цілісність Природи, Роду і Всесвіту.',
+            'paragraphs' => [
+                'Рідні Боги є багатьма проявами єдиного божественного світу. Через них людина бачить не абстрактну віддалену силу, а живі обличчя неба, землі, води, вогню, вітру, родини, пам’яті та долі.',
+                'Такий погляд не відриває духовність від щоденного життя. Бог присутній у праці, слові, обряді, відповідальності перед Предками і турботі про майбутні покоління.',
+            ],
+            'symbols' => ['Рід', 'Природа', 'Всесвіт', 'єдність'],
+        ],
+        'veles' => [
+            'lead' => 'Велес є Богом мудрості, достатку, слова, пам’яті Предків і глибинної сили землі.',
+            'paragraphs' => [
+                'Його шанують як охоронця знання, ремесла, худоби, майна та духовної спадщини. Велес веде людину не силою наказу, а досвідом, терпінням і вмінням чути приховане.',
+                'У зимовому прояві Велес-Мороз нагадує про стриманість, випробування і дари, які приходять до тих, хто береже лад у домі та громаді.',
+            ],
+            'symbols' => ['мудрість', 'достаток', 'Предки', 'земна глибина'],
+        ],
+        'viy' => [
+            'lead' => 'Вій є образом грізного погляду, межі та прихованої сили нижнього світу.',
+            'paragraphs' => [
+                'Його постать говорить про те, що не кожна сила має бути відкритою і легкою. Є знання, яке потребує обережності, мовчання та внутрішньої готовності.',
+                'Вшанування Вія навчає відповідальності перед невидимим: перед страхом, смертю, таємницею і наслідками людських учинків.',
+            ],
+            'symbols' => ['погляд', 'межа', 'ніч', 'таємниця'],
+        ],
+        'goryn' => [
+            'lead' => 'Горинь уособлює силу гори, вогню, каменю і випробування.',
+            'paragraphs' => [
+                'Це образ піднесення над буденним, коли людина мусить пройти важкий шлях і вийти на вершину власної стійкості. Горинь нагадує, що священне часто відкривається через працю, витримку і мужність.',
+                'Його образ доречний для місць сили, високих берегів, городищ і кам’яних святинь, де людина особливо відчуває міць землі.',
+            ],
+            'symbols' => ['гора', 'камінь', 'вогонь', 'випробування'],
+        ],
+        'dazhbog' => [
+            'lead' => 'Дажбог є сонячним дародавцем, що несе світло, тепло, силу життя і достаток.',
+            'paragraphs' => [
+                'Його ім’я пов’язують із даром, благословенням і щедрістю. У світогляді Рідної Віри Дажбог відкриває людині шлях до праці, врожаю, ясної думки і гідного життя.',
+                'Через річне Коло Свароже різні сонячні прояви нагадують, що світло має вік, силу, зрілість і час відходу, але щоразу повертається оновленим.',
+            ],
+            'symbols' => ['Сонце', 'дар', 'врожай', 'життєва сила'],
+        ],
+        'dana' => [
+            'lead' => 'Дана є Богинею води, річок, джерел і живильного руху.',
+            'paragraphs' => [
+                'Вода очищує, поєднує береги і переносить життя. Образ Дани нагадує про шанування криниць, річок, дощу, роси та всього, що дає землі родючість.',
+                'Її вшанування близьке до обрядів очищення, благословення води, жіночої сили і турботи про природні джерела.',
+            ],
+            'symbols' => ['вода', 'ріка', 'джерело', 'очищення'],
+        ],
+        'dyv' => [
+            'lead' => 'Див є небесним вісником, знаком передчуття і пробудженої уваги.',
+            'paragraphs' => [
+                'Його образ близький до птаха, що бачить ширше за людину і сповіщає про зміни. Див нагадує: світ говорить знаками, але почути їх може лише уважний.',
+                'У громадському житті цей образ навчає не легковажити передвістями, берегти пильність і діяти до того, як небезпека стане очевидною.',
+            ],
+            'symbols' => ['птах', 'звістка', 'небо', 'пильність'],
+        ],
+        'dolia' => [
+            'lead' => 'Доля є образом особистого шляху, міри життя і невидимого плетива подій.',
+            'paragraphs' => [
+                'Вона не знімає з людини відповідальності. Навпаки, Доля показує, що кожен вибір вплітається у більший узор Роду, громади і часу.',
+                'До Долі звертаються, коли шукають правильного напряму, сили прийняти власний шлях і мудрості не руйнувати те, що має визріти.',
+            ],
+            'symbols' => ['нитка', 'життєвий шлях', 'міра', 'вибір'],
+        ],
+        'zhalia' => [
+            'lead' => 'Жаля уособлює пам’ять болю, скорботу і людську здатність не забувати втрати.',
+            'paragraphs' => [
+                'Цей образ не про слабкість, а про чесне визнання того, що кожна втрата має бути оплакана і включена в пам’ять Роду. Без такої пам’яті немає справжнього відновлення.',
+                'Жаля допомагає говорити про поминання, співчуття, обережність слова і шану до тих, хто відійшов.',
+            ],
+            'symbols' => ['сльоза', 'пам’ять', 'поминання', 'співчуття'],
+        ],
+        'karyna' => [
+            'lead' => 'Карина є образом голосіння, перестороги і жіночої сили, що береже пам’ять про лихо.',
+            'paragraphs' => [
+                'Вона стоїть поруч із темами війни, втрати, провини і громадського болю. Її голос не дає перетворити страждання на байдужість.',
+                'Через Карину людина вчиться чути чужий біль, не зневажати трагічний досвід і берегти правду про пережите.',
+            ],
+            'symbols' => ['голосіння', 'пересторога', 'пам’ять', 'очищення болем'],
+        ],
+        'koliada' => [
+            'lead' => 'Коляда є народженням молодого Сонця і початком нового кола життя.',
+            'paragraphs' => [
+                'У найтемніший час року з’являється нове світло. Тому Коляда пов’язана з надією, родинним вогнищем, щедрістю, благословенням дому і радістю оновлення.',
+                'Колядування зберігає давню думку: світло треба не лише чекати, а й приносити його словом, піснею, даром і добрим побажанням.',
+            ],
+            'symbols' => ['молоде Сонце', 'зірка', 'рід', 'оновлення'],
+        ],
+        'kupalo' => [
+            'lead' => 'Купало є силою літнього Сонця, вогню, води, цвітіння і очищення.',
+            'paragraphs' => [
+                'Його свято стоїть біля літнього сонцестояння, коли природа наповнена найбільшою життєвою потугою. Вогонь і вода в купальській обрядовості не протистоять одне одному, а разом очищують і оновлюють людину.',
+                'Купало нагадує про молодість, любов, сміливість, збирання цілющих трав і живу єдність людини з природою.',
+            ],
+            'symbols' => ['вогонь', 'вода', 'сонцестояння', 'трави'],
+        ],
+        'lad' => [
+            'lead' => 'Лад є божественним порядком, згодою і правильною мірою між людьми та світом.',
+            'paragraphs' => [
+                'Коли є лад, кожна річ має своє місце, а сила не руйнує, а підтримує життя. Це поняття стосується дому, громади, обряду, слова і внутрішнього стану людини.',
+                'Лад вчить не лише миритися, а творити таку форму співжиття, де правда, краса і відповідальність працюють разом.',
+            ],
+            'symbols' => ['згода', 'міра', 'порядок', 'краса'],
+        ],
+        'lada' => [
+            'lead' => 'Лада є Богинею любові, родинної злагоди, весняного розквіту і краси.',
+            'paragraphs' => [
+                'Її образ пов’язаний із паруванням, піснею, квітами, молодістю і теплом людських стосунків. Лада не зводиться до прикраси: вона є силою, що робить життя придатним для любові.',
+                'У родині та громаді Лада нагадує про ніжність, взаємну пошану, гостинність і вміння берегти мир без втрати гідності.',
+            ],
+            'symbols' => ['любов', 'квіти', 'родина', 'весняна злагода'],
+        ],
+        'mamai' => [
+            'lead' => 'Мамай у цьому розділі постає як духовний образ вільної української душі.',
+            'paragraphs' => [
+                'Це не звичайний календарний Бог, а народний символ воїнської гідності, спокою перед небезпекою, музики, дороги і внутрішньої свободи. У його постаті поєднуються козак, мандрівник, мудрець і охоронець землі.',
+                'Мамай нагадує, що сила може бути тихою, а воля тримається не тільки зброєю, а й піснею, пам’яттю та незламною присутністю духу.',
+            ],
+            'symbols' => ['кобза', 'кінь', 'воля', 'степ'],
+        ],
+        'mara' => [
+            'lead' => 'Мара є образом зими, сну, згасання і необхідного завершення.',
+            'paragraphs' => [
+                'Вона нагадує, що життя має періоди тиші, холоду і відходу. Завершення не є лише знищенням: у ньому визріває місце для нового народження.',
+                'Обряди, пов’язані з Марою, допомагають громаді усвідомити межу між старим і новим та відпустити те, що вже втратило силу.',
+            ],
+            'symbols' => ['зима', 'сон', 'межа', 'завершення'],
+        ],
+        'marena' => [
+            'lead' => 'Марена є обрядовим образом відходу зимової сили і очищення простору для весни.',
+            'paragraphs' => [
+                'Її постать часто пов’язують із солом’яним втіленням, яке виносять, топлять або спалюють у весняних діях. Так громада символічно проводить старе й відкриває шлях оновленню.',
+                'Марена вчить, що перехід потребує дії: не досить чекати весни, її треба покликати, очистивши дім, думку і спільний простір.',
+            ],
+            'symbols' => ['солома', 'вода', 'вогонь', 'проводи зими'],
+        ],
+        'matyr-sva' => [
+            'lead' => 'Матир-сва є небесним материнським образом, що береже Рід і кличе до єдності.',
+            'paragraphs' => [
+                'Її можна осмислювати як пташину, крилату силу неба, яка накриває громаду захистом і водночас підносить думку над щоденною дрібнотою.',
+                'Матир-сва нагадує про материнську опіку, родову пам’ять, обов’язок перед землею і голос, що збирає людей у час випробувань.',
+            ],
+            'symbols' => ['крила', 'мати', 'небо', 'захист Роду'],
+        ],
+        'myrobog' => [
+            'lead' => 'Миробог є образом зрілого сонячного миру, урожаю і впорядкованого життя.',
+            'paragraphs' => [
+                'Його сила відчувається тоді, коли буяння літа переходить у спокійну повноту плодів. Миробог говорить про лад після праці, про достаток без марнотратства і про мир як активну силу громади.',
+                'Цей образ доречний для осінніх свят, подяки за врожай і відновлення згоди між людьми.',
+            ],
+            'symbols' => ['осіннє Сонце', 'мир', 'врожай', 'подяка'],
+        ],
+        'mokosh' => [
+            'lead' => 'Мокош є Богинею земної вологи, жіночої праці, прядіння, родючості і добробуту дому.',
+            'paragraphs' => [
+                'Вона поєднує землю і воду, працю рук і таємницю народження. Її образ близький до нитки, полотна, поля, дощу і домашнього порядку.',
+                'Мокош вчить шанувати працю, не знецінювати щоденну турботу і бачити святість у тому, що годує, зігріває та продовжує Рід.',
+            ],
+            'symbols' => ['земля', 'волога', 'нитка', 'родючість'],
+        ],
+        'moroz' => [
+            'lead' => 'Мороз є зимовим проявом суворої чистоти, випробування і дару.',
+            'paragraphs' => [
+                'Він може бути грізним, але його сила не лише карає: вона очищує, зупиняє зайве, загартовує і вчить берегти тепло дому. У народній уяві Мороз водночас сторож, суддя і дарувальник.',
+                'Цей образ близький до зимових обходів, обдарування дітей, пам’яті про Предків і поваги до межі між гостинністю та безладом.',
+            ],
+            'symbols' => ['іній', 'зима', 'дар', 'стриманість'],
+        ],
+        'obida' => [
+            'lead' => 'Обіда є образом кривди, зневаги і внутрішньої рани, яку не можна залишати без правди.',
+            'paragraphs' => [
+                'Вона нагадує, що порушений лад не зникає сам собою. Несправедливість, замовчування і приниження руйнують громаду так само, як відкрита ворожнеча.',
+                'Образ Обіди потрібен не для плекання образливості, а для чесного виправлення шкоди, відновлення гідності і очищення стосунків.',
+            ],
+            'symbols' => ['кривда', 'рана', 'правда', 'відновлення'],
+        ],
+        'perun' => [
+            'lead' => 'Перун є Богом грому, блискавки, воїнської честі, присяги і справедливого удару.',
+            'paragraphs' => [
+                'Його сила різка й очищувальна. Перун не терпить підступності, безчестя і слабкості духу там, де треба захищати Рід, землю та правду.',
+                'У громаді Перунів образ підтримує мужність, дисципліну, відповідальність за слово і готовність стояти за своє без марнославства.',
+            ],
+            'symbols' => ['грім', 'блискавка', 'дуб', 'присяга'],
+        ],
+        'porevyt' => [
+            'lead' => 'Поревит є образом сторожової сили, громадської мужності і світлої оборони.',
+            'paragraphs' => [
+                'Його постать можна читати як знак багатоликої уваги: громада має бачити небезпеку з різних боків і тримати єдність перед викликами.',
+                'Поревит нагадує, що захист починається з порядку в середині спільноти, ясного слова і вірності обов’язку.',
+            ],
+            'symbols' => ['сторожа', 'меч', 'єдність', 'мужність'],
+        ],
+        'porenut' => [
+            'lead' => 'Поренут є образом прихованої опори, витримки і сили, що тримає громаду зсередини.',
+            'paragraphs' => [
+                'Як і споріднені багатоликі образи, він говорить про складність божественного захисту: не все видно зовні, але саме внутрішня зібраність вирішує, чи встоїть спільнота.',
+                'Поренут вчить тримати слово, берегти межі і не втрачати пильності тоді, коли небезпека ще не стала явною.',
+            ],
+            'symbols' => ['опора', 'щит', 'пильність', 'межа'],
+        ],
+        'radogost' => [
+            'lead' => 'Радогост є образом священної гостинності, доброзичливості і радості зустрічі.',
+            'paragraphs' => [
+                'Гість у традиційному світі не був випадковістю: через нього могли прийти звістка, благословення або випробування. Радогост нагадує, що приймати людину треба гідно, але з мудрою мірою.',
+                'Його образ поєднує відкритий стіл, щире слово, пошану до мандрівника і здатність громади бути теплою без втрати порядку.',
+            ],
+            'symbols' => ['гостина', 'вогнище', 'хліб', 'радість'],
+        ],
+        'rod' => [
+            'lead' => 'Род є першоосновою життя, джерелом походження, пам’яті і продовження поколінь.',
+            'paragraphs' => [
+                'Через Рід людина розуміє себе не окремою випадковістю, а ланкою великого живого дерева. У ньому поєднуються Предки, сучасники, діти і ще ненароджені нащадки.',
+                'Вшанування Роду вчить відповідальності: берегти мову, землю, родину, звичай і честь свого імені.',
+            ],
+            'symbols' => ['родове дерево', 'Предки', 'нащадки', 'пам’ять'],
+        ],
+        'rozhanytsia' => [
+            'lead' => 'Рожаниця є образом народження, материнського благословення і долі нової людини.',
+            'paragraphs' => [
+                'Вона стоїть біля початку життя, де дитина входить у Род земний і отримує перші духовні зв’язки. Її сила тиха, але визначальна.',
+                'Рожаниця нагадує про шану до матері, обережність із немовлям, чистоту родинного простору і відповідальність за майбутнє покоління.',
+            ],
+            'symbols' => ['народження', 'мати', 'колиска', 'благословення'],
+        ],
+        'ruevyt' => [
+            'lead' => 'Руєвит є образом сильної, багатопроявної оборонної потуги.',
+            'paragraphs' => [
+                'У ньому можна бачити силу воїна і громади, що має не одне обличчя, а багато способів бачити, діяти і захищати. Це образ зібраності перед великою справою.',
+                'Руєвит нагадує: сила має служити Роду, а не марнославству; захист має бути впорядкованим, а не сліпим.',
+            ],
+            'symbols' => ['меч', 'багатоликість', 'оборона', 'служіння'],
+        ],
+        'rusalka' => [
+            'lead' => 'Русалка є водяним і зеленим образом межі між людським світом, природою і пам’яттю душ.',
+            'paragraphs' => [
+                'Вона пов’язана з водою, травами, деревами, весняно-літнім розквітом і небезпечною красою межових станів. Русалка не є просто казковою прикрасою: це знак сили природи, яку не можна зневажати.',
+                'Її образ вчить пошани до води, лісу, молодого життя і тих невидимих меж, які традиція оберігала обрядами.',
+            ],
+            'symbols' => ['вода', 'зелень', 'межа', 'таємнича краса'],
+        ],
+        'svarog' => [
+            'lead' => 'Сварог є небесним творцем ладу, вогню, ковальської сили і космічного порядку.',
+            'paragraphs' => [
+                'Його образ поєднує небо і працю майстра. Світ не просто існує, він викуваний, упорядкований і потребує підтримання через закон, ремесло та відповідальну дію.',
+                'Сварог нагадує про святість майстерності: кожна добра справа має бути зроблена міцно, чесно і з розумінням свого місця у великому ладі.',
+            ],
+            'symbols' => ['небо', 'кузня', 'вогонь', 'закон'],
+        ],
+        'sviatovyt' => [
+            'lead' => 'Святовит є образом священного бачення, сонячної сили і захисту громади.',
+            'paragraphs' => [
+                'Його багатосторонність говорить про здатність бачити світ широко: минуле, майбутнє, близьке і далеке. Це не лише сила передбачення, а й відповідальність за правильний вибір.',
+                'Святовит нагадує громаді про єдність духовної влади, воїнської готовності, врожаю і правдивого слова.',
+            ],
+            'symbols' => ['чотири сторони', 'Сонце', 'кінь', 'пророцтво'],
+        ],
+        'symargl' => [
+            'lead' => 'Симаргл є крилатим вогненним охоронцем насіння, дому і життєвої іскри.',
+            'paragraphs' => [
+                'Його образ поєднує полум’я, крила і сторожу. Це сила, яка несе тепло, але також оберігає те, з чого проростає майбутнє.',
+                'Симаргл нагадує берегти домашній вогонь, посів, дітей, слово і все крихке, що потребує захисту до часу свого розквіту.',
+            ],
+            'symbols' => ['крила', 'вогонь', 'насіння', 'охорона'],
+        ],
+        'strybog' => [
+            'lead' => 'Стрибог є Богом вітру, простору, подиху і руху звісток.',
+            'paragraphs' => [
+                'Вітер не має однієї форми, але його силу відчувають усі. Стрибог приносить зміну, очищує застій, переносить слова, хмари, насіння і передчуття.',
+                'Його образ навчає слухати простір: часом відповідь приходить не через наказ, а через рух повітря, зміну погоди і новий напрям дороги.',
+            ],
+            'symbols' => ['вітер', 'подих', 'дорога', 'звістка'],
+        ],
+        'khors' => [
+            'lead' => 'Хорс є образом небесного світла, сонячного руху і ясного кола.',
+            'paragraphs' => [
+                'Його сила пов’язана з видимим порядком світил, денним шляхом і мірністю часу. Хорс нагадує, що світло має ритм, а життя потребує узгодження з небесним ходом.',
+                'У вшануванні Хорса важливі ясність, краса руху, повага до календаря і здатність не губити напрям у зміні днів.',
+            ],
+            'symbols' => ['небесне світло', 'коло', 'рух', 'час'],
+        ],
+        'chyslobog' => [
+            'lead' => 'Числобог є образом міри, числа, календаря і впорядкованого часу.',
+            'paragraphs' => [
+                'Через число людина бачить ритм світу: дні, місяці, свята, строки праці, народження і поминання. Числобог не зводить життя до рахунку, а відкриває його лад.',
+                'Його образ потрібен там, де громада укладає календар, береже точність обряду і пам’ятає, що кожна дія має свій час.',
+            ],
+            'symbols' => ['календар', 'число', 'міра', 'ритм'],
+        ],
+        'chornobog' => [
+            'lead' => 'Чорнобог уособлює темну, приховану і випробувальну сторону буття.',
+            'paragraphs' => [
+                'Темрява не завжди є злом у простому розумінні. Вона може бути ніччю, землею, невідомим, страхом і тією частиною світу, де людина зустрічається з власною слабкістю.',
+                'Образ Чорнобога нагадує про необхідність рівноваги: ясне стає зрозумілим лише там, де людина чесно бачить темне і не дає йому керувати собою.',
+            ],
+            'symbols' => ['ніч', 'випробування', 'таємниця', 'рівновага'],
+        ],
+        'yama' => [
+            'lead' => 'Яма є образом межі між життям і смертю, порядку переходу та пошани до невідворотного.',
+            'paragraphs' => [
+                'Його постать нагадує, що смерть не можна витіснити з духовного світогляду. Вона має свій закон, свою тишу і своє місце в колі буття.',
+                'Звернення до цього образу вчить гідності перед кінцем, пам’яті про померлих і відповідальності за життя, яке ще триває.',
+            ],
+            'symbols' => ['межа', 'брама', 'поминання', 'закон переходу'],
+        ],
+        'yarylo' => [
+            'lead' => 'Ярило є молодою весняною сонячною силою, що пробуджує землю і людську відвагу.',
+            'paragraphs' => [
+                'Його образ пов’язаний із ярістю життя: проростанням, рухом, юністю, любовним поривом і початком праці на землі. Ярило несе світло, яке вже не лише народилося, а починає діяти.',
+                'Вшанування Ярила підтримує сміливість починати, очищувати застояне і входити у весну з живою силою.',
+            ],
+            'symbols' => ['весна', 'паросток', 'молоде Сонце', 'сміливість'],
+        ],
+        'yarovyt' => [
+            'lead' => 'Яровит є войовничим весняним проявом ярої сили, захисту і наступу життя.',
+            'paragraphs' => [
+                'Якщо Ярило пробуджує, то Яровит підкреслює дієвість цієї сили: ріст має пробити землю, громада має захистити простір, а людина має вийти з бездіяльності.',
+                'Його образ нагадує, що весна не лише ніжна. Вона також рішуча, гостра і здатна перемагати холод старого світу.',
+            ],
+            'symbols' => ['спис', 'весна', 'захист', 'дія'],
+        ],
+        'yasna' => [
+            'lead' => 'Ясна є образом ранкової ясності, світлої думки і лагідного пробудження.',
+            'paragraphs' => [
+                'Вона стоїть біля світанку, коли темрява вже відступає, але день ще тільки розкривається. Це сила чистого початку, прозорого слова і тихої надії.',
+                'Ясна нагадує берегти внутрішню світлість, починати справи без кривди і бачити красу там, де світ тільки набирає форми.',
+            ],
+            'symbols' => ['світанок', 'зоря', 'ясність', 'початок'],
+        ],
+    ];
+}
+
+/** @return array{lead:string,paragraphs:array<int,string>,symbols:array<int,string>} */
+function fallbackEditorial(string $title): array
+{
+    return [
+        'lead' => $title.' є одним із образів Рідної Віри, через який осмислюють силу Природи, Роду і духовного ладу.',
+        'paragraphs' => [
+            'Цей матеріал подано як новий стислий опис для сучасного сайту Духовного центру «Рідна Віра». Він не копіює стару сторінку, а дає чисту основу для подальшого редакторського доповнення.',
+        ],
+        'symbols' => ['Рід', 'Природа', 'лад'],
+    ];
+}
+
+/** @param array{lead:string,paragraphs:array<int,string>,symbols:array<int,string>} $editorial */
+function renderGodContent(string $title, array $editorial, ?string $documentUrl): string
+{
+    $html = [];
+    $html[] = '<p><strong>'.escapeHtml($editorial['lead']).'</strong></p>';
+
+    foreach ($editorial['paragraphs'] as $paragraph) {
+        $html[] = '<p>'.escapeHtml($paragraph).'</p>';
+    }
+
+    if ($editorial['symbols'] !== []) {
+        $items = array_map(
+            static fn (string $symbol): string => '<li>'.escapeHtml($symbol).'</li>',
+            $editorial['symbols'],
+        );
+        $html[] = '<h2>Ключові образи</h2>';
+        $html[] = '<ul>'.implode('', $items).'</ul>';
+    }
+
+    if ($documentUrl !== null) {
+        $html[] = '<h2>Перенесений файл</h2>';
+        $html[] = '<p><a href="'.escapeHtml($documentUrl).'">Завантажити матеріал: '.escapeHtml($title).'</a></p>';
+    }
+
+    return implode(PHP_EOL, $html);
+}
+
+function archiveRemoteDocument(string $remoteUrl, string $slug, string $assetDir, array &$assets): string
+{
+    if (!isSvitUrl($remoteUrl)) {
+        throw new RuntimeException('джерело не належить svit.in.ua');
+    }
+
+    $extension = extensionOf($remoteUrl);
+    if ($extension === '' || !in_array($extension, documentExtensions(), true)) {
+        throw new RuntimeException('непідтримуваний формат документа');
+    }
+
+    $filename = safeAssetFilename($remoteUrl, $extension);
+    $destination = $assetDir.'/'.$filename;
+    $publicUrl = '/assets/gods/'.$slug.'/'.$filename;
+
+    if (!is_file($destination) || filesize($destination) === 0) {
+        $response = fetchUrl($remoteUrl);
+        if ($response['body'] === '') {
+            throw new RuntimeException('отримано порожній файл');
+        }
+        file_put_contents($destination, $response['body']);
+    }
+
+    $assets[] = [
+        'source' => $remoteUrl,
+        'path' => $publicUrl,
+        'bytes' => is_file($destination) ? (int) filesize($destination) : 0,
+    ];
+
+    return $publicUrl;
 }
 
 /** @return array{body:string,contentType:string,effectiveUrl:string} */
@@ -141,7 +556,7 @@ function fetchUrl(string $url): array
         CURLOPT_SSL_VERIFYHOST => 0,
         CURLOPT_REFERER => SOURCE_PAGE,
         CURLOPT_HTTPHEADER => [
-            'Accept: text/html,application/xhtml+xml,image/avif,image/webp,image/apng,image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/rtf,application/octet-stream,*/*;q=0.8',
+            'Accept: application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/rtf,application/octet-stream,*/*;q=0.8',
             'Accept-Language: uk-UA,uk;q=0.9,en;q=0.5',
         ],
     ]);
@@ -154,15 +569,11 @@ function fetchUrl(string $url): array
     curl_close($ch);
 
     if (!is_string($body)) {
-        throw new RuntimeException('Помилка завантаження '.$url.': '.$error);
+        throw new RuntimeException('помилка завантаження '.$url.': '.$error);
     }
 
     if ($status < 200 || $status >= 400) {
-        throw new RuntimeException('Сервер повернув HTTP '.$status.' для '.$url);
-    }
-
-    if ($body === '') {
-        throw new RuntimeException('Отримано порожній файл із '.$url);
+        throw new RuntimeException('HTTP '.$status.' для '.$url);
     }
 
     return [
@@ -172,581 +583,11 @@ function fetchUrl(string $url): array
     ];
 }
 
-function sanitizeGodHtml(string $html, string $title, string $sourceUrl, string $slug, string $assetDir, array &$assets): string
-{
-    $html = stripDeclaredCharset(repairMojibakeDeep($html));
-
-    $dom = new DOMDocument();
-    libxml_use_internal_errors(true);
-    $dom->loadHTML('<?xml encoding="UTF-8">'.$html, LIBXML_NOWARNING | LIBXML_NOERROR);
-    libxml_clear_errors();
-
-    foreach (['script', 'style', 'iframe', 'form', 'input', 'button', 'svg', 'object', 'embed', 'video', 'audio', 'noscript'] as $tag) {
-        removeElementsByTag($dom, $tag);
-    }
-
-    $container = largestArticleContainer($dom) ?? $dom->getElementsByTagName('body')->item(0);
-    if (!$container instanceof DOMElement) {
-        return '';
-    }
-
-    $cleanDom = new DOMDocument('1.0', 'UTF-8');
-    $wrapper = $cleanDom->createElement('div');
-    $cleanDom->appendChild($wrapper);
-
-    foreach ($container->childNodes as $child) {
-        $clean = sanitizeNode($child, $cleanDom, $sourceUrl, $slug, $assetDir, $assets);
-        if ($clean !== null) {
-            $wrapper->appendChild($clean);
-        }
-    }
-
-    removeDuplicateTitleNode($wrapper, $title);
-
-    $result = '';
-    foreach ($wrapper->childNodes as $child) {
-        $result .= $cleanDom->saveHTML($child);
-    }
-
-    $result = repairMojibakeDeep($result);
-    $result = removeEmptyBlocks($result);
-
-    return trim($result);
-}
-
-function largestArticleContainer(DOMDocument $dom): ?DOMElement
-{
-    $best = null;
-    $bestScore = PHP_INT_MIN;
-
-    foreach (['article', 'main', 'blockquote', 'td', 'div', 'body'] as $tag) {
-        foreach ($dom->getElementsByTagName($tag) as $node) {
-            if (!$node instanceof DOMElement) {
-                continue;
-            }
-
-            $text = cleanText((string) $node->textContent);
-            $textLength = mb_strlen($text, 'UTF-8');
-            $images = $node->getElementsByTagName('img')->length;
-            $assetLinks = countAssetLinks($node);
-            $score = $textLength + ($images * 700) + ($assetLinks * 300) - (legacyNavigationScore($text) * 1200);
-
-            if ($tag === 'body') {
-                $score -= 1200;
-            }
-
-            if ($textLength < 40 && $images === 0 && $assetLinks === 0) {
-                continue;
-            }
-
-            if ($best === null || $score > $bestScore) {
-                $best = $node;
-                $bestScore = $score;
-            }
-        }
-    }
-
-    return $best instanceof DOMElement ? $best : null;
-}
-
-function countAssetLinks(DOMElement $node): int
-{
-    $count = 0;
-    foreach ($node->getElementsByTagName('a') as $link) {
-        if (!$link instanceof DOMElement) {
-            continue;
-        }
-
-        if (isImportableAssetReference((string) $link->getAttribute('href'))) {
-            $count++;
-        }
-    }
-
-    return $count;
-}
-
-function legacyNavigationScore(string $text): int
-{
-    $normalized = mb_strtolower(cleanText($text), 'UTF-8');
-    $score = 0;
-
-    foreach (['новини', 'календар', 'статті', 'книги', 'святині', 'пошук на сайті', 'http://www.svit.in.ua', 'www.svit.in.ua'] as $marker) {
-        $score += substr_count($normalized, $marker);
-    }
-
-    return $score;
-}
-
-function sanitizeNode(DOMNode $node, DOMDocument $targetDom, string $sourceUrl, string $slug, string $assetDir, array &$assets): ?DOMNode
-{
-    if ($node instanceof DOMText) {
-        $text = repairMojibakeDeep(preg_replace('/\s+/u', ' ', $node->nodeValue ?? '') ?? '');
-
-        return trim($text) === '' ? null : $targetDom->createTextNode($text);
-    }
-
-    if (!$node instanceof DOMElement) {
-        return null;
-    }
-
-    $tag = strtolower($node->tagName);
-    if (in_array($tag, ['script', 'style', 'iframe', 'form', 'input', 'button', 'svg', 'object', 'embed', 'video', 'audio', 'noscript'], true)) {
-        return null;
-    }
-
-    if (in_array($tag, ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true) && isLegacyAuthorByline((string) $node->textContent)) {
-        return null;
-    }
-
-    if ($tag === 'img') {
-        return archiveImageNode($node, $targetDom, $sourceUrl, $slug, $assetDir, $assets);
-    }
-
-    if ($tag === 'a') {
-        $href = trim((string) $node->getAttribute('href'));
-        $assetUrl = archiveLinkedAsset($href, $sourceUrl, $slug, $assetDir, $assets);
-        if ($assetUrl !== null) {
-            $copy = $targetDom->createElement('a');
-            $copy->setAttribute('href', $assetUrl);
-            $copy->appendChild($targetDom->createTextNode(cleanText((string) $node->textContent)));
-
-            return $copy;
-        }
-
-        $fragment = $targetDom->createDocumentFragment();
-        foreach ($node->childNodes as $child) {
-            $clean = sanitizeNode($child, $targetDom, $sourceUrl, $slug, $assetDir, $assets);
-            if ($clean !== null) {
-                $fragment->appendChild($clean);
-            }
-        }
-
-        return $fragment->hasChildNodes() ? $fragment : null;
-    }
-
-    $allowed = ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'hr', 'figure', 'figcaption'];
-
-    if (!in_array($tag, $allowed, true)) {
-        $fragment = $targetDom->createDocumentFragment();
-        foreach ($node->childNodes as $child) {
-            $clean = sanitizeNode($child, $targetDom, $sourceUrl, $slug, $assetDir, $assets);
-            if ($clean !== null) {
-                $fragment->appendChild($clean);
-            }
-        }
-
-        return $fragment->hasChildNodes() ? $fragment : null;
-    }
-
-    $copy = $targetDom->createElement($tag);
-    foreach ($node->childNodes as $child) {
-        $clean = sanitizeNode($child, $targetDom, $sourceUrl, $slug, $assetDir, $assets);
-        if ($clean !== null) {
-            $copy->appendChild($clean);
-        }
-    }
-
-    if (!$copy->hasChildNodes() && !in_array($tag, ['br', 'hr'], true)) {
-        return null;
-    }
-
-    return $copy;
-}
-
-function archiveImageNode(DOMElement $node, DOMDocument $targetDom, string $sourceUrl, string $slug, string $assetDir, array &$assets): ?DOMElement
-{
-    $src = trim((string) $node->getAttribute('src'));
-    if ($src === '' || isLegacyDecorReference($src)) {
-        return null;
-    }
-
-    $remoteUrl = resolveUrl($src, $sourceUrl);
-    $localUrl = archiveRemoteAsset($remoteUrl, $slug, $assetDir, $assets, imageExtensions());
-    if ($localUrl === null) {
-        return null;
-    }
-
-    $copy = $targetDom->createElement('img');
-    $copy->setAttribute('src', $localUrl);
-    $copy->setAttribute('alt', repairMojibakeDeep(trim((string) $node->getAttribute('alt'))));
-    $copy->setAttribute('loading', 'lazy');
-
-    foreach (['width', 'height'] as $attribute) {
-        $value = trim((string) $node->getAttribute($attribute));
-        if ($value !== '' && ctype_digit($value)) {
-            $copy->setAttribute($attribute, $value);
-        }
-    }
-
-    return $copy;
-}
-
-function archiveLinkedAsset(string $href, string $sourceUrl, string $slug, string $assetDir, array &$assets): ?string
-{
-    if ($href === '' || isLegacyDecorReference($href)) {
-        return null;
-    }
-
-    return archiveRemoteAsset(resolveUrl($href, $sourceUrl), $slug, $assetDir, $assets, assetExtensions());
-}
-
-function archiveRemoteAsset(string $remoteUrl, string $slug, string $assetDir, array &$assets, array $allowedExtensions): ?string
-{
-    if ($remoteUrl === '' || !isSvitUrl($remoteUrl)) {
-        return null;
-    }
-
-    $extension = extensionOf($remoteUrl);
-    if ($extension === '' || !in_array($extension, $allowedExtensions, true)) {
-        return null;
-    }
-
-    $response = fetchUrl($remoteUrl);
-    if ($response['body'] === '') {
-        return null;
-    }
-
-    $filename = safeAssetFilename($remoteUrl, $extension);
-    $destination = uniqueAssetPath($assetDir, $filename);
-    file_put_contents($destination, $response['body']);
-
-    $publicUrl = '/assets/gods/'.$slug.'/'.basename($destination);
-    $assets[] = [
-        'source' => $remoteUrl,
-        'path' => $publicUrl,
-        'bytes' => strlen($response['body']),
-    ];
-
-    return $publicUrl;
-}
-
-function normalizeEncoding(string $content, string $contentType = ''): string
-{
-    $candidates = [];
-    foreach (['UTF-8', 'Windows-1251', 'CP1251', 'Windows-1252', 'ISO-8859-1'] as $encoding) {
-        $converted = in_array(strtolower($encoding), ['utf-8', 'utf8'], true)
-            ? (mb_check_encoding($content, 'UTF-8') ? $content : '')
-            : (string) @iconv($encoding, 'UTF-8//IGNORE', $content);
-
-        if ($converted !== '' && mb_check_encoding($converted, 'UTF-8')) {
-            $candidates[sha1($converted)] = $converted;
-            foreach (repairMojibakeCandidates($converted) as $candidate) {
-                if ($candidate !== '' && mb_check_encoding($candidate, 'UTF-8')) {
-                    $candidates[sha1($candidate)] = $candidate;
-                }
-            }
-        }
-    }
-
-    return chooseBestEncodingCandidate($candidates) ?: $content;
-}
-
-/** @return array<int, string> */
-function repairMojibakeCandidates(string $text): array
-{
-    $candidates = [$text];
-    foreach (['Windows-1251', 'CP1251', 'Windows-1252', 'ISO-8859-1'] as $encoding) {
-        $decoded = decodeMojibakeThrough($text, $encoding);
-        if ($decoded !== null && $decoded !== $text) {
-            $candidates[] = $decoded;
-        }
-    }
-
-    return $candidates;
-}
-
-function repairMojibakeDeep(string $text): string
-{
-    return chooseBestEncodingCandidate(repairMojibakeCandidates($text)) ?: $text;
-}
-
-function decodeMojibakeThrough(string $text, string $encoding): ?string
-{
-    $bytes = @iconv('UTF-8', $encoding.'//IGNORE', $text);
-    if (!is_string($bytes) || $bytes === '' || !mb_check_encoding($bytes, 'UTF-8')) {
-        return null;
-    }
-
-    return $bytes;
-}
-
-/** @param array<int|string, string> $candidates */
-function chooseBestEncodingCandidate(array $candidates): string
-{
-    $best = null;
-    $bestStats = null;
-
-    foreach ($candidates as $candidate) {
-        if (!is_string($candidate) || $candidate === '' || !mb_check_encoding($candidate, 'UTF-8')) {
-            continue;
-        }
-
-        $stats = encodingStats($candidate);
-        if ($best === null || $bestStats === null || $stats['score'] > $bestStats['score']) {
-            $best = $candidate;
-            $bestStats = $stats;
-        }
-    }
-
-    return $best ?? '';
-}
-
-/** @return array{score:int,ukrainian:int,mojibake:int,replacement:int} */
-function encodingStats(string $text): array
-{
-    $ukrainian = preg_match_all('/[АБВГҐДЕЄЖЗИІЇЙКЛМНОПРСТУФХЦЧШЩЬЮЯабвгґдеєжзиіїйклмнопрстуфхцчшщьюя]/u', $text) ?: 0;
-    $mojibake = mojibakeScore($text);
-    $replacement = substr_count($text, '�');
-
-    return [
-        'score' => ($ukrainian * 8) - ($mojibake * 90) - ($replacement * 150),
-        'ukrainian' => $ukrainian,
-        'mojibake' => $mojibake,
-        'replacement' => $replacement,
-    ];
-}
-
-function mojibakeScore(string $text): int
-{
-    $score = 0;
-    foreach (['Р’', 'Р†', 'Р™', 'Р°', 'Рµ', 'РЅ', 'Рѕ', 'СЂ', 'СЃ', 'С‚', 'С–', 'С—', 'С”', 'вЂ', 'Ð', 'Ñ', 'Â', 'Ã', '�'] as $marker) {
-        $score += substr_count($text, $marker) * ($marker === '�' ? 20 : 1);
-    }
-
-    return $score;
-}
-
-function documentContent(string $title, string $localUrl): string
-{
-    $title = htmlspecialchars($title, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-    $localUrl = htmlspecialchars($localUrl, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-    return '<p>Матеріал розділу перенесено як окремий файл.</p><p><a href="'.$localUrl.'">Завантажити матеріал: '.$title.'</a></p>';
-}
-
-function makeSummary(string $html): string
-{
-    $text = cleanText(strip_tags($html));
-    if (mb_strlen($text, 'UTF-8') <= 180) {
-        return $text;
-    }
-
-    return rtrim(mb_substr($text, 0, 180, 'UTF-8')).'...';
-}
-
-function removeDuplicateTitleNode(DOMElement $wrapper, string $title): void
-{
-    foreach (iterator_to_array($wrapper->childNodes) as $child) {
-        if (!$child instanceof DOMElement) {
-            if ($child instanceof DOMText && trim($child->nodeValue ?? '') === '') {
-                continue;
-            }
-            break;
-        }
-
-        $tag = strtolower($child->tagName);
-        if (!in_array($tag, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true)) {
-            break;
-        }
-
-        if (headingMatchesTitle(cleanText((string) $child->textContent), $title)) {
-            $wrapper->removeChild($child);
-        }
-        break;
-    }
-}
-
-function headingMatchesTitle(string $heading, string $title): bool
-{
-    $heading = normalizeTitle($heading);
-    $title = normalizeTitle($title);
-
-    return $heading !== '' && $title !== '' && ($heading === $title || str_contains($heading, $title) || str_contains($title, $heading));
-}
-
-function normalizeTitle(string $text): string
-{
-    $text = mb_strtolower(cleanText($text), 'UTF-8');
-    $text = str_replace(['’', 'ʼ', '`', '*', '—', '–', '.', ',', ':', ';', '(', ')', '"', "'"], ' ', $text);
-
-    return cleanText($text);
-}
-
-function isLegacyAuthorByline(string $text): bool
-{
-    $key = mb_strtolower(cleanText($text), 'UTF-8');
-    $key = str_replace([' ', '.', ',', ':', ';', '-', '—', '–', "'", '’', 'ʼ'], '', $key);
-
-    return in_array($key, [
-        'світовитпашник',
-        'волхврідноївіри',
-        'волхврпк',
-        'світовитпашникволхврідноївіри',
-        'світовитпашникволхврпк',
-    ], true);
-}
-
-function removeEmptyBlocks(string $html): string
-{
-    $html = preg_replace('/<p[^>]*>[\s&;nbsp]*<\/p>/iu', '', $html) ?? $html;
-    $html = preg_replace('/<(blockquote|div)[^>]*>[\s&;nbsp]*<\/\1>/iu', '', $html) ?? $html;
-
-    return $html;
-}
-
-function stripDeclaredCharset(string $html): string
-{
-    $html = preg_replace('/<meta[^>]*charset[^>]*>/i', '', $html) ?? $html;
-
-    return preg_replace('/<meta[^>]*http-equiv[^>]*content-type[^>]*>/i', '', $html) ?? $html;
-}
-
-function isDocumentUrl(string $url): bool
-{
-    return in_array(extensionOf($url), documentExtensions(), true);
-}
-
-function isImportableAssetReference(string $reference): bool
-{
-    $extension = extensionOf($reference);
-
-    return $extension !== '' && in_array($extension, assetExtensions(), true) && !isLegacyDecorReference($reference);
-}
-
-function isLegacyDecorReference(string $reference): bool
-{
-    $basename = basename(normalizedReferencePath($reference));
-
-    return str_ends_with($basename, '.gif') || in_array($basename, ['rozdil.gif', 'lin.gif', 'line.gif', 'artic.gif', 'article.gif', 'spacer.gif', 'blank.gif', 'pixel.gif', 'dot.gif', 'hr.gif', 'punkt.gif', 'bullet.gif'], true);
-}
-
-function extensionOf(string $reference): string
-{
-    return strtolower(pathinfo(normalizedReferencePath($reference), PATHINFO_EXTENSION));
-}
-
-function normalizedReferencePath(string $reference): string
-{
-    $decoded = trim(html_entity_decode($reference, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-    $path = (string) (parse_url($decoded, PHP_URL_PATH) ?? $decoded);
-
-    return strtolower(rawurldecode($path));
-}
-
-/** @return array<int, string> */
-function imageExtensions(): array
-{
-    return ['jpg', 'jpeg', 'png', 'webp', 'svg'];
-}
-
-/** @return array<int, string> */
-function documentExtensions(): array
-{
-    return ['pdf', 'doc', 'docx', 'djvu', 'rtf', 'rar', 'zip'];
-}
-
-/** @return array<int, string> */
-function assetExtensions(): array
-{
-    return array_merge(imageExtensions(), documentExtensions());
-}
-
-function resolveUrl(string $href, string $baseUrl): string
-{
-    $href = trim(html_entity_decode($href, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-
-    if ($href === '' || str_starts_with($href, '#')) {
-        return '';
-    }
-
-    $scheme = (string) (parse_url($href, PHP_URL_SCHEME) ?? '');
-    if ($scheme !== '') {
-        return $href;
-    }
-
-    $base = parse_url($baseUrl);
-    $baseScheme = (string) ($base['scheme'] ?? 'https');
-    $host = (string) ($base['host'] ?? 'www.svit.in.ua');
-
-    if (str_starts_with($href, '//')) {
-        return $baseScheme.':'.$href;
-    }
-
-    if (str_starts_with($href, '/')) {
-        return $baseScheme.'://'.$host.$href;
-    }
-
-    $basePath = (string) ($base['path'] ?? '/');
-    $directory = dirname($basePath);
-    if ($directory === '.' || $directory === '\\') {
-        $directory = '';
-    }
-
-    return $baseScheme.'://'.$host.normalizeUrlPath('/'.$directory.'/'.$href);
-}
-
-function normalizeUrlPath(string $path): string
-{
-    $segments = [];
-    foreach (explode('/', $path) as $segment) {
-        if ($segment === '' || $segment === '.') {
-            continue;
-        }
-        if ($segment === '..') {
-            array_pop($segments);
-            continue;
-        }
-        $segments[] = $segment;
-    }
-
-    return '/'.implode('/', $segments);
-}
-
-function isSvitUrl(string $url): bool
-{
-    $host = strtolower((string) (parse_url($url, PHP_URL_HOST) ?? ''));
-
-    return in_array($host, ['svit.in.ua', 'www.svit.in.ua'], true);
-}
-
-function safeAssetFilename(string $url, string $extension): string
-{
-    $path = (string) (parse_url($url, PHP_URL_PATH) ?? '');
-    $base = rawurldecode(basename($path));
-    $base = preg_replace('/[^A-Za-z0-9._-]+/', '-', $base) ?? '';
-    $base = trim($base, '.-_');
-
-    if ($base === '' || !str_contains($base, '.')) {
-        $base = sha1($url).'.'.$extension;
-    }
-
-    return $base;
-}
-
-function uniqueAssetPath(string $directory, string $filename): string
-{
-    $path = $directory.'/'.$filename;
-    if (!is_file($path)) {
-        return $path;
-    }
-
-    $extension = pathinfo($filename, PATHINFO_EXTENSION);
-    $stem = pathinfo($filename, PATHINFO_FILENAME);
-    $suffix = 2;
-
-    do {
-        $candidate = $directory.'/'.$stem.'-'.$suffix.($extension !== '' ? '.'.$extension : '');
-        $suffix++;
-    } while (is_file($candidate));
-
-    return $candidate;
-}
-
 function writeGodPortrait(string $title, string $slug, string $motif, string $destination): void
 {
     [$background, $accent, $ink, $light] = paletteForMotif($motif, $slug);
-    $safeTitle = htmlspecialchars($title, ENT_QUOTES | ENT_XML1, 'UTF-8');
-    $initial = htmlspecialchars(mb_substr($title, 0, 1, 'UTF-8'), ENT_QUOTES | ENT_XML1, 'UTF-8');
+    $safeTitle = escapeXml($title);
+    $initial = escapeXml(mb_substr($title, 0, 1, 'UTF-8'));
     $symbol = motifSvg($motif, $accent, $ink, $light);
     $id = preg_replace('/[^a-z0-9-]+/', '-', $slug) ?? $slug;
 
@@ -770,7 +611,7 @@ function writeGodPortrait(string $title, string $slug, string $motif, string $de
   <g filter='url(#soft-{$id})'>{$symbol}</g>
   <circle cx='360' cy='438' r='118' fill='none' stroke='{$light}' stroke-opacity='0.24' stroke-width='16'/>
   <text x='360' y='466' text-anchor='middle' font-family='Georgia, Times New Roman, serif' font-size='138' font-weight='700' fill='{$light}' opacity='0.22'>{$initial}</text>
-  <text x='360' y='744' text-anchor='middle' font-family='Georgia, Times New Roman, serif' font-size='44' font-weight='700' fill='{$light}' letter-spacing='2'>{$safeTitle}</text>
+  <text x='360' y='744' text-anchor='middle' font-family='Georgia, Times New Roman, serif' font-size='44' font-weight='700' fill='{$light}'>{$safeTitle}</text>
   <path d='M250 782 H470' stroke='{$accent}' stroke-width='5' stroke-linecap='round'/>
 </svg>
 SVG;
@@ -801,10 +642,10 @@ function paletteForMotif(string $motif, string $slug): array
     $hue = $hash % 360;
 
     return [
-        'hsl('.$hue.' 38% 24%)',
-        'hsl('.(($hue + 45) % 360).' 72% 58%)',
-        'hsl('.$hue.' 40% 10%)',
-        'hsl('.(($hue + 30) % 360).' 82% 88%)',
+        'hsl('.$hue.', 38%, 24%)',
+        'hsl('.(($hue + 45) % 360).', 72%, 58%)',
+        'hsl('.$hue.', 40%, 10%)',
+        'hsl('.(($hue + 30) % 360).', 82%, 88%)',
     ];
 }
 
@@ -832,10 +673,65 @@ function motifSvg(string $motif, string $accent, string $ink, string $light): st
         'forge' => "<g transform='translate(360 430)'><path d='M-150 -80 H150 L110 20 H-110Z' fill='{$ink}' stroke='{$accent}' stroke-width='14'/><path d='M-80 20 H80 V130 H-80Z' fill='{$accent}'/><path d='M-180 150 H180' stroke='{$light}' stroke-width='18' stroke-linecap='round'/></g>",
         'sprout-sun', 'spear-sun' => "{$sun}<g transform='translate(360 500)' fill='none' stroke='{$light}' stroke-width='18' stroke-linecap='round'><path d='M0 150 V-20'/><path d='M0 54 C-72 34 -108 -10 -112 -76'/><path d='M0 78 C72 58 108 14 112 -52'/></g>",
         'solar-horse', 'sun-horse' => "{$sun}<g transform='translate(360 530)' fill='none' stroke='{$light}' stroke-width='18' stroke-linecap='round'><path d='M-168 48 C-80 -52 66 -52 152 42'/><path d='M-92 80 V142'/><path d='M86 80 V142'/><path d='M152 42 L198 10'/></g>",
-        'horizon' => "<g transform='translate(360 430)'>{$sun}<path d='M-220 112 H220' stroke='{$light}' stroke-width='20' stroke-linecap='round'/><path d='M-170 162 H170' stroke='{$accent}' stroke-width='12' stroke-linecap='round'/></g>",
+        'horizon' => "{$sun}<path d='M140 542 H580' stroke='{$light}' stroke-width='20' stroke-linecap='round'/><path d='M190 592 H530' stroke='{$accent}' stroke-width='12' stroke-linecap='round'/>",
         'thorn' => "<g transform='translate(360 420)' fill='none' stroke='{$accent}' stroke-width='18' stroke-linecap='round'><path d='M0 -170 C-74 -92 -82 -8 0 70 C82 -8 74 -92 0 -170Z' fill='{$ink}'/><path d='M0 -94 V170'/><path d='M0 -20 L-92 -88'/><path d='M0 34 L92 -34'/></g>",
         default => $sun,
     };
+}
+
+function isDocumentUrl(string $url): bool
+{
+    return in_array(extensionOf($url), documentExtensions(), true);
+}
+
+function extensionOf(string $reference): string
+{
+    return strtolower(pathinfo(normalizedReferencePath($reference), PATHINFO_EXTENSION));
+}
+
+function normalizedReferencePath(string $reference): string
+{
+    $decoded = trim(html_entity_decode($reference, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+    $path = (string) (parse_url($decoded, PHP_URL_PATH) ?? $decoded);
+
+    return strtolower(rawurldecode($path));
+}
+
+/** @return array<int, string> */
+function documentExtensions(): array
+{
+    return ['pdf', 'doc', 'docx', 'djvu', 'rtf', 'rar', 'zip'];
+}
+
+function isSvitUrl(string $url): bool
+{
+    $host = strtolower((string) (parse_url($url, PHP_URL_HOST) ?? ''));
+
+    return in_array($host, ['svit.in.ua', 'www.svit.in.ua'], true);
+}
+
+function safeAssetFilename(string $url, string $extension): string
+{
+    $path = (string) (parse_url($url, PHP_URL_PATH) ?? '');
+    $base = rawurldecode(basename($path));
+    $base = preg_replace('/[^A-Za-z0-9._-]+/', '-', $base) ?? '';
+    $base = trim($base, '.-_');
+
+    if ($base === '' || !str_contains($base, '.')) {
+        $base = sha1($url).'.'.$extension;
+    }
+
+    return $base;
+}
+
+function makeSummary(string $html): string
+{
+    $text = cleanText(strip_tags($html));
+    if (mb_strlen($text, 'UTF-8') <= 180) {
+        return $text;
+    }
+
+    return rtrim(mb_substr($text, 0, 180, 'UTF-8')).'...';
 }
 
 function textLength(string $html): int
@@ -853,17 +749,14 @@ function relativePath(string $root, string $path): string
     return str_replace('\\', '/', ltrim(str_replace($root, '', $path), '/\\'));
 }
 
-function removeElementsByTag(DOMDocument $dom, string $tag): void
+function escapeHtml(string $value): string
 {
-    while (true) {
-        $nodes = $dom->getElementsByTagName($tag);
-        if ($nodes->length === 0) {
-            break;
-        }
+    return htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
 
-        $node = $nodes->item(0);
-        $node?->parentNode?->removeChild($node);
-    }
+function escapeXml(string $value): string
+{
+    return htmlspecialchars($value, ENT_QUOTES | ENT_XML1, 'UTF-8');
 }
 
 function ensureDirectory(string $directory): void
