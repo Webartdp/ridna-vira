@@ -8,11 +8,18 @@
         $image = (string) ($god['image'] ?? '');
         $slug = (string) ($god['slug'] ?? 'bog');
 
-        $portrait = 'assets/gods/'.$slug.'/portrait.png';
+        $webpPortrait = 'assets/gods/'.$slug.'/portrait.webp';
+        $pngPortrait = 'assets/gods/'.$slug.'/portrait.png';
 
-        return is_file(public_path($portrait))
-            ? asset($portrait)
-            : ($image !== '' ? $image : asset('assets/gods/'.$slug.'/portrait.svg'));
+        if (is_file(public_path($webpPortrait))) {
+            return asset($webpPortrait).'?v='.filemtime(public_path($webpPortrait));
+        }
+
+        if (is_file(public_path($pngPortrait))) {
+            return asset($pngPortrait).'?v='.filemtime(public_path($pngPortrait));
+        }
+
+        return $image !== '' ? $image : asset('assets/gods/'.$slug.'/portrait.svg');
     };
 @endphp
 
