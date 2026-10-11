@@ -4,10 +4,16 @@
 @section('description', $godTitle.' — матеріал розділу Богів Духовного центру «Рідна Віра».')
 
 @php
-    $portrait = 'assets/gods/'.$godSlug.'/portrait.png';
-    $image = is_file(public_path($portrait))
-        ? asset($portrait)
-        : (string) ($god['image'] ?? asset('assets/gods/'.$godSlug.'/portrait.svg'));
+    $webpPortrait = 'assets/gods/'.$godSlug.'/portrait.webp';
+    $pngPortrait = 'assets/gods/'.$godSlug.'/portrait.png';
+
+    if (is_file(public_path($webpPortrait))) {
+        $image = asset($webpPortrait).'?v='.filemtime(public_path($webpPortrait));
+    } elseif (is_file(public_path($pngPortrait))) {
+        $image = asset($pngPortrait).'?v='.filemtime(public_path($pngPortrait));
+    } else {
+        $image = (string) ($god['image'] ?? asset('assets/gods/'.$godSlug.'/portrait.svg'));
+    }
 @endphp
 
 @push('styles')
