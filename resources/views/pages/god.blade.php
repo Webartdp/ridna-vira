@@ -4,7 +4,10 @@
 @section('description', $godTitle.' — матеріал розділу Богів Духовного центру «Рідна Віра».')
 
 @php
-    $image = (string) ($god['image'] ?? asset('assets/gods/'.$godSlug.'/portrait.svg'));
+    $portrait = 'assets/gods/'.$godSlug.'/portrait.png';
+    $image = is_file(public_path($portrait))
+        ? asset($portrait)
+        : (string) ($god['image'] ?? asset('assets/gods/'.$godSlug.'/portrait.svg'));
 @endphp
 
 @push('styles')
@@ -151,7 +154,7 @@
     <div class="figma-container">
         <article class="god-reading-article">
             <figure class="god-reading-figure">
-                <img src="{{ $image }}" alt="{{ $godTitle }}">
+                <img src="{{ $image }}" alt="{{ $godTitle }}" decoding="async">
             </figure>
 
             @if ($content !== null && trim($content) !== '')
