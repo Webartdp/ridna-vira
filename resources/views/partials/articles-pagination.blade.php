@@ -5,7 +5,7 @@
             ->unique()->sort()->values();
         $previousPage = 0;
     @endphp
-    <nav class="articles-pager" aria-label="Сторінки статей">
+    <nav class="articles-pager" aria-label="{{ $paginationLabel ?? 'Сторінки статей' }}">
         @if ($paginator->onFirstPage())
             <span class="articles-pager__step is-disabled" aria-disabled="true"><span aria-hidden="true">←</span> Попередня</span>
         @else

@@ -3,6 +3,17 @@
 @section('title', 'Рідна Віра — Духовний центр')
 @section('description', 'Офіційний сайт Духовного центру «Рідна Віра»: громади, свята, обряди, новини, статті та творчість.')
 
+@push('styles')
+    @include('partials.publication-styles')
+    <style>
+        @media (max-width: 479.98px) {
+            .calendar-stage { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .calendar-stage .holiday-card { min-width: 0; }
+            .calendar-stage .holiday-card strong { max-width: 100%; overflow-wrap: anywhere; }
+        }
+    </style>
+@endpush
+
 @php
     $primaryLinks = [
         ['title' => 'Святині', 'image' => 'category-sanctuary.png', 'route' => 'faith.shrines'],
@@ -28,11 +39,6 @@
         ['title' => 'Зелені святки', 'name' => 'Трійця', 'image' => 'holiday-zeleni.png', 'position' => 'bottom-right'],
     ];
 
-    $sections = [
-        ['title' => 'Новини', 'route' => '/novyny'],
-        ['title' => 'Статті', 'route' => '/statti'],
-        ['title' => 'Творчість', 'route' => '/tvorchist'],
-    ];
 @endphp
 
 @section('content')
@@ -104,35 +110,41 @@
     </div>
 </section>
 
-@foreach ($sections as $section)
-<section class="materials-section">
+@foreach ($materialSections as $section)
+<section class="materials-section" aria-labelledby="materials-title-{{ $loop->index }}">
     <div class="figma-container">
-        <h2>{{ $section['title'] }}</h2>
+        <div class="publication-heading">
+            <h2 id="materials-title-{{ $loop->index }}">{{ $section['title'] }}</h2>
+            <a href="{{ $section['url'] }}">{{ $section['title'] === 'Новини' ? 'Усі новини' : ($section['title'] === 'Статті' ? 'Усі статті' : 'Уся творчість') }} →</a>
+        </div>
 
+        @if (!empty($section['items']))
+        @php($featured = $section['items'][0])
         <div class="materials-grid">
-            <a class="feature-material" href="{{ url($section['route']) }}">
-                <img src="{{ asset('assets/figma/home/article-feature.png') }}" alt="Світолад української оселі">
+            <a class="feature-material" href="{{ $featured['url'] }}">
+                @include('partials.publication-image', ['visual' => $featured['image'] ?? null, 'placeholder' => $section['title']])
                 <span class="feature-material__overlay"></span>
-                <span class="date-badge">20.03.2027</span>
+                @if (!empty($featured['date']))<time class="date-badge" datetime="{{ $featured['date'] }}">{{ date('d.m.Y', strtotime($featured['date'])) }}</time>@endif
                 <span class="feature-material__content">
-                    <strong>Світолад української оселі</strong>
-                    <small>Духовна спадщина, звичаї та символіка українського дому.</small>
+                    <strong>{{ $featured['title'] }}</strong>
+                    <small>{{ $featured['excerpt'] }}</small>
                     <span class="feature-material__arrow">→</span>
                 </span>
             </a>
 
             <div class="materials-list">
-                @for ($i = 0; $i < 3; $i++)
-                    <a class="material-row" href="{{ url($section['route']) }}">
-                        <img src="{{ asset('assets/figma/home/article-thumb.png') }}" alt="">
+                @foreach (array_slice($section['items'], 1) as $item)
+                    <a class="material-row" href="{{ $item['url'] }}">
+                        @include('partials.publication-image', ['visual' => $item['image'] ?? null, 'sizes' => '(min-width: 600px) 154px, 100px', 'placeholder' => $section['title']])
                         <span>
-                            <strong>Структура замовляння у слов’ян</strong>
-                            <small class="date-badge">20.03.2027</small>
+                            <strong>{{ $item['title'] }}</strong>
+                            @if (!empty($item['date']))<time class="date-badge" datetime="{{ $item['date'] }}">{{ date('d.m.Y', strtotime($item['date'])) }}</time>@elseif (!empty($item['author']))<small class="material-meta">{{ $item['author'] }}</small>@endif
                         </span>
                     </a>
-                @endfor
+                @endforeach
             </div>
         </div>
+        @endif
     </div>
 </section>
 @endforeach

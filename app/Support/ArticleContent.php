@@ -12,6 +12,8 @@ use DOMXPath;
 /** Present legacy articles as semantic content, never as legacy page layouts. */
 final class ArticleContent
 {
+    public function __construct(private readonly bool $preserveSmallImages = false) {}
+
     public function cleanTitle(string $title): string
     {
         $title = $this->text(html_entity_decode(strip_tags($title), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
@@ -65,7 +67,7 @@ final class ArticleContent
         foreach ($body?->childNodes ?? [] as $node) {
             $tag = $node instanceof DOMElement ? strtolower($node->tagName) : '';
             if (in_array($tag, ['p', 'h2', 'h3', 'h4', 'ul', 'ol', 'blockquote', 'pre', 'figure', 'div'], true)) {
-                if (trim(strip_tags($inline)) !== '') {
+                if (trim(strip_tags($inline)) !== '' || str_contains($inline, '<img')) {
                     $result .= '<p>'.trim($inline).'</p>';
                 }
                 $inline = '';
@@ -74,7 +76,7 @@ final class ArticleContent
                 $inline .= $fragment->saveHTML($node);
             }
         }
-        if (trim(strip_tags($inline)) !== '') {
+        if (trim(strip_tags($inline)) !== '' || str_contains($inline, '<img')) {
             $result .= '<p>'.trim($inline).'</p>';
         }
 
@@ -179,7 +181,7 @@ final class ArticleContent
         if ($tag === 'img') {
             $src = $this->safeUrl($node->getAttribute('src'));
             $height = (int) $node->getAttribute('height');
-            if ($src === '' || ($height > 0 && $height <= 32)) {
+            if ($src === '' || (! $this->preserveSmallImages && $height > 0 && $height <= 32)) {
                 return '';
             }
 

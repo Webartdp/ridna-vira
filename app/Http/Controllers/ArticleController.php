@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Support\ArticleContent;
+use App\Support\Publications;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -76,7 +77,7 @@ final class ArticleController extends Controller
         $path = storage_path('app/content/articles/manifest.json');
 
         if (! is_file($path)) {
-            return [];
+            return ['articles' => (new Publications)->catalogue()['articles']];
         }
 
         $manifest = json_decode((string) file_get_contents($path), true);
@@ -99,6 +100,11 @@ final class ArticleController extends Controller
             }
         }
 
+        $bundled = (new Publications)->find('articles', $slug);
+        if ($bundled !== null) {
+            return $bundled;
+        }
+
         abort(404, 'Статтю не знайдено.');
     }
 
@@ -119,7 +125,7 @@ final class ArticleController extends Controller
             return null;
         }
 
-        $base = storage_path('app/content/articles');
+        $base = ! empty($entry['bundled']) ? resource_path('content/publications') : storage_path('app/content/articles');
         $path = $base.DIRECTORY_SEPARATOR.str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath);
         $baseRealPath = realpath($base);
         $realPath = realpath($path);

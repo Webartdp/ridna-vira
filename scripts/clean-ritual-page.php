@@ -17,6 +17,13 @@ $root = $document->getElementsByTagName('body')->item(0);
 $largest = 0;
 foreach ($xpath->query('//td') as $cell) {
     $length = mb_strlen(trim($cell->textContent));
+    if (! empty($input['gallery'])) {
+        foreach ($cell->getElementsByTagName('img') as $image) {
+            if (! preg_match('~(?:^|/)(?:rozdil|lin|artic)\.gif$~i', $image->getAttribute('src'))) {
+                $length += 1000;
+            }
+        }
+    }
     if ($length > $largest) {
         $root = $cell;
         $largest = $length;
@@ -56,4 +63,4 @@ $fragment = '';
 foreach ($root->childNodes as $child) {
     $fragment .= $document->saveHTML($child);
 }
-echo (new ArticleContent)->body('<article>'.$fragment.'</article>', $input['title']);
+echo (new ArticleContent((bool) ($input['gallery'] ?? false)))->body('<article>'.$fragment.'</article>', $input['title']);

@@ -6,12 +6,14 @@ use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\GodController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PrayerController;
+use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\RitualController;
 use App\Http\Controllers\ShrineController;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'home')->name('home');
+Route::get('/', HomeController::class)->name('home');
 
 Route::view('/pro-tsentr', 'pages.about')->name('about');
 Route::view('/pro-tsentr/upravlinnia', 'pages.management')->name('about.management');
@@ -73,9 +75,14 @@ Route::get('/dokumenti/{document}/zavantazhyty', [DocumentDownloadController::cl
     ->where('document', '[a-z0-9\-]+')
     ->name('documents.download.file');
 
+Route::get('/novyny', [PublicationController::class, 'index'])->defaults('section', 'news')->name('news.index');
+Route::get('/novyny/{publication}', [PublicationController::class, 'show'])
+    ->where('publication', '[a-z0-9\-]+')->defaults('section', 'news')->name('news.show');
+Route::get('/tvorchist', [PublicationController::class, 'index'])->defaults('section', 'creativity')->name('creativity.index');
+Route::get('/tvorchist/{publication}', [PublicationController::class, 'show'])
+    ->where('publication', '[a-z0-9\-]+')->defaults('section', 'creativity')->name('creativity.show');
+
 foreach ([
-    'novyny' => 'Новини',
-    'tvorchist' => 'Творчість',
     'kramnychka' => 'Крамниця',
     'koshyk' => 'Кошик',
 ] as $slug => $title) {
