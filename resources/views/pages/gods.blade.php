@@ -2,7 +2,7 @@
 
 @section('title', 'Боги — Рідна Віра')
 @section('body-class', 'gods-view')
-@section('description', 'Розділ Рідні Боги: перенесені матеріали, образи та описи Богів Рідної Віри.')
+@section('description', 'Рідні Боги, Богині та образи української духовної традиції: значення, символіка, перекази та джерела.')
 
 @push('styles')
 <style>
@@ -47,6 +47,7 @@
 
     .god-card {
         display: grid;
+        grid-template-rows: auto 1fr;
         min-height: 100%;
         overflow: hidden;
         border: 3px solid #fff;
@@ -74,6 +75,7 @@
 
     .god-card__body {
         display: grid;
+        align-content: start;
         gap: 8px;
         padding: 16px 16px 18px;
     }
@@ -91,6 +93,13 @@
         font-family: var(--rv-font-ui);
         font-size: 12px;
         text-transform: uppercase;
+    }
+
+    .god-card .god-card__summary {
+        color: rgba(64, 20, 3, .78);
+        font-size: 14px;
+        line-height: 1.5;
+        text-transform: none;
     }
 
     .gods-empty {
@@ -173,6 +182,9 @@
                             </span>
                             <span class="god-card__body">
                                 <strong>{{ $god['title'] ?? 'Бог' }}</strong>
+                                @if (!empty($god['summary']))
+                                    <span class="god-card__summary">{{ $god['summary'] }}</span>
+                                @endif
                                 <span>Відкрити</span>
                             </span>
                         </a>

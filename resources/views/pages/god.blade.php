@@ -2,7 +2,7 @@
 
 @section('title', $godTitle.' — Боги — Рідна Віра')
 @section('body-class', 'gods-view')
-@section('description', $godTitle.' — матеріал розділу Богів Духовного центру «Рідна Віра».')
+@section('description', $description['summary'] ?? ($godTitle.' — Рідна Віра'))
 
 @push('styles')
 <style>
@@ -39,6 +39,24 @@
         font-family: var(--rv-font-ui);
         font-size: 18px;
         line-height: 1.72;
+        overflow-wrap: anywhere;
+    }
+
+    .god-reading-lead {
+        font-size: 1.15em;
+        line-height: 1.65;
+    }
+
+    .god-reading-sources {
+        margin-top: 40px;
+        padding-top: 24px;
+        border-top: 1px solid rgba(64, 20, 3, .16);
+    }
+
+    .god-reading-sources p,
+    .god-reading-sources li {
+        font-size: 14px;
+        line-height: 1.65;
     }
 
     .god-reading-content > *:first-child {
@@ -160,7 +178,28 @@
                 ])
             </figure>
 
-            @if ($content !== null && trim($content) !== '')
+            @if ($description !== null)
+                <div class="god-reading-content">
+                    <p class="god-reading-lead">{{ $description['lead'] }}</p>
+                    @foreach ($description['sections'] as $section)
+                        <section>
+                            <h2>{{ $section['title'] }}</h2>
+                            @foreach ($section['paragraphs'] as $paragraph)
+                                <p>{{ $paragraph }}</p>
+                            @endforeach
+                        </section>
+                    @endforeach
+                    <aside class="god-reading-sources" aria-labelledby="god-sources-title">
+                        <h2 id="god-sources-title">Джерела опису</h2>
+                        <p>Редакційний виклад за наведеними матеріалами. Авторські тлумачення й відмінності між традиціями позначено в тексті.</p>
+                        <ul>
+                            @foreach ($description['sources'] as $source)
+                                <li><a href="{{ $source['url'] }}" target="_blank" rel="noopener noreferrer">{{ $source['title'] }} <span aria-hidden="true">↗</span></a></li>
+                            @endforeach
+                        </ul>
+                    </aside>
+                </div>
+            @elseif ($content !== null && trim($content) !== '')
                 <div class="god-reading-content">
                     {!! $content !!}
                 </div>
