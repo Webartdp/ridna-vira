@@ -1,0 +1,1080 @@
+{
+  "source": "https://www.svit.in.ua/obr.htm",
+  "groups": [
+    {
+      "id": "life",
+      "title": "Обряди життєвого кола"
+    },
+    {
+      "id": "calendar",
+      "title": "Обряди Кола Сварожого"
+    },
+    {
+      "id": "school",
+      "title": "Обряди Недільної школи"
+    },
+    {
+      "id": "literature",
+      "title": "Література про обряди"
+    }
+  ],
+  "entries": {
+    "bohoslavlennia": {
+      "title": "Богославлення",
+      "source": "obr/ob1.htm",
+      "summary": "Спільне славлення Рідних Богів: підготовка, очищення, молитви та єднання громади.",
+      "category": "life",
+      "page": "pages/bohoslavlennia.html",
+      "files": [
+        {
+          "path": "documents/97d2c9f32d-pashnyk_bogoslav.pdf",
+          "format": "pdf",
+          "bytes": 953565
+        },
+        {
+          "path": "documents/88a9dd665d-pashnyk_bogoslav.docx",
+          "format": "docx",
+          "bytes": 989908
+        }
+      ],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Опис богославлення на хортицькому святилищі-обсерваторії"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Хід Обряду"
+        }
+      ]
+    },
+    "posviachennia": {
+      "title": "Посвячення у рідновіри",
+      "source": "obr/ob2.htm",
+      "summary": "Опис посвячення, ім’янаречення та прилучення до духовної традиції Роду.",
+      "category": "life",
+      "page": "pages/posviachennia.html",
+      "files": [
+        {
+          "path": "documents/76ef1aa34b-pashnyk_posviata.pdf",
+          "format": "pdf",
+          "bytes": 801342
+        },
+        {
+          "path": "documents/b63ff89b11-pashnyk_posviata.docx",
+          "format": "docx",
+          "bytes": 537997
+        }
+      ],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "ОБРЯД ПОСВЧЕННЯ ДИТИНИ"
+        },
+        {
+          "anchor": "section-2",
+          "title": "ЗАГАЛЬНИЙ ОБРЯД"
+        },
+        {
+          "anchor": "section-3",
+          "title": "ПРИСЯГА ХРЕЩЕНИХ БАТЬКІВ"
+        },
+        {
+          "anchor": "section-4",
+          "title": "ОСВЯЧЕННЯ ЗЕМЛЕЮ"
+        },
+        {
+          "anchor": "section-5",
+          "title": "ІМ'ЯНАРЕЧЕННЯ"
+        },
+        {
+          "anchor": "section-6",
+          "title": "ВОДОХРЕЩА"
+        },
+        {
+          "anchor": "section-7",
+          "title": "ОСВЯЧЕННЯ ВОГНЕМ"
+        },
+        {
+          "anchor": "section-8",
+          "title": "СХОДЖЕННЯ СВЯТОГО ДУХУ"
+        },
+        {
+          "anchor": "section-9",
+          "title": "ПОСВЯЧЕННЯ У РІД"
+        },
+        {
+          "anchor": "section-10",
+          "title": "ПОСТРИЖИНИ"
+        },
+        {
+          "anchor": "section-11",
+          "title": "ЗАВЕРШЕННЯ ОБРЯДУ"
+        },
+        {
+          "anchor": "section-12",
+          "title": "ПОСВЯЧЕННЯ ДОРОСЛОЇ ЛЮДИНИ"
+        },
+        {
+          "anchor": "section-13",
+          "title": "ЗАГАЛЬНИЙ ОБРЯД"
+        },
+        {
+          "anchor": "section-14",
+          "title": "ОСВЯЧЕННЯ ЗЕМЛЕЮ"
+        },
+        {
+          "anchor": "section-15",
+          "title": "ІМ'ЯНАРЕЧЕННЯ"
+        },
+        {
+          "anchor": "section-16",
+          "title": "ВОДОХРЕЩА"
+        },
+        {
+          "anchor": "section-17",
+          "title": "ОСВЯЧЕННЯ ВОГНЕМ"
+        },
+        {
+          "anchor": "section-18",
+          "title": "СХОДЖЕННЯ СВЯТОГО ДУХУ"
+        },
+        {
+          "anchor": "section-19",
+          "title": "ПОСВЯЧЕННЯ У РІД"
+        },
+        {
+          "anchor": "section-20",
+          "title": "Література"
+        },
+        {
+          "anchor": "section-21",
+          "title": "Література про обряди посвячення"
+        }
+      ]
+    },
+    "vinchannia": {
+      "title": "Вінчання",
+      "source": "obr/ob3.htm",
+      "summary": "Підготовка й перебіг обряду створення родини, благословення та шлюбні обітниці.",
+      "category": "life",
+      "page": "pages/vinchannia.html",
+      "files": [
+        {
+          "path": "documents/0a1d510265-pashnyk_vinchannia.pdf",
+          "format": "pdf",
+          "bytes": 2793440
+        },
+        {
+          "path": "documents/6d13565654-pashnyk_vinchannia.docx",
+          "format": "docx",
+          "bytes": 4221177
+        }
+      ],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "ОБРЯД ВІНЧАННЯ"
+        },
+        {
+          "anchor": "section-2",
+          "title": "ОПИС ОБРЯДУ"
+        },
+        {
+          "anchor": "section-3",
+          "title": "ОСВЯЧЕННЯ ВОДОЮ"
+        },
+        {
+          "anchor": "section-4",
+          "title": "ЗАКЛИКАННЯ ГОСТЕЙ"
+        },
+        {
+          "anchor": "section-5",
+          "title": "ОБМІН ПЕРСТНЯМИ"
+        },
+        {
+          "anchor": "section-6",
+          "title": "ВИКРАДЕННЯ МОЛОДОЇ"
+        },
+        {
+          "anchor": "section-7",
+          "title": "РОЗПЛІТАННЯ КОСИ"
+        },
+        {
+          "anchor": "section-8",
+          "title": "ВИРЯДЖАННЯ МОЛОДОГО"
+        },
+        {
+          "anchor": "section-9",
+          "title": "ОСЯЯННЯ МОЛОДИХ"
+        },
+        {
+          "anchor": "section-10",
+          "title": "НОВА РОДИНА"
+        },
+        {
+          "anchor": "section-11",
+          "title": "ОДЯГАННЯ НАМІТКИ"
+        },
+        {
+          "anchor": "section-12",
+          "title": "ПРОЩАННЯ МОЛОДОЇ З БАТЬКІВСЬКИМ ДВОРОМ"
+        },
+        {
+          "anchor": "section-13",
+          "title": "ПЕРЕХІД ЧЕРЕЗ ДУНАЙ"
+        },
+        {
+          "anchor": "section-14",
+          "title": "Література:"
+        }
+      ]
+    },
+    "pokhovannia": {
+      "title": "Поховання",
+      "source": "obr/ob4.htm",
+      "summary": "Прощання з померлим, поховальні дії та вшанування пам’яті Предків.",
+      "category": "life",
+      "page": "pages/pokhovannia.html",
+      "files": [
+        {
+          "path": "documents/ba26ebd915-pashnyk_pohovannia.pdf",
+          "format": "pdf",
+          "bytes": 3943672
+        },
+        {
+          "path": "documents/a18de16bf2-pashnyk_pohovannia.docx",
+          "format": "docx",
+          "bytes": 4697199
+        }
+      ],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "ОБРЯД ПОХОВАННЯ"
+        },
+        {
+          "anchor": "section-2",
+          "title": "НА КЛАДОВИЩІ"
+        },
+        {
+          "anchor": "section-3",
+          "title": "ДЖЕРЕЛА:"
+        },
+        {
+          "anchor": "section-4",
+          "title": "Література про поховання:"
+        }
+      ]
+    },
+    "osviachennia-pomeshkannia": {
+      "title": "Освячення помешкання і приміщення",
+      "source": "obr/ob5.htm",
+      "summary": "Обряд благословення оселі, очищення простору та побажання добробуту родині.",
+      "category": "life",
+      "page": "pages/osviachennia-pomeshkannia.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "МОЛИТВА ЗА ЗДОРОВ'Я"
+        },
+        {
+          "anchor": "section-2",
+          "title": "МОЛИТВА ЗА ПРЕДКІВ"
+        },
+        {
+          "anchor": "section-3",
+          "title": "БЛАГОСЛОВІННЯ"
+        },
+        {
+          "anchor": "section-4",
+          "title": "Освячення приміщення"
+        }
+      ]
+    },
+    "zasivannia": {
+      "title": "Засівання",
+      "source": "pra/1p1.htm",
+      "summary": "Новорічне засівання, побажання врожаю та звичаї зустрічі нового кола.",
+      "category": "calendar",
+      "page": "pages/zasivannia.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Сосна чи ялина – новорічне дерево"
+        },
+        {
+          "anchor": "section-3",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-4",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-5",
+          "title": "Водіння Кози"
+        },
+        {
+          "anchor": "section-6",
+          "title": "Література"
+        }
+      ]
+    },
+    "vodinnia-kozy": {
+      "title": "Водіння кози",
+      "source": "pra/1p1.htm",
+      "summary": "Обрядова гра з Козою в матеріалі про новорічні звичаї й засівання.",
+      "category": "calendar",
+      "page": "pages/vodinnia-kozy.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Сосна чи ялина – новорічне дерево"
+        },
+        {
+          "anchor": "section-3",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-4",
+          "title": "Засівання"
+        },
+        {
+          "anchor": "section-5",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-6",
+          "title": "Література"
+        }
+      ]
+    },
+    "vodosviattia": {
+      "title": "Водосвяття",
+      "source": "pra/1p3.htm",
+      "summary": "Свято води: символіка, звичаї та обрядове освячення.",
+      "category": "calendar",
+      "page": "pages/vodosviattia.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Обряд Водосвяття"
+        },
+        {
+          "anchor": "section-3",
+          "title": "ДІЯ У ХРАМІ"
+        },
+        {
+          "anchor": "section-4",
+          "title": "ДІЯ БІЛЯ РІЧКИ"
+        },
+        {
+          "anchor": "section-5",
+          "title": "БОГОЯВЛЕННЯ"
+        },
+        {
+          "anchor": "section-6",
+          "title": "Література"
+        }
+      ]
+    },
+    "kolodii": {
+      "title": "Колодій",
+      "source": "pra/2p0.htm",
+      "summary": "Обряди проводів зими, Колодки та початку весняного оновлення.",
+      "category": "calendar",
+      "page": "pages/kolodii.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Пісні до свята Колодія:"
+        }
+      ]
+    },
+    "velykden": {
+      "title": "Великдень",
+      "source": "pra/3p7.htm",
+      "summary": "Зустріч весняного Сонця, писанки та великодні святодії.",
+      "category": "calendar",
+      "page": "pages/velykden.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Випікання Калача (Паски)"
+        },
+        {
+          "anchor": "section-3",
+          "title": "Великоднє Богославлення"
+        }
+      ]
+    },
+    "kupalo": {
+      "title": "Купало",
+      "source": "pra/6p3.htm",
+      "summary": "Літнє сонцестояння, обрядові вогні, вода та купальські звичаї.",
+      "category": "calendar",
+      "page": "pages/kupalo.html",
+      "files": [
+        {
+          "path": "documents/1225daa0a6-pashnyk_kupalo.pdf",
+          "format": "pdf",
+          "bytes": 3903984
+        }
+      ],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Купало – свято літнього Сонця"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-3",
+          "title": "НІЧ НА КУПАЛА"
+        },
+        {
+          "anchor": "section-4",
+          "title": "ПОЧАТОК СВЯТА"
+        },
+        {
+          "anchor": "section-5",
+          "title": "КУПАЛО І МАРЕНА"
+        },
+        {
+          "anchor": "section-6",
+          "title": "КУПАЙЛИЦЯ"
+        },
+        {
+          "anchor": "section-7",
+          "title": "ДІЙСТВО БІЛЯ ВОДИ"
+        },
+        {
+          "anchor": "section-8",
+          "title": "СВЯЩЕННИЙ ВІНОК"
+        },
+        {
+          "anchor": "section-9",
+          "title": "ДІЙСТВО БІЛЯ ВОГНЮ"
+        },
+        {
+          "anchor": "section-10",
+          "title": "СПАЛЕННЯ КУПАЛА І УТОПЛЕННЯ МАРЕНИ"
+        },
+        {
+          "anchor": "section-11",
+          "title": "ПОКАЗОВІ ВИСТУПИ"
+        },
+        {
+          "anchor": "section-12",
+          "title": "СТРИБКИ ЧЕРЕЗ ВОГОНЬ"
+        },
+        {
+          "anchor": "section-13",
+          "title": "МОЛИТВИ ЗА СВЯТІ ДУШІ ПРЕДКІВ"
+        },
+        {
+          "anchor": "section-14",
+          "title": "СВЯТА ВЕЧЕРЯ"
+        },
+        {
+          "anchor": "section-15",
+          "title": "ОСВЯЧЕННЯ ДЖЕРЕЛА"
+        },
+        {
+          "anchor": "section-16",
+          "title": "ЗУСТРІЧ СОНЦЯ"
+        },
+        {
+          "anchor": "section-17",
+          "title": "Література"
+        }
+      ]
+    },
+    "perun": {
+      "title": "Перун",
+      "source": "pra/7p3.htm",
+      "summary": "Ушанування Перуна, громадське славлення та святкова обрядовість.",
+      "category": "calendar",
+      "page": "pages/perun.html",
+      "files": [
+        {
+          "path": "documents/a31316fab0-pashnyk_perun.pdf",
+          "format": "pdf",
+          "bytes": 2324916
+        }
+      ],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Література"
+        }
+      ]
+    },
+    "symargl": {
+      "title": "Симаргл",
+      "source": "pra/8p5.htm",
+      "summary": "Ушанування священного Вогню та осіння обрядова традиція.",
+      "category": "calendar",
+      "page": "pages/symargl.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-2",
+          "title": "ВЕЧІРНІЙ ОБРЯД НА СВЯТО СИМАРГЛА"
+        },
+        {
+          "anchor": "section-3",
+          "title": "ЗАЧИН НА МАЛОМУ КОЛІ"
+        },
+        {
+          "anchor": "section-4",
+          "title": "ОСВЯЧЕННЯ ВОДОЮ"
+        },
+        {
+          "anchor": "section-5",
+          "title": "ЄДНІСТЬ РОДУ"
+        },
+        {
+          "anchor": "section-6",
+          "title": "СВЯТЕ ПРИЧАСТЯ"
+        }
+      ]
+    },
+    "kalyta": {
+      "title": "Калита",
+      "source": "pra/11p5.htm",
+      "summary": "Молодіжні вечорниці, обрядовий хліб і кусання Калити.",
+      "category": "calendar",
+      "page": "pages/kalyta.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Випікання Калити"
+        },
+        {
+          "anchor": "section-3",
+          "title": "Ворожіння (тільки дівчата)"
+        },
+        {
+          "anchor": "section-4",
+          "title": "Вечорниця"
+        },
+        {
+          "anchor": "section-5",
+          "title": "ВОРОЖІННЯ"
+        },
+        {
+          "anchor": "section-6",
+          "title": "Література"
+        }
+      ]
+    },
+    "sviatvechir": {
+      "title": "Святвечір",
+      "source": "pra/12p4.htm",
+      "summary": "Підготовка святкової вечері, Дідух і родинні різдвяні звичаї.",
+      "category": "calendar",
+      "page": "pages/sviatvechir.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література:"
+        },
+        {
+          "anchor": "section-2",
+          "title": "Обряд Святвечора"
+        },
+        {
+          "anchor": "section-3",
+          "title": "Запалювання свічок"
+        },
+        {
+          "anchor": "section-4",
+          "title": "Урочисте внесення Дідуха-Раю, Паляниці, Куті"
+        },
+        {
+          "anchor": "section-5",
+          "title": "Круговий танок громади навколо столу"
+        },
+        {
+          "anchor": "section-6",
+          "title": "Запрошення Предків"
+        },
+        {
+          "anchor": "section-7",
+          "title": "Запрошення Морозу"
+        },
+        {
+          "anchor": "section-8",
+          "title": "Освячення"
+        },
+        {
+          "anchor": "section-9",
+          "title": "Вечеря"
+        },
+        {
+          "anchor": "section-10",
+          "title": "Колядування"
+        },
+        {
+          "anchor": "section-11",
+          "title": "Сотворення світу"
+        },
+        {
+          "anchor": "section-12",
+          "title": "Сотворення Землі"
+        },
+        {
+          "anchor": "section-13",
+          "title": "***"
+        },
+        {
+          "anchor": "section-14",
+          "title": "Література"
+        }
+      ]
+    },
+    "posviata-u-vyshyvalnytsi": {
+      "title": "Посвята у вишивальниці",
+      "source": "obr/ob7.htm",
+      "summary": "Обряд посвяти, шанування жіночого ремесла та світлини події.",
+      "category": "school",
+      "page": "pages/posviata-u-vyshyvalnytsi.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "ХІД ОБРЯДУ"
+        },
+        {
+          "anchor": "section-2",
+          "title": "ВІДПОВІДІ ДІТЕЙ:"
+        },
+        {
+          "anchor": "section-3",
+          "title": "ОБРЯДОДІЙ:"
+        },
+        {
+          "anchor": "section-4",
+          "title": "ОБРЯДОДІЙ:"
+        },
+        {
+          "anchor": "section-5",
+          "title": "ОБРЯДОДІЙ:"
+        }
+      ]
+    },
+    "dytyna-zakarpattia": {
+      "title": "Дитина в традиційних звичаях і віруваннях українців Закарпаття",
+      "source": "stat/st57.htm",
+      "author": "Гайова Є.",
+      "category": "literature",
+      "summary": "",
+      "page": "pages/dytyna-zakarpattia.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "НОВОНАРОДЖЕНЕ ДИТЯ"
+        },
+        {
+          "anchor": "section-2",
+          "title": "ХРЕЩЕННЯ ДИТИНИ"
+        },
+        {
+          "anchor": "section-3",
+          "title": "«ВВОДИ», «УВЕЛАСЯ»"
+        },
+        {
+          "anchor": "section-4",
+          "title": "ГОДУВАННЯ І ІГРАШКИ"
+        }
+      ]
+    },
+    "symvolika-volossia": {
+      "title": "Символіка жіночого волосся в традиційних віруваннях та обрядах українців",
+      "source": "stat/eine_2014_44_6.pdf",
+      "author": "Грицюк О., Ігнатенко І.",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/754dcc069f-eine_2014_44_6.pdf",
+          "format": "pdf",
+          "bytes": 219588
+        }
+      ]
+    },
+    "koza-obriadova-hra": {
+      "title": "«Коза»: проблема інтерпретації обрядової гри в етнографічній літературі",
+      "source": "stat/st11.htm",
+      "author": "Гуменюк П.",
+      "category": "literature",
+      "summary": "",
+      "page": "pages/koza-obriadova-hra.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література:"
+        }
+      ]
+    },
+    "taiemni-tovarystva": {
+      "title": "Таємні товариства, обряди, ініціяції, посвячення",
+      "source": "stat/st61.htm",
+      "author": "Еліаде М.",
+      "category": "literature",
+      "summary": "",
+      "page": "pages/taiemni-tovarystva.html",
+      "files": [],
+      "toc": []
+    },
+    "ukrainski-malankari": {
+      "title": "Українські «маланкарі» — східна гілка карпато-балканської карнавальної традиції",
+      "source": "stat/st53.htm",
+      "author": "Курочкін О.",
+      "category": "literature",
+      "summary": "",
+      "page": "pages/ukrainski-malankari.html",
+      "files": [],
+      "toc": []
+    },
+    "kult-rodiuchosti": {
+      "title": "Сакралізація культу родючості в українській весільній обрядовості",
+      "source": "stat/st87.htm",
+      "author": "Кухаренко О. О.",
+      "category": "literature",
+      "summary": "",
+      "page": "pages/kult-rodiuchosti.html",
+      "files": [],
+      "toc": []
+    },
+    "narodnyi-pokhoronnyi-obriad": {
+      "title": "Народний похоронний обряд на Руси. Порівнююча студія, 1903",
+      "source": "kny/pachowsky_poh.pdf",
+      "author": "Пачовський Михайло",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/36cbc267e1-pachowsky_poh.pdf",
+          "format": "pdf",
+          "bytes": 6558515
+        }
+      ]
+    },
+    "vira-pytannia-vidpovidi": {
+      "title": "Руська Православна Віра у питаннях і відповідях",
+      "source": "kny/pashnyk/pashnyk_vidpovidi.pdf",
+      "author": "Пашник Світовит",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/03ce386c48-pashnyk_vidpovidi.pdf",
+          "format": "pdf",
+          "bytes": 3325862
+        }
+      ]
+    },
+    "kupalo-knyha": {
+      "title": "Купало",
+      "source": "kny/pashnyk/pashnyk_kupalo.pdf",
+      "author": "Укладач Пашник С. Д.",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/1225daa0a6-pashnyk_kupalo.pdf",
+          "format": "pdf",
+          "bytes": 3903984
+        }
+      ]
+    },
+    "slavlennia-peruna": {
+      "title": "Славлення Перуна",
+      "source": "kny/pashnyk/pashnyk_perun.pdf",
+      "author": "Укладач Пашник С. Д.",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/a31316fab0-pashnyk_perun.pdf",
+          "format": "pdf",
+          "bytes": 2324916
+        }
+      ]
+    },
+    "vinchannia-knyha": {
+      "title": "Вінчання",
+      "source": "kny/pashnyk/pashnyk_vinchannia.pdf",
+      "author": "Укладачі Пашник С. Д., Яковенко Я. В.",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/0a1d510265-pashnyk_vinchannia.pdf",
+          "format": "pdf",
+          "bytes": 2793440
+        }
+      ]
+    },
+    "pokhovannia-knyha": {
+      "title": "Поховання",
+      "source": "kny/pashnyk/pashnyk_pohovannia.pdf",
+      "author": "Укладач Пашник С. Д.",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/ba26ebd915-pashnyk_pohovannia.pdf",
+          "format": "pdf",
+          "bytes": 3943672
+        }
+      ]
+    },
+    "sosnu-pidpalyly": {
+      "title": "Сосну підпалили — Галю заміж віддали",
+      "source": "stat/st73.htm",
+      "author": "Пашник Світовит",
+      "category": "literature",
+      "summary": "",
+      "page": "pages/sosnu-pidpalyly.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література:"
+        }
+      ]
+    },
+    "vesilni-osoby": {
+      "title": "Весільні обрядові особи та атрибутика в поховальному ритуалі неодружених",
+      "source": "stat/tkach.pdf",
+      "author": "Ткач Х.",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/0496a3d4d7-tkach.pdf",
+          "format": "pdf",
+          "bytes": 68727
+        }
+      ]
+    },
+    "vesillia-folklor": {
+      "title": "Весілля в українській фольклорній традиції",
+      "source": "stat/st25.htm",
+      "author": "Ткачук О.",
+      "category": "literature",
+      "summary": "",
+      "page": "pages/vesillia-folklor.html",
+      "files": [],
+      "toc": [
+        {
+          "anchor": "section-1",
+          "title": "Література"
+        }
+      ]
+    },
+    "malankovi-pisni": {
+      "title": "Маланкові пісні українців півночі Молдови: поетичний аспект",
+      "source": "stat/harchyshyn_malanka.pdf",
+      "author": "Харчишин О.",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/5aeb10f9e4-harchyshyn_malanka.pdf",
+          "format": "pdf",
+          "bytes": 675879
+        }
+      ]
+    },
+    "pokhovalni-zakarpattia": {
+      "title": "Поховально-поминальні обряди українців Закарпаття кінця ХІХ — першої половини ХХ ст.",
+      "source": "stat/cherleniak_pohoron.pdf",
+      "author": "Черленяк І. В.",
+      "category": "literature",
+      "summary": "",
+      "files": [
+        {
+          "path": "documents/e98b7508e0-cherleniak_pohoron.pdf",
+          "format": "pdf",
+          "bytes": 696178
+        }
+      ]
+    }
+  },
+  "videos": [
+    {
+      "id": "l4IXTMPNbbg",
+      "title": "Богославлення РВ на Хортиці · 1"
+    },
+    {
+      "id": "H9SwM0rLewE",
+      "title": "Богославлення РВ на Хортиці · 2"
+    },
+    {
+      "id": "6_0DyrEesSY",
+      "title": "Посвячення"
+    },
+    {
+      "id": "IHD9iWfpP88",
+      "title": "Посвячення в рідновіри"
+    },
+    {
+      "id": "memc8Eq58t4",
+      "title": "Освячення Образа Рода Вседержителя"
+    }
+  ],
+  "guides": [
+    {
+      "city": "Запоріжжя",
+      "name": "Волхв Світовит",
+      "phones": [
+        "0686439328",
+        "0661537179",
+        "0633360378"
+      ],
+      "emails": [
+        "pashnyk@ukr.net",
+        "svitovyt@gmail.com"
+      ],
+      "socials": [
+        {
+          "title": "Facebook",
+          "url": "https://www.facebook.com/profile.php?id=100001893395405"
+        }
+      ]
+    },
+    {
+      "city": "Запоріжжя",
+      "name": "Берегиня Ясна",
+      "phones": [
+        "0631532681",
+        "0999709212"
+      ],
+      "emails": [
+        "yana.yakovenko@gmail.com"
+      ],
+      "socials": [
+        {
+          "title": "Facebook",
+          "url": "https://www.facebook.com/profile.php?id=100003754580671"
+        },
+        {
+          "title": "Група «Берегиня Ясна»",
+          "url": "https://www.facebook.com/106715844116512/"
+        }
+      ]
+    },
+    {
+      "city": "Дніпро",
+      "name": "Волхв Яромир",
+      "phones": [
+        "0934142016"
+      ],
+      "emails": [
+        "jaromirdp@gmail.com"
+      ],
+      "socials": [
+        {
+          "title": "Facebook",
+          "url": "https://www.facebook.com/jaromir.dp"
+        }
+      ]
+    },
+    {
+      "city": "Тернопіль",
+      "name": "Жриця Зореквіта",
+      "phones": [
+        "0983870395"
+      ],
+      "emails": [],
+      "socials": [
+        {
+          "title": "Facebook",
+          "url": "https://www.facebook.com/navia.gray.839997"
+        }
+      ]
+    },
+    {
+      "city": "Хмельницький",
+      "name": "Жрець Асур",
+      "phones": [
+        "0680507594"
+      ],
+      "emails": [],
+      "socials": [
+        {
+          "title": "Facebook",
+          "url": "https://www.facebook.com/profile.php?id=100072686701451"
+        },
+        {
+          "title": "Instagram",
+          "url": "https://www.instagram.com/vadym_yarovyi92/"
+        }
+      ]
+    },
+    {
+      "city": "Київ",
+      "name": "Жрець Ярун",
+      "phones": [
+        "0975636777"
+      ],
+      "emails": [],
+      "socials": [
+        {
+          "title": "Facebook",
+          "url": "https://www.facebook.com/yarcoach"
+        }
+      ]
+    }
+  ],
+  "imported_at": "2026-11-09"
+}

@@ -6,6 +6,7 @@ use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\GodController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\RitualController;
 use App\Http\Controllers\ShrineController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,13 +40,12 @@ Route::get('/ridna-vira/sviatyni/{shrine}', [ShrineController::class, 'show'])
     ->where('shrine', '[a-z0-9\-]+')
     ->name('faith.shrines.show');
 
-foreach ([
-    'rituals' => ['slug' => 'obriady', 'title' => 'Обряди'],
-    'prayers' => ['slug' => 'molytvy', 'title' => 'Молитви'],
-] as $name => $page) {
-    Route::view('/ridna-vira/'.$page['slug'], 'pages.placeholder', ['title' => $page['title']])
-        ->name('faith.'.$name);
-}
+Route::get('/ridna-vira/obriady', [RitualController::class, 'index'])->name('faith.rituals');
+Route::get('/ridna-vira/obriady/{ritual}', [RitualController::class, 'show'])
+    ->where('ritual', '[a-z0-9\-]+')->name('faith.rituals.show');
+Route::get('/ridna-vira/obriady/{ritual}/zavantazhyty/{format}', [RitualController::class, 'download'])
+    ->where(['ritual' => '[a-z0-9\-]+', 'format' => 'pdf|docx'])->name('faith.rituals.download');
+Route::view('/ridna-vira/molytvy', 'pages.placeholder', ['title' => 'Молитви'])->name('faith.prayers');
 
 Route::get('/statti', [ArticleController::class, 'index'])->name('articles.index');
 Route::get('/statti/{article}', [ArticleController::class, 'show'])
