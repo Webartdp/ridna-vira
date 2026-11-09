@@ -126,7 +126,7 @@ final class RitualReading
     }
 
     /** Split at BR while keeping inline markup valid on both sides. */
-    private function lines(DOMNode $node): array
+    public function lines(DOMNode $node): array
     {
         $lines = [''];
         foreach ($node->childNodes as $child) {

@@ -1,0 +1,602 @@
+[
+  {
+    "type": "heading",
+    "title": "Молитва-оберіг",
+    "id": "reading-1"
+  },
+  {
+    "type": "prayer",
+    "html": "Прошу Тебе, Дажбоже,",
+    "id": "reading-2"
+  },
+  {
+    "type": "prayer",
+    "html": "Прошу Вас, Духи-Обереги,",
+    "id": "reading-3"
+  },
+  {
+    "type": "prayer",
+    "html": "Захистити і оберегти мене",
+    "id": "reading-4"
+  },
+  {
+    "type": "prayer",
+    "html": "Від усього недоброго, злого і шкідливого,",
+    "id": "reading-5"
+  },
+  {
+    "type": "prayer",
+    "html": "Від усього, що заважає",
+    "id": "reading-6"
+  },
+  {
+    "type": "prayer",
+    "html": "Жити і працювати мені вільно,",
+    "id": "reading-7"
+  },
+  {
+    "type": "prayer",
+    "html": "Від усього, що сковує сили і думки мої.",
+    "id": "reading-8"
+  },
+  {
+    "type": "prayer",
+    "html": "Прошу оберегти мене в цю хвилину,",
+    "id": "reading-9"
+  },
+  {
+    "type": "prayer",
+    "html": "Прошу оберегти мене протягом цілого дня,",
+    "id": "reading-10"
+  },
+  {
+    "type": "prayer",
+    "html": "Прошу оберігати мене завжди,",
+    "id": "reading-11"
+  },
+  {
+    "type": "prayer",
+    "html": "Коли існує небезпека,",
+    "id": "reading-12"
+  },
+  {
+    "type": "prayer",
+    "html": "Коли я щиро прохаю цього.",
+    "id": "reading-13"
+  },
+  {
+    "type": "prayer",
+    "html": "Дякуючи за допомогу,",
+    "id": "reading-14"
+  },
+  {
+    "type": "prayer",
+    "html": "Завжди готовий бути вірним",
+    "id": "reading-15"
+  },
+  {
+    "type": "prayer",
+    "html": "І вірно служити Господу!",
+    "id": "reading-16"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Дажбогу!",
+    "id": "reading-17"
+  },
+  {
+    "type": "heading",
+    "title": "Материнська молитва",
+    "id": "reading-18"
+  },
+  {
+    "type": "prayer",
+    "html": "Господи Дажбоже!",
+    "id": "reading-19"
+  },
+  {
+    "type": "prayer",
+    "html": "Прошу Силою Твоєю",
+    "id": "reading-20"
+  },
+  {
+    "type": "prayer",
+    "html": "Оберегти і захистити",
+    "id": "reading-21"
+  },
+  {
+    "type": "prayer",
+    "html": "Мою дитину (ім&#039;ярек).",
+    "id": "reading-22"
+  },
+  {
+    "type": "prayer",
+    "html": "Прошу допомогти їй",
+    "id": "reading-23"
+  },
+  {
+    "type": "prayer",
+    "html": "У земному житті.",
+    "id": "reading-24"
+  },
+  {
+    "type": "prayer",
+    "html": "Прошу надати сили",
+    "id": "reading-25"
+  },
+  {
+    "type": "prayer",
+    "html": "Її духовному розвитку.",
+    "id": "reading-26"
+  },
+  {
+    "type": "prayer",
+    "html": "Прошу послати їй",
+    "id": "reading-27"
+  },
+  {
+    "type": "prayer",
+    "html": "Добре здоров’я і щасливу долю.",
+    "id": "reading-28"
+  },
+  {
+    "type": "prayer",
+    "html": "Дякую Тобі, Дажбоже!",
+    "id": "reading-29"
+  },
+  {
+    "type": "prayer",
+    "html": "Мене мати народила,",
+    "id": "reading-30"
+  },
+  {
+    "type": "prayer",
+    "html": "Місяцем обгородила,",
+    "id": "reading-31"
+  },
+  {
+    "type": "prayer",
+    "html": "Сонечком підперезала,",
+    "id": "reading-32"
+  },
+  {
+    "type": "prayer",
+    "html": "Зіроньками утикала",
+    "id": "reading-33"
+  },
+  {
+    "type": "prayer",
+    "html": "І між добрі люди послала.",
+    "id": "reading-34"
+  },
+  {
+    "type": "heading",
+    "title": "До Макоші",
+    "id": "reading-35"
+  },
+  {
+    "type": "prayer",
+    "html": "Матінка Макоша",
+    "id": "reading-36"
+  },
+  {
+    "type": "prayer",
+    "html": "Спряди нам хорошу",
+    "id": "reading-37"
+  },
+  {
+    "type": "prayer",
+    "html": "Долі нитку гожу",
+    "id": "reading-38"
+  },
+  {
+    "type": "prayer",
+    "html": "Онукам Дажбожим.",
+    "id": "reading-39"
+  },
+  {
+    "type": "prayer",
+    "html": "У Божій оселі",
+    "id": "reading-40"
+  },
+  {
+    "type": "prayer",
+    "html": "З чистої куделі",
+    "id": "reading-41"
+  },
+  {
+    "type": "prayer",
+    "html": "Веретенце крутиться,",
+    "id": "reading-42"
+  },
+  {
+    "type": "prayer",
+    "html": "Моє слово збудеться!",
+    "id": "reading-43"
+  },
+  {
+    "type": "prayer",
+    "html": "Спряди нитку вміло",
+    "id": "reading-44"
+  },
+  {
+    "type": "prayer",
+    "html": "Для душі і тіла",
+    "id": "reading-45"
+  },
+  {
+    "type": "prayer",
+    "html": "Міцну та рівненьку",
+    "id": "reading-46"
+  },
+  {
+    "type": "prayer",
+    "html": "На життя гладеньке",
+    "id": "reading-47"
+  },
+  {
+    "type": "prayer",
+    "html": "Тоненьку та довгу",
+    "id": "reading-48"
+  },
+  {
+    "type": "prayer",
+    "html": "В щасливу дорогу.",
+    "id": "reading-49"
+  },
+  {
+    "type": "prayer",
+    "html": "Веретенце крутиться",
+    "id": "reading-50"
+  },
+  {
+    "type": "prayer",
+    "html": "Моє слово збудеться!!!",
+    "id": "reading-51"
+  },
+  {
+    "type": "heading",
+    "title": "До Мокоші",
+    "id": "reading-52"
+  },
+  {
+    "type": "prayer",
+    "html": "Молимося до Мокоші,",
+    "id": "reading-53"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб сплела долю хорошу:",
+    "id": "reading-54"
+  },
+  {
+    "type": "prayer",
+    "html": "&quot;Ти пряди нитку міцненьку,",
+    "id": "reading-55"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб дитина була здоровенька.",
+    "id": "reading-56"
+  },
+  {
+    "type": "prayer",
+    "html": "Ти пряди нитку довгеньку,",
+    "id": "reading-57"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб дитина була щасливенька.",
+    "id": "reading-58"
+  },
+  {
+    "type": "prayer",
+    "html": "Ти пряди нитку гарненьку,",
+    "id": "reading-59"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб дитина була веселенька!&quot;",
+    "id": "reading-60"
+  },
+  {
+    "type": "prayer",
+    "html": "Богиня нитки звиває –",
+    "id": "reading-61"
+  },
+  {
+    "type": "prayer",
+    "html": "Між собою переплітає,",
+    "id": "reading-62"
+  },
+  {
+    "type": "prayer",
+    "html": "Життя струмочком ллється,",
+    "id": "reading-63"
+  },
+  {
+    "type": "prayer",
+    "html": "Доленька доріжкою в&#039;ється.",
+    "id": "reading-64"
+  },
+  {
+    "type": "prayer",
+    "html": "Дякуємо Мокоші",
+    "id": "reading-65"
+  },
+  {
+    "type": "prayer",
+    "html": "За роботу хорошу!",
+    "id": "reading-66"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Мокоші!",
+    "id": "reading-67"
+  },
+  {
+    "type": "heading",
+    "title": "Бойове замовляння",
+    "id": "reading-68"
+  },
+  {
+    "type": "prayer",
+    "html": "Обличчям на Північ звернусь –",
+    "id": "reading-69"
+  },
+  {
+    "type": "prayer",
+    "html": "Прабатькам своїм вклонюсь,",
+    "id": "reading-70"
+  },
+  {
+    "type": "prayer",
+    "html": "Слово за Рід тримаю,",
+    "id": "reading-71"
+  },
+  {
+    "type": "prayer",
+    "html": "Сили в Богів питаю!",
+    "id": "reading-72"
+  },
+  {
+    "type": "prayer",
+    "html": "Куля мене облітає,",
+    "id": "reading-73"
+  },
+  {
+    "type": "prayer",
+    "html": "Залізо мене обминає,",
+    "id": "reading-74"
+  },
+  {
+    "type": "prayer",
+    "html": "Вогонь та вода обтікають –",
+    "id": "reading-75"
+  },
+  {
+    "type": "prayer",
+    "html": "Ворогів моїх наганяють!",
+    "id": "reading-76"
+  },
+  {
+    "type": "prayer",
+    "html": "Шкіра моя - панцир з криці,",
+    "id": "reading-77"
+  },
+  {
+    "type": "prayer",
+    "html": "Кров - з живої водиці,",
+    "id": "reading-78"
+  },
+  {
+    "type": "prayer",
+    "html": "Соколом хутко зметнусь,",
+    "id": "reading-79"
+  },
+  {
+    "type": "prayer",
+    "html": "Вовком перевернусь!",
+    "id": "reading-80"
+  },
+  {
+    "type": "prayer",
+    "html": "Вітрами вкриюся,",
+    "id": "reading-81"
+  },
+  {
+    "type": "prayer",
+    "html": "Снігами вмиюся,",
+    "id": "reading-82"
+  },
+  {
+    "type": "prayer",
+    "html": "За землю стою,",
+    "id": "reading-83"
+  },
+  {
+    "type": "prayer",
+    "html": "Свій Рід бороню!",
+    "id": "reading-84"
+  },
+  {
+    "type": "heading",
+    "title": "Обережне коло",
+    "id": "reading-85"
+  },
+  {
+    "type": "prayer",
+    "html": "<em>Роблячи обережне коло чи перепону, посипати сіллю або маковим зерням:</em>",
+    "id": "reading-86"
+  },
+  {
+    "type": "prayer",
+    "html": "Божою силою посипаю –",
+    "id": "reading-87"
+  },
+  {
+    "type": "prayer",
+    "html": "від нечисті захищаю!",
+    "id": "reading-88"
+  },
+  {
+    "type": "prayer",
+    "html": "Як Сонце встає, Ніч відступає,",
+    "id": "reading-89"
+  },
+  {
+    "type": "prayer",
+    "html": "Так все недобре, нечисте нас стороною минає.",
+    "id": "reading-90"
+  },
+  {
+    "type": "prayer",
+    "html": "Довкруж мого двора кам&#039;яна гора, залізний тин, стальний клин.",
+    "id": "reading-91"
+  },
+  {
+    "type": "heading",
+    "title": "Замовляння з лялькою-мотанкою",
+    "id": "reading-92"
+  },
+  {
+    "type": "direction",
+    "html": "<em>Дія проводиться на відкритому святилищі біля вогнища. Треба принести стару ляльку-мотанку. Думкою своєю маєте віддати ляльці всі свої негаразди. Приготувати нову ляльку-мотанку.</em>",
+    "id": "reading-93"
+  },
+  {
+    "type": "prayer",
+    "html": "Все що тебе турбувало,",
+    "id": "reading-94"
+  },
+  {
+    "type": "prayer",
+    "html": "Жити тобі заважало",
+    "id": "reading-95"
+  },
+  {
+    "type": "prayer",
+    "html": "Землею засипало (присипати землею),",
+    "id": "reading-96"
+  },
+  {
+    "type": "prayer",
+    "html": "Водою змило (змити водою),",
+    "id": "reading-97"
+  },
+  {
+    "type": "prayer",
+    "html": "Вогнем спалило (кинути у вогонь),",
+    "id": "reading-98"
+  },
+  {
+    "type": "prayer",
+    "html": "Вітром розвіяло (дмухнути і махнути руками)!",
+    "id": "reading-99"
+  },
+  {
+    "type": "direction",
+    "html": "<em>Взяти нову ляльку-мотанку.</em>",
+    "id": "reading-100"
+  },
+  {
+    "type": "prayer",
+    "html": "Перун попереду захищає,",
+    "id": "reading-101"
+  },
+  {
+    "type": "prayer",
+    "html": "Велес позаду прикриває",
+    "id": "reading-102"
+  },
+  {
+    "type": "prayer",
+    "html": "Онука(ку) Дажбожого(у) (ім&#039;ярек),",
+    "id": "reading-103"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб Сила Божа берегла,",
+    "id": "reading-104"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб долю щасливу давала,",
+    "id": "reading-105"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб на віки благословляла!",
+    "id": "reading-106"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Рідним Богам і всьому Роду нашому!",
+    "id": "reading-107"
+  },
+  {
+    "type": "heading",
+    "title": "До виготовлення Оберегу",
+    "id": "reading-108"
+  },
+  {
+    "type": "prayer",
+    "html": "Оберіг виготовляю,",
+    "id": "reading-109"
+  },
+  {
+    "type": "prayer",
+    "html": "Щастя всьому Роду бажаю.",
+    "id": "reading-110"
+  },
+  {
+    "type": "prayer",
+    "html": "Перед Богами рідними замовляю,",
+    "id": "reading-111"
+  },
+  {
+    "type": "prayer",
+    "html": "Силу духовну закликаю,",
+    "id": "reading-112"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб нечисть мене не брала,",
+    "id": "reading-113"
+  },
+  {
+    "type": "prayer",
+    "html": "Стіною від зла охороняла.",
+    "id": "reading-114"
+  },
+  {
+    "type": "prayer",
+    "html": "Оберіг світло посилає,",
+    "id": "reading-115"
+  },
+  {
+    "type": "prayer",
+    "html": "Дорогу (ім&#039;ярек) осяває.",
+    "id": "reading-116"
+  },
+  {
+    "type": "prayer",
+    "html": "Сміливо вперед іду –",
+    "id": "reading-117"
+  },
+  {
+    "type": "prayer",
+    "html": "Божу силу в собі маю,",
+    "id": "reading-118"
+  },
+  {
+    "type": "prayer",
+    "html": "Всі незгоди долаю.",
+    "id": "reading-119"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Рідним Богам!",
+    "id": "reading-120"
+  }
+]

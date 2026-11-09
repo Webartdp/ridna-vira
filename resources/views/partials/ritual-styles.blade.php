@@ -40,11 +40,18 @@
     .article-prose .ritual-passage > .ritual-passage__label { margin: 0 0 16px; color: #82551c; font-family: var(--rv-font-ui); font-size: 12px; font-weight: 400; line-height: 1.5; letter-spacing: .06em; text-transform: uppercase; }
     .article-prose .ritual-passage--praise { background: #eee4ce; border-color: #cfb47f; border-left-color: #8b601c; }
     .article-prose .ritual-passage--direction { padding: 14px 20px; background: #f4f3ee; border-color: #deddd4; border-left: 2px solid #9b9a8f; color: #625f53; font-size: 15px; }
+    .article-prose .ritual-passage--note { padding: 14px 20px; background: #f4f3ee; border-color: #deddd4; border-left: 2px solid #9b9a8f; color: #625f53; font-size: 15px; }
+    .article-prose .ritual-passage--note > .ritual-passage__label { color: #747063; }
     .article-prose .ritual-passage--direction > .ritual-passage__label { color: #747063; margin-bottom: 10px; font-size: 11px; }
     .article-prose .ritual-passage--song { background: #f0f2ea; border-color: #d1d8c7; border-left-color: #65765d; }
     .article-prose .ritual-passage--song > .ritual-passage__label { color: #536249; }
     .article-prose .ritual-passage--oath { background: #f4ece3; border-color: #d5bca0; border-left-color: #8b5936; }
     .article-prose .ritual-passage img { display: block; }
+    .prayer-audio { margin-top: 40px; font-family: var(--rv-font-ui); }
+    .prayer-audio h2 { font-family: var(--rv-font-display); font-size: 28px; }
+    .prayer-audio__track { margin-top: 24px; }
+    .prayer-audio__track h3 { font-family: var(--rv-font-ui); font-size: 18px; margin-bottom: 12px; }
+    .prayer-audio audio { display: block; width: 100%; max-width: 540px; }
     @media (max-width: 600px) {
         .article-prose .ritual-passage { margin-block: 24px; padding: 20px 16px; }
         .article-prose .ritual-passage--direction { padding: 14px 16px; }

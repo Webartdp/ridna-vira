@@ -1,0 +1,1400 @@
+{
+  "source": "https://www.svit.in.ua/mol.htm",
+  "groups": [
+    {
+      "id": "themes",
+      "title": "Молитви за темами"
+    },
+    {
+      "id": "authors",
+      "title": "Авторські молитви"
+    },
+    {
+      "id": "books",
+      "title": "Молитовник"
+    },
+    {
+      "id": "research",
+      "title": "Література та дослідження"
+    }
+  ],
+  "entries": {
+    "urochysti": {
+      "title": "Урочисті молитви",
+      "source": "molytva/ml1.htm",
+      "category": "themes",
+      "summary": "Славлення Рідних Богів, звернення до стихій та урочисті молитви.",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-1",
+          "title": "Молитви, що утворені на основі Велесової Книги"
+        },
+        {
+          "anchor": "reading-26",
+          "title": "Сучасні"
+        },
+        {
+          "anchor": "reading-36",
+          "title": "До Велеса"
+        },
+        {
+          "anchor": "reading-55",
+          "title": "До Землі"
+        },
+        {
+          "anchor": "reading-65",
+          "title": "Освячення Води"
+        },
+        {
+          "anchor": "reading-67",
+          "title": "До Стрибога"
+        },
+        {
+          "anchor": "reading-72",
+          "title": "До Богів"
+        },
+        {
+          "anchor": "reading-74",
+          "title": "Заклик чотирьох стихій: Землі, Води, Вогню, Вітру"
+        },
+        {
+          "anchor": "reading-80",
+          "title": "До Мокоші"
+        },
+        {
+          "anchor": "reading-83",
+          "title": "Перед дорогою"
+        },
+        {
+          "anchor": "reading-85",
+          "title": "Для Божого натхнення"
+        },
+        {
+          "anchor": "reading-93",
+          "title": "До Русі-України"
+        },
+        {
+          "anchor": "reading-115",
+          "title": "Чую!"
+        }
+      ],
+      "page": "pages/urochysti.json",
+      "source_text_fingerprint": "c21212a87fbbcb0e2cff7d376f37028c20e78dadcfe606fe4410768852d51127"
+    },
+    "likuvalni": {
+      "title": "Лікувальні молитви",
+      "source": "molytva/ml4.htm",
+      "category": "themes",
+      "summary": "Традиційні молитви й замовляння про здоров’я та одужання.",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-2",
+          "title": "Перед лікуванням Словом:"
+        },
+        {
+          "anchor": "reading-4",
+          "title": "На здоров’я"
+        },
+        {
+          "anchor": "reading-11",
+          "title": "Перунова стріла"
+        },
+        {
+          "anchor": "reading-15",
+          "title": "До Берези"
+        },
+        {
+          "anchor": "reading-18",
+          "title": "До Дуба"
+        },
+        {
+          "anchor": "reading-20",
+          "title": "До Верби"
+        },
+        {
+          "anchor": "reading-22",
+          "title": "Молитви до Місяця"
+        },
+        {
+          "anchor": "reading-28",
+          "title": "Біла Баба"
+        },
+        {
+          "anchor": "reading-31",
+          "title": "Від уроків"
+        },
+        {
+          "anchor": "reading-38",
+          "title": "Від зубного болю"
+        },
+        {
+          "anchor": "reading-43",
+          "title": "Від Крикливців (Плаксів)"
+        },
+        {
+          "anchor": "reading-44",
+          "title": "Для дівчинки:"
+        },
+        {
+          "anchor": "reading-46",
+          "title": "Для хлопчика:"
+        },
+        {
+          "anchor": "reading-49",
+          "title": "Від «чиряка»"
+        },
+        {
+          "anchor": "reading-51",
+          "title": "Від опіку"
+        },
+        {
+          "anchor": "reading-53",
+          "title": "Від «Волосу» (панарицію)"
+        },
+        {
+          "anchor": "reading-58",
+          "title": "Зупинити кровотечу"
+        },
+        {
+          "anchor": "reading-63",
+          "title": "Заклинання проти Журби"
+        },
+        {
+          "anchor": "reading-65",
+          "title": "Проти корчів (судоми)"
+        },
+        {
+          "anchor": "reading-67",
+          "title": "Молитва до Неба від пияцтва"
+        },
+        {
+          "anchor": "reading-70",
+          "title": "На одужання органу чи ділянки організму"
+        },
+        {
+          "anchor": "reading-72",
+          "title": "Про скидання хвороби"
+        }
+      ],
+      "page": "pages/likuvalni.json",
+      "source_text_fingerprint": "0b5959d1ae859e2c2cbb04f006d6a18eb28ed0545e4c5c1d5111210e86b4a6e8"
+    },
+    "oberezhni": {
+      "title": "Обережні молитви",
+      "source": "molytva/ml8.htm",
+      "category": "themes",
+      "summary": "Молитви-обереги, звернення про захист і добру дорогу.",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-1",
+          "title": "Молитва-оберіг"
+        },
+        {
+          "anchor": "reading-18",
+          "title": "Материнська молитва"
+        },
+        {
+          "anchor": "reading-35",
+          "title": "До Макоші"
+        },
+        {
+          "anchor": "reading-52",
+          "title": "До Мокоші"
+        },
+        {
+          "anchor": "reading-68",
+          "title": "Бойове замовляння"
+        },
+        {
+          "anchor": "reading-85",
+          "title": "Обережне коло"
+        },
+        {
+          "anchor": "reading-92",
+          "title": "Замовляння з лялькою-мотанкою"
+        },
+        {
+          "anchor": "reading-108",
+          "title": "До виготовлення Оберегу"
+        }
+      ],
+      "page": "pages/oberezhni.json",
+      "source_text_fingerprint": "2144ae559a91eb881984fda1f3880094302918c95fae03957adc69aecf206d56"
+    },
+    "rodynni": {
+      "title": "Родинні молитви",
+      "source": "molytva/ml2.htm",
+      "category": "themes",
+      "summary": "Молитви про родину, дітей, родинну злагоду та благословення їжі.",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-1",
+          "title": "Дажбогу і Матері Ладі"
+        },
+        {
+          "anchor": "reading-4",
+          "title": "При випіканні дивня"
+        },
+        {
+          "anchor": "reading-6",
+          "title": "Як молодий місяць настане,"
+        },
+        {
+          "anchor": "reading-7",
+          "title": "і як перший раз його побачиш, то казали дівчата:"
+        },
+        {
+          "anchor": "reading-10",
+          "title": "На міцну сім’ю"
+        },
+        {
+          "anchor": "reading-12",
+          "title": "На добробут родини"
+        },
+        {
+          "anchor": "reading-14",
+          "title": "Молитви при вагітності та пологах"
+        },
+        {
+          "anchor": "reading-20",
+          "title": "Освячення їжі"
+        },
+        {
+          "anchor": "reading-27",
+          "title": "На гроші"
+        },
+        {
+          "anchor": "reading-29",
+          "title": "Замовляння води, купелі"
+        },
+        {
+          "anchor": "reading-30",
+          "title": "Замовляння купелі (для доньки)"
+        },
+        {
+          "anchor": "reading-32",
+          "title": "Замовляння купелі (для сина)"
+        },
+        {
+          "anchor": "reading-35",
+          "title": "Відкривання вікна зранку"
+        }
+      ],
+      "page": "pages/rodynni.json",
+      "source_text_fingerprint": "bf957077ac8b91e89bb6d9a46191cc444b00fd29bd1496563e88ad73375f88c2"
+    },
+    "hospodarchi": {
+      "title": "Господарчі молитви",
+      "source": "molytva/ml3.htm",
+      "category": "themes",
+      "summary": "Звернення про врожай, господарство, дощ і сонячне світло.",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-1",
+          "title": "Молитва сіяча"
+        },
+        {
+          "anchor": "reading-5",
+          "title": "Про охорону худоби"
+        },
+        {
+          "anchor": "reading-9",
+          "title": "До бджіл про меди"
+        },
+        {
+          "anchor": "reading-11",
+          "title": "Закликання Дощу"
+        },
+        {
+          "anchor": "reading-17",
+          "title": "Щоб Дощ закінчився"
+        },
+        {
+          "anchor": "reading-19",
+          "title": "До Сонечка"
+        },
+        {
+          "anchor": "reading-21",
+          "title": "Відкривання вікна зранку"
+        }
+      ],
+      "page": "pages/hospodarchi.json",
+      "source_text_fingerprint": "c63adcc5747c4a98d9614664f9947db59a2d74b554341e27e4496196867c19ec"
+    },
+    "proty-vorohiv": {
+      "title": "Молитви проти ворогів",
+      "source": "molytva/ml5.htm",
+      "category": "themes",
+      "summary": "Тексти звернень про захист і справедливу відплату.",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-1",
+          "title": "На справедливу відплату ворогу рідновіра та Рідної Віри"
+        },
+        {
+          "anchor": "reading-13",
+          "title": "На знищення бізнесу ворога Рідної Віри, рідновірів та Русі-України"
+        },
+        {
+          "anchor": "reading-25",
+          "title": "На втрату ворогом влади над людьми"
+        },
+        {
+          "anchor": "reading-34",
+          "title": "На погіршення стосунків між недобрими людьми"
+        },
+        {
+          "anchor": "reading-82",
+          "title": "Замовляння на Божу відплату"
+        }
+      ],
+      "page": "pages/proty-vorohiv.json",
+      "source_text_fingerprint": "3037fe7403d6e54b6d8fa4134f8427e552e5273704fa9f577f1a26820f0571aa"
+    },
+    "do-predkiv": {
+      "title": "Молитви до Предків, поховальні",
+      "source": "molytva/ml7.htm",
+      "category": "themes",
+      "summary": "Поминальні молитви, пам’ять про Предків і звернення до Роду.",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-13",
+          "title": "Поминальні на день голодомору"
+        }
+      ],
+      "page": "pages/do-predkiv.json",
+      "source_text_fingerprint": "8d8b1281a14f6a0ddba775e5a45c138e69196c53dc3a486b825c5513ded2a1c2"
+    },
+    "kola-svarozhoho": {
+      "title": "Молитви Кола Сварожого",
+      "source": "molytva/ml6.htm",
+      "category": "themes",
+      "summary": "Молитви й обрядові тексти календарних свят протягом року.",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-1",
+          "title": "МОЛИТВИ ДО РІЗДВА І НОВОГО РОКУ"
+        },
+        {
+          "anchor": "reading-2",
+          "title": "Різдвяні привітання"
+        },
+        {
+          "anchor": "reading-7",
+          "title": "Коляда"
+        },
+        {
+          "anchor": "reading-9",
+          "title": "Внесення Дідуха"
+        },
+        {
+          "anchor": "reading-11",
+          "title": "Засівальна"
+        },
+        {
+          "anchor": "reading-13",
+          "title": "ВЕСНЯНІ ТА ВЕЛИКОДНІ"
+        },
+        {
+          "anchor": "reading-14",
+          "title": "Благослови Мати!"
+        },
+        {
+          "anchor": "reading-16",
+          "title": "На спалення опудала Зими"
+        },
+        {
+          "anchor": "reading-19",
+          "title": "Закличка Весни"
+        },
+        {
+          "anchor": "reading-22",
+          "title": "Веснянка"
+        },
+        {
+          "anchor": "reading-24",
+          "title": "Заклички птахів"
+        },
+        {
+          "anchor": "reading-31",
+          "title": "Вербиця"
+        },
+        {
+          "anchor": "reading-37",
+          "title": "До Ярила"
+        },
+        {
+          "anchor": "reading-46",
+          "title": "КУПАЛЬСЬКІ"
+        },
+        {
+          "anchor": "reading-50",
+          "title": "ЖНИВАРСЬКІ ТА ОБЖИНКОВІ МОЛИТВИ"
+        },
+        {
+          "anchor": "reading-54",
+          "title": "До Нивки"
+        },
+        {
+          "anchor": "reading-56",
+          "title": "Велесова Борода"
+        },
+        {
+          "anchor": "reading-62",
+          "title": "ПРО ДОЛЮ"
+        },
+        {
+          "anchor": "reading-65",
+          "title": "КАЛИТЯНСЬКІ МОЛИТВИ"
+        }
+      ],
+      "page": "pages/kola-svarozhoho.json",
+      "source_text_fingerprint": "c112878c1a828ea2283a40b2ec61c0d885b2560301cf59e1de508802c26107a6"
+    },
+    "svitovyt-pashnyk": {
+      "title": "Молитви Світовита Пашника",
+      "source": "tvor/pashnyk2.htm",
+      "category": "authors",
+      "summary": "Авторські молитви, славлення та замовляння.",
+      "author": "Світовит Пашник",
+      "files": [],
+      "audio": [
+        {
+          "path": "files/014a2f1bef-doshch.mp3",
+          "format": "mp3",
+          "bytes": 4056354,
+          "title": "Хай піде дощ!"
+        },
+        {
+          "path": "files/abc228e4fd-perun_byy.mp3",
+          "format": "mp3",
+          "bytes": 2848413,
+          "title": "До бою!"
+        }
+      ],
+      "videos": [
+        {
+          "id": "YzbBSEm8uCQ",
+          "title": "Відеомолитва · Світовит Пашник · 1"
+        },
+        {
+          "id": "DFPRfWfdUkk",
+          "title": "До Богині Макоші на щасливу долю"
+        },
+        {
+          "id": "_KWudOzxYHg",
+          "title": "Творення Світу"
+        },
+        {
+          "id": "no9nhnMOO9Q",
+          "title": "Молитва до Дуба"
+        }
+      ],
+      "toc": [
+        {
+          "anchor": "reading-5",
+          "title": "Молитви"
+        },
+        {
+          "anchor": "reading-6",
+          "title": "Творення Світу"
+        },
+        {
+          "anchor": "reading-18",
+          "title": "Райське Дерево"
+        },
+        {
+          "anchor": "reading-39",
+          "title": "Хай піде дощ!"
+        },
+        {
+          "anchor": "reading-51",
+          "title": "До Вогню"
+        },
+        {
+          "anchor": "reading-59",
+          "title": "Відкривання вікна зранку"
+        },
+        {
+          "anchor": "reading-65",
+          "title": "Молитва до Ярила"
+        },
+        {
+          "anchor": "reading-74",
+          "title": "До Мокоші"
+        },
+        {
+          "anchor": "reading-97",
+          "title": "Мокоша і Дажбог"
+        },
+        {
+          "anchor": "reading-103",
+          "title": "Для Божого натхнення"
+        },
+        {
+          "anchor": "reading-126",
+          "title": "До бою!"
+        },
+        {
+          "anchor": "reading-145",
+          "title": "Обережне коло"
+        },
+        {
+          "anchor": "reading-149",
+          "title": "Оберіг"
+        },
+        {
+          "anchor": "reading-162",
+          "title": "Замовляння з лялькою-мотанкою"
+        },
+        {
+          "anchor": "reading-178",
+          "title": "До Перуна і Велеса"
+        },
+        {
+          "anchor": "reading-187",
+          "title": "До Перуна"
+        },
+        {
+          "anchor": "reading-205",
+          "title": "До Русі-України"
+        },
+        {
+          "anchor": "reading-227",
+          "title": "Предків закликаємо"
+        },
+        {
+          "anchor": "reading-245",
+          "title": "Чую!"
+        },
+        {
+          "anchor": "reading-249",
+          "title": "Хай піде дощ!"
+        },
+        {
+          "anchor": "reading-252",
+          "title": "До бою!"
+        }
+      ],
+      "page": "pages/svitovyt-pashnyk.json",
+      "source_text_fingerprint": "477a89bfa5d74ea633b2f0505d3734c11331274a1a00e0905da9e3fe1a6b910c"
+    },
+    "yana-yakovenko": {
+      "title": "Молитви Яни Яковенко",
+      "source": "tvor/yakovenko.htm",
+      "category": "authors",
+      "summary": "Звернення до Богів, Матері-Землі, про родину й захист.",
+      "author": "Яна Яковенко",
+      "files": [],
+      "audio": [],
+      "videos": [
+        {
+          "id": "VKeX9U5OCk4",
+          "title": "До Матері-Землі"
+        },
+        {
+          "id": "ouVf-g0rd6s",
+          "title": "Перед справою"
+        },
+        {
+          "id": "JC1kZB4V86Q",
+          "title": "Перед пологами"
+        },
+        {
+          "id": "_4gXo0Onsqc",
+          "title": "Перед пологами · 2"
+        },
+        {
+          "id": "yVw9cT9PHIs",
+          "title": "До Стрибога"
+        },
+        {
+          "id": "zFE4G2mh5-8",
+          "title": "До Рода"
+        }
+      ],
+      "toc": [
+        {
+          "anchor": "reading-2",
+          "title": "До Богів"
+        },
+        {
+          "anchor": "reading-17",
+          "title": "До Землі"
+        },
+        {
+          "anchor": "reading-46",
+          "title": "До Мокоші"
+        },
+        {
+          "anchor": "reading-63",
+          "title": "До Стрибога"
+        },
+        {
+          "anchor": "reading-74",
+          "title": "Молитви при пологах"
+        },
+        {
+          "anchor": "reading-126",
+          "title": "Жива-Дівиця"
+        },
+        {
+          "anchor": "reading-161",
+          "title": "До Мари на захист воїнів"
+        },
+        {
+          "anchor": "reading-163",
+          "title": "До Матері-Землі"
+        },
+        {
+          "anchor": "reading-171",
+          "title": "Молитви на поминання"
+        },
+        {
+          "anchor": "reading-187",
+          "title": "Молитва до Рода Всевишнього про захист родини під час обстрілу"
+        }
+      ],
+      "page": "pages/yana-yakovenko.json",
+      "source_text_fingerprint": "fb0b426c9e80c2211c2f28afe2532ccd4f2af53cb49201f9596911effeb5bb71"
+    },
+    "marosha-liutytsia": {
+      "title": "Молитви Мароші Лютиці",
+      "source": "tvor/marosha.htm",
+      "category": "authors",
+      "summary": "Авторські молитви, славлення й поминальні тексти.",
+      "author": "Мароша Лютиця",
+      "files": [],
+      "audio": [],
+      "videos": [
+        {
+          "id": "G37t5rQJbyE",
+          "title": "В добру путь"
+        },
+        {
+          "id": "x_MyHUSNXKA",
+          "title": "Відеомолитва · Мароша Лютиця · 2"
+        },
+        {
+          "id": "shvwEHFiQow",
+          "title": "Відеомолитва · Мароша Лютиця · 3"
+        }
+      ],
+      "toc": [
+        {
+          "anchor": "reading-5",
+          "title": "Молитви"
+        },
+        {
+          "anchor": "reading-6",
+          "title": "Молитва-замовляння \"В добру путь\"."
+        },
+        {
+          "anchor": "reading-8",
+          "title": "Славлення"
+        },
+        {
+          "anchor": "reading-10",
+          "title": "Поминальні на день голодомору"
+        },
+        {
+          "anchor": "reading-15",
+          "title": "Коляда"
+        },
+        {
+          "anchor": "reading-17",
+          "title": "Перун зі мною"
+        },
+        {
+          "anchor": "reading-19",
+          "title": "Перун Прокинувся!"
+        },
+        {
+          "anchor": "reading-21",
+          "title": "До Перуна"
+        },
+        {
+          "anchor": "reading-23",
+          "title": "До Мари"
+        },
+        {
+          "anchor": "reading-27",
+          "title": "До Велеса"
+        },
+        {
+          "anchor": "reading-32",
+          "title": "Маріуполь – місто Марії. Місто у моря… Маріно, Марено, Маронько."
+        },
+        {
+          "anchor": "reading-36",
+          "title": "Триває вирішальна Битва."
+        },
+        {
+          "anchor": "reading-37",
+          "title": "Закликайте Пращурів на допомогу!"
+        }
+      ],
+      "page": "pages/marosha-liutytsia.json",
+      "source_text_fingerprint": "db50de878bea3b2b0a8e7e898872b6ede042a146e3b9bad0d0a3a5b82b8331d5"
+    },
+    "rodomysl-bahanetskyi": {
+      "title": "Молитви Родомисла Баганецького",
+      "source": "tvor/rodomysl.htm",
+      "category": "authors",
+      "summary": "Молитви в дорогу, перед їжею та звернення до Рідних Богів.",
+      "author": "Родомисл Баганецький",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-25",
+          "title": "Складено для промовляння дитиною. Донька промовляє перед їжею з 1 року і 10 міс. життя."
+        },
+        {
+          "anchor": "reading-26",
+          "title": "Перед їжею."
+        }
+      ],
+      "page": "pages/rodomysl-bahanetskyi.json",
+      "source_text_fingerprint": "422fc73577cc74bdb690be08d827bd7c721011653d84b4a6f64d11519ec12dd6"
+    },
+    "ihor-oksana-arkushi": {
+      "title": "Молитви Ігоря й Оксани Аркушів",
+      "source": "tvor/arkusha.htm",
+      "category": "authors",
+      "summary": "Авторські молитовні тексти подружжя Аркушів.",
+      "author": "Ігор і Оксана Аркуші",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-4",
+          "title": "Молитви"
+        }
+      ],
+      "page": "pages/ihor-oksana-arkushi.json",
+      "source_text_fingerprint": "80aa7dbc1675ab6877b091e1ab9d2b1c9bfc3bd4b09bb83d933b81e7063f524f"
+    },
+    "yaromyr-sicheslavskyi": {
+      "title": "Молитви Яромира Січеславського",
+      "source": "tvor/yaromyr.htm",
+      "category": "authors",
+      "summary": "Молитва до Мокоші про добробут, долю й захист.",
+      "author": "Яромир Січеславський",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [],
+      "page": "pages/yaromyr-sicheslavskyi.json",
+      "source_text_fingerprint": "77125d096f8359ea22b12cdb1c5118503ce92e2a49014c68a01487ef863f3613"
+    },
+    "molytovnyk": {
+      "title": "Молитовник",
+      "source": "kny/pashnyk/pashnyk_molytovnyk.pdf",
+      "category": "books",
+      "summary": "Збірка молитов для читання та збереження.",
+      "author": "Упорядник С. Д. Пашник",
+      "files": [
+        {
+          "path": "files/23ed587fd3-pashnyk_molytovnyk.pdf",
+          "format": "pdf",
+          "bytes": 2484203
+        }
+      ],
+      "audio": [],
+      "videos": []
+    },
+    "struktura-zamovliannia": {
+      "title": "Структура замовляння у слов’ян",
+      "source": "stat/st60.htm",
+      "category": "research",
+      "summary": "Дослідження будови та словесних формул замовлянь.",
+      "author": "Башлакова В.",
+      "files": [],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-48",
+          "title": "Молитви, замовляння"
+        }
+      ],
+      "page": "pages/struktura-zamovliannia.json",
+      "source_text_fingerprint": "6291a420b829f009e5628f0a28e91a7ceffe2d6a2da73842d82ae1a767cb2b50"
+    },
+    "ukrainski-zamovliannia": {
+      "title": "Українські замовляння",
+      "source": "kny/bookzamovliannia.htm",
+      "category": "research",
+      "summary": "Повний текст видання 1993 року та оригінал у DJVU.",
+      "author": "Упорядник М. Н. Москаленко; передмова М. О. Новикової",
+      "files": [
+        {
+          "path": "files/6aa4a73e6b-Ukrainski_zamovliannia.djvu",
+          "format": "djvu",
+          "bytes": 11478680
+        }
+      ],
+      "audio": [],
+      "videos": [],
+      "toc": [
+        {
+          "anchor": "reading-3",
+          "title": "Прасвіт українських замовлянь"
+        },
+        {
+          "anchor": "reading-85",
+          "title": "Марина Новикова"
+        },
+        {
+          "anchor": "reading-236",
+          "title": "Коментар"
+        },
+        {
+          "anchor": "reading-237",
+          "title": "Астральна символіка"
+        },
+        {
+          "anchor": "reading-239",
+          "title": "Місяць"
+        },
+        {
+          "anchor": "reading-246",
+          "title": "Зорі"
+        },
+        {
+          "anchor": "reading-251",
+          "title": "Огненний бугало"
+        },
+        {
+          "anchor": "reading-253",
+          "title": "Ніч, вечір, смерк"
+        },
+        {
+          "anchor": "reading-256",
+          "title": "Сонце"
+        },
+        {
+          "anchor": "reading-260",
+          "title": "ІІ. Водяна символіка"
+        },
+        {
+          "anchor": "reading-262",
+          "title": "Море"
+        },
+        {
+          "anchor": "reading-272",
+          "title": "Вода"
+        },
+        {
+          "anchor": "reading-278",
+          "title": "Жерело, жерло"
+        },
+        {
+          "anchor": "reading-280",
+          "title": "Колодязь"
+        },
+        {
+          "anchor": "reading-282",
+          "title": "Ріка"
+        },
+        {
+          "anchor": "reading-287",
+          "title": "Озера"
+        },
+        {
+          "anchor": "reading-289",
+          "title": "Дощ"
+        },
+        {
+          "anchor": "reading-297",
+          "title": "ІІІ. Тваринна символіка"
+        },
+        {
+          "anchor": "reading-299",
+          "title": "Тварини нижнього царства"
+        },
+        {
+          "anchor": "reading-301",
+          "title": "Змій"
+        },
+        {
+          "anchor": "reading-311",
+          "title": "Жаба"
+        },
+        {
+          "anchor": "reading-313",
+          "title": "Черепаха"
+        },
+        {
+          "anchor": "reading-315",
+          "title": "Риба"
+        },
+        {
+          "anchor": "reading-317",
+          "title": "Тварини верхнього царства"
+        },
+        {
+          "anchor": "reading-319",
+          "title": "Сокіл"
+        },
+        {
+          "anchor": "reading-323",
+          "title": "Ворон"
+        },
+        {
+          "anchor": "reading-327",
+          "title": "Півень"
+        },
+        {
+          "anchor": "reading-329",
+          "title": "Галочка"
+        },
+        {
+          "anchor": "reading-331",
+          "title": "Ластівка"
+        },
+        {
+          "anchor": "reading-333",
+          "title": "Голуб"
+        },
+        {
+          "anchor": "reading-335",
+          "title": "Тварини середнього царства"
+        },
+        {
+          "anchor": "reading-337",
+          "title": "Ведмідь"
+        },
+        {
+          "anchor": "reading-339",
+          "title": "Вовк"
+        },
+        {
+          "anchor": "reading-341",
+          "title": "Заєць"
+        },
+        {
+          "anchor": "reading-343",
+          "title": "Кінь"
+        },
+        {
+          "anchor": "reading-348",
+          "title": "Собака"
+        },
+        {
+          "anchor": "reading-350",
+          "title": "Корова, віл"
+        },
+        {
+          "anchor": "reading-352",
+          "title": "Тур"
+        },
+        {
+          "anchor": "reading-354",
+          "title": "Вівця, баран"
+        },
+        {
+          "anchor": "reading-366",
+          "title": "IV. Рослинна символіка"
+        },
+        {
+          "anchor": "reading-376",
+          "title": "Дуб"
+        },
+        {
+          "anchor": "reading-380",
+          "title": "Береза"
+        },
+        {
+          "anchor": "reading-382",
+          "title": "Явір"
+        },
+        {
+          "anchor": "reading-384",
+          "title": "Яблуня"
+        },
+        {
+          "anchor": "reading-386",
+          "title": "Груша"
+        },
+        {
+          "anchor": "reading-389",
+          "title": "Верба"
+        },
+        {
+          "anchor": "reading-393",
+          "title": "Калина"
+        },
+        {
+          "anchor": "reading-395",
+          "title": "Малина"
+        },
+        {
+          "anchor": "reading-397",
+          "title": "Шипшина"
+        },
+        {
+          "anchor": "reading-399",
+          "title": "Рожа"
+        },
+        {
+          "anchor": "reading-401",
+          "title": "Рута"
+        },
+        {
+          "anchor": "reading-403",
+          "title": "Барвінок, васильок"
+        },
+        {
+          "anchor": "reading-414",
+          "title": "V. Анатомічна символіка"
+        },
+        {
+          "anchor": "reading-419",
+          "title": "Голова"
+        },
+        {
+          "anchor": "reading-421",
+          "title": "Шия та плечі"
+        },
+        {
+          "anchor": "reading-423",
+          "title": "Тулуб"
+        },
+        {
+          "anchor": "reading-425",
+          "title": "Тілесний низ"
+        },
+        {
+          "anchor": "reading-427",
+          "title": "Кінцівки"
+        },
+        {
+          "anchor": "reading-429",
+          "title": "Частини тіла тварин"
+        },
+        {
+          "anchor": "reading-437",
+          "title": "Зуби"
+        },
+        {
+          "anchor": "reading-441",
+          "title": "Очі"
+        },
+        {
+          "anchor": "reading-443",
+          "title": "Рот, язик"
+        },
+        {
+          "anchor": "reading-445",
+          "title": "Брови"
+        },
+        {
+          "anchor": "reading-447",
+          "title": "Коси, волосся"
+        },
+        {
+          "anchor": "reading-449",
+          "title": "Личко, лице"
+        },
+        {
+          "anchor": "reading-451",
+          "title": "Голова"
+        },
+        {
+          "anchor": "reading-453",
+          "title": "Серце"
+        },
+        {
+          "anchor": "reading-455",
+          "title": "Жили, суглоби, м’язи"
+        },
+        {
+          "anchor": "reading-457",
+          "title": "Кості, кість"
+        },
+        {
+          "anchor": "reading-459",
+          "title": "Руки"
+        },
+        {
+          "anchor": "reading-464",
+          "title": "Рукавиці"
+        },
+        {
+          "anchor": "reading-466",
+          "title": "Ноги"
+        },
+        {
+          "anchor": "reading-468",
+          "title": "Ногавиці"
+        },
+        {
+          "anchor": "reading-470",
+          "title": "Між ногами"
+        },
+        {
+          "anchor": "reading-478",
+          "title": "VІ. Символіка речовин"
+        },
+        {
+          "anchor": "reading-481",
+          "title": "Вода"
+        },
+        {
+          "anchor": "reading-484",
+          "title": "Вогонь"
+        },
+        {
+          "anchor": "reading-486",
+          "title": "Земля"
+        },
+        {
+          "anchor": "reading-488",
+          "title": "Повітря"
+        },
+        {
+          "anchor": "reading-490",
+          "title": "Залізо"
+        },
+        {
+          "anchor": "reading-492",
+          "title": "Сіль"
+        },
+        {
+          "anchor": "reading-494",
+          "title": "Кров"
+        },
+        {
+          "anchor": "reading-496",
+          "title": "Кістка"
+        },
+        {
+          "anchor": "reading-498",
+          "title": "Віск"
+        },
+        {
+          "anchor": "reading-500",
+          "title": "Молоко"
+        },
+        {
+          "anchor": "reading-502",
+          "title": "Сльоза"
+        },
+        {
+          "anchor": "reading-504",
+          "title": "Слина"
+        },
+        {
+          "anchor": "reading-506",
+          "title": "Гівно"
+        },
+        {
+          "anchor": "reading-513",
+          "title": "VII. Символіка кольорів"
+        },
+        {
+          "anchor": "reading-518",
+          "title": "Золотий"
+        },
+        {
+          "anchor": "reading-521",
+          "title": "Білий"
+        },
+        {
+          "anchor": "reading-525",
+          "title": "Червоний, красний, рудий, рижий"
+        },
+        {
+          "anchor": "reading-531",
+          "title": "Чорний"
+        },
+        {
+          "anchor": "reading-534",
+          "title": "Сірий, сивий, сизий, буланий"
+        },
+        {
+          "anchor": "reading-536",
+          "title": "Синій"
+        },
+        {
+          "anchor": "reading-538",
+          "title": "Зелений"
+        },
+        {
+          "anchor": "reading-540",
+          "title": "Жовтий"
+        },
+        {
+          "anchor": "reading-542",
+          "title": "Рябий"
+        },
+        {
+          "anchor": "reading-551",
+          "title": "VIII. Символіка чисел"
+        },
+        {
+          "anchor": "reading-559",
+          "title": "Один"
+        },
+        {
+          "anchor": "reading-571",
+          "title": "Два"
+        },
+        {
+          "anchor": "reading-583",
+          "title": "Три"
+        },
+        {
+          "anchor": "reading-591",
+          "title": "Чотири"
+        },
+        {
+          "anchor": "reading-599",
+          "title": "Сім"
+        },
+        {
+          "anchor": "reading-612",
+          "title": "IX. Символіка діянь"
+        },
+        {
+          "anchor": "reading-614",
+          "title": "Переміщення суб’єкта у просторі"
+        },
+        {
+          "anchor": "reading-616",
+          "title": "Дія на суб’єкт у просторі"
+        },
+        {
+          "anchor": "reading-618",
+          "title": "Дія за аналогією"
+        },
+        {
+          "anchor": "reading-620",
+          "title": "Неможливі діяння"
+        },
+        {
+          "anchor": "reading-624",
+          "title": "Буття – небуття"
+        },
+        {
+          "anchor": "reading-628",
+          "title": "Класифікація символічних діянь"
+        },
+        {
+          "anchor": "reading-630",
+          "title": "Наявність (за низхідною):"
+        },
+        {
+          "anchor": "reading-638",
+          "title": "Відсутність (за висхідною):"
+        },
+        {
+          "anchor": "reading-652",
+          "title": "Х. Християнські елементи в замовляннях"
+        },
+        {
+          "anchor": "reading-684",
+          "title": "ХІ. Перспективи дослідження замовлянь"
+        },
+        {
+          "anchor": "reading-703",
+          "title": "Марина Новикова"
+        }
+      ],
+      "page": "pages/ukrainski-zamovliannia.json",
+      "source_text_fingerprint": "a1c5196c97a8bc710f9fe5e4f2bffda64c95f82b7ce959fe0aa7b5b151577d8b"
+    }
+  },
+  "videos": [
+    {
+      "id": "VKeX9U5OCk4",
+      "title": "До Матері-Землі"
+    },
+    {
+      "id": "ouVf-g0rd6s",
+      "title": "Перед справою"
+    },
+    {
+      "id": "JC1kZB4V86Q",
+      "title": "Перед пологами"
+    },
+    {
+      "id": "_4gXo0Onsqc",
+      "title": "Перед пологами · 2"
+    },
+    {
+      "id": "yVw9cT9PHIs",
+      "title": "До Стрибога"
+    },
+    {
+      "id": "zFE4G2mh5-8",
+      "title": "До Рода"
+    },
+    {
+      "id": "G37t5rQJbyE",
+      "title": "В добру путь"
+    },
+    {
+      "id": "_KWudOzxYHg",
+      "title": "Творення Світу"
+    },
+    {
+      "id": "no9nhnMOO9Q",
+      "title": "Молитва до Дуба"
+    },
+    {
+      "id": "YHxLCuBPbCY",
+      "title": "Молитви на Хортиці"
+    },
+    {
+      "id": "zf6EK4fXzFM",
+      "title": "Сію тобі в очі…"
+    },
+    {
+      "id": "DFPRfWfdUkk",
+      "title": "До Богині Макоші на щасливу долю"
+    }
+  ],
+  "encyclopedia": [
+    {
+      "title": "Молитва",
+      "url": "https://wiki.svit.in.ua/Молитва"
+    },
+    {
+      "title": "Замовляння",
+      "url": "https://wiki.svit.in.ua/Замовляння"
+    }
+  ],
+  "imported_at": "2026-11-09",
+  "unavailable_source_images": [
+    "https://www.svit.in.ua/molytva/ml1.files/image002.jpg"
+  ]
+}

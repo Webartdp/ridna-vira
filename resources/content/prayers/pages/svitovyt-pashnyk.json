@@ -1,0 +1,1272 @@
+[
+  {
+    "type": "prose",
+    "html": "Світовит Пашник",
+    "id": "reading-1"
+  },
+  {
+    "type": "prose",
+    "html": "м. Запоріжжя",
+    "id": "reading-2"
+  },
+  {
+    "type": "prose",
+    "html": "<img src=\"/assets/prayers/images/a85fde4952ab-600.webp\" width=\"600\" height=\"600\" loading=\"lazy\" decoding=\"async\" srcset=\"/assets/prayers/images/a85fde4952ab-480.webp 480w, /assets/prayers/images/a85fde4952ab-600.webp 600w\" sizes=\"(min-width: 900px) 760px, calc(100vw - 64px)\" alt=\"Молитви Світовита Пашника\">",
+    "id": "reading-3"
+  },
+  {
+    "type": "prose",
+    "html": "<strong><a href=\"https://www.svit.in.ua/tvor/vakulenko.htm\" target=\"_blank\" rel=\"noopener noreferrer\">мал. Олесі Вакуленко</a></strong>",
+    "id": "reading-4"
+  },
+  {
+    "type": "heading",
+    "title": "Молитви",
+    "id": "reading-5"
+  },
+  {
+    "type": "heading",
+    "title": "Творення Світу",
+    "id": "reading-6"
+  },
+  {
+    "type": "prayer",
+    "html": "Посеред степу широкого",
+    "id": "reading-7"
+  },
+  {
+    "type": "prayer",
+    "html": "Дуб стоїть.",
+    "id": "reading-8"
+  },
+  {
+    "type": "prayer",
+    "html": "На тім дубі Сокіл сидить,",
+    "id": "reading-9"
+  },
+  {
+    "type": "prayer",
+    "html": "За Світом спостерігає,",
+    "id": "reading-10"
+  },
+  {
+    "type": "prayer",
+    "html": "Думу думає,",
+    "id": "reading-11"
+  },
+  {
+    "type": "prayer",
+    "html": "Як Світ обертати,",
+    "id": "reading-12"
+  },
+  {
+    "type": "prayer",
+    "html": "Життя вічне тримати.",
+    "id": "reading-13"
+  },
+  {
+    "type": "prayer",
+    "html": "День з ніччю міняється,",
+    "id": "reading-14"
+  },
+  {
+    "type": "prayer",
+    "html": "Світ Божий коливається.",
+    "id": "reading-15"
+  },
+  {
+    "type": "prayer",
+    "html": "Внукам Дажбожим минеться,",
+    "id": "reading-16"
+  },
+  {
+    "type": "prayer",
+    "html": "Щастя до них обернеться!",
+    "id": "reading-17"
+  },
+  {
+    "type": "heading",
+    "title": "Райське Дерево",
+    "id": "reading-18"
+  },
+  {
+    "type": "prayer",
+    "html": "У безкраї морі-океані",
+    "id": "reading-19"
+  },
+  {
+    "type": "prayer",
+    "html": "Острів стоїть.",
+    "id": "reading-20"
+  },
+  {
+    "type": "prayer",
+    "html": "Посеред острова",
+    "id": "reading-21"
+  },
+  {
+    "type": "prayer",
+    "html": "Райське дерево височить:",
+    "id": "reading-22"
+  },
+  {
+    "type": "prayer",
+    "html": "Корінням в Землю впирається,",
+    "id": "reading-23"
+  },
+  {
+    "type": "prayer",
+    "html": "Гілки Неба торкаються.",
+    "id": "reading-24"
+  },
+  {
+    "type": "prayer",
+    "html": "На горі Сокіл сидить,",
+    "id": "reading-25"
+  },
+  {
+    "type": "prayer",
+    "html": "Праву стереже –",
+    "id": "reading-26"
+  },
+  {
+    "type": "prayer",
+    "html": "Закони Божі охороняє.",
+    "id": "reading-27"
+  },
+  {
+    "type": "prayer",
+    "html": "У коріння Змій обвився,",
+    "id": "reading-28"
+  },
+  {
+    "type": "prayer",
+    "html": "Наву стереже –",
+    "id": "reading-29"
+  },
+  {
+    "type": "prayer",
+    "html": "Яйце-райце охороняє.",
+    "id": "reading-30"
+  },
+  {
+    "type": "prayer",
+    "html": "Люди кругом дерева ходять,",
+    "id": "reading-31"
+  },
+  {
+    "type": "prayer",
+    "html": "Яву стережуть –",
+    "id": "reading-32"
+  },
+  {
+    "type": "prayer",
+    "html": "За життя дбають,",
+    "id": "reading-33"
+  },
+  {
+    "type": "prayer",
+    "html": "Богам славу співають,",
+    "id": "reading-34"
+  },
+  {
+    "type": "prayer",
+    "html": "Світ творити допомагають.",
+    "id": "reading-35"
+  },
+  {
+    "type": "prayer",
+    "html": "Божий Світ кругом Дерева обертається,",
+    "id": "reading-36"
+  },
+  {
+    "type": "prayer",
+    "html": "Все навколо міцно тримається.",
+    "id": "reading-37"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Богам Рідним!",
+    "id": "reading-38"
+  },
+  {
+    "type": "heading",
+    "title": "Хай піде дощ!",
+    "id": "reading-39"
+  },
+  {
+    "type": "prayer",
+    "html": "Стрибог вітром управляє,",
+    "id": "reading-40"
+  },
+  {
+    "type": "prayer",
+    "html": "Хмари в Сварзі наганяє,",
+    "id": "reading-41"
+  },
+  {
+    "type": "prayer",
+    "html": "Сонце ними затуляє –",
+    "id": "reading-42"
+  },
+  {
+    "type": "prayer",
+    "html": "Дощ на Землю проливає.",
+    "id": "reading-43"
+  },
+  {
+    "type": "prayer",
+    "html": "Іди, іди, Дощику,",
+    "id": "reading-44"
+  },
+  {
+    "type": "prayer",
+    "html": "На нашу Землицю,",
+    "id": "reading-45"
+  },
+  {
+    "type": "prayer",
+    "html": "На нашу пашницю.",
+    "id": "reading-46"
+  },
+  {
+    "type": "prayer",
+    "html": "Листя на дубі шелестить,",
+    "id": "reading-47"
+  },
+  {
+    "type": "prayer",
+    "html": "Дощ по Землі тупотить –",
+    "id": "reading-48"
+  },
+  {
+    "type": "prayer",
+    "html": "Дітям Божим на радість,",
+    "id": "reading-49"
+  },
+  {
+    "type": "prayer",
+    "html": "Роду на благословення!",
+    "id": "reading-50"
+  },
+  {
+    "type": "heading",
+    "title": "До Вогню",
+    "id": "reading-51"
+  },
+  {
+    "type": "prayer",
+    "html": "Гори, гори вогню!",
+    "id": "reading-52"
+  },
+  {
+    "type": "prayer",
+    "html": "Гори, гори ясно!",
+    "id": "reading-53"
+  },
+  {
+    "type": "prayer",
+    "html": "Гори, гори красно!",
+    "id": "reading-54"
+  },
+  {
+    "type": "prayer",
+    "html": "Вогонь горить -",
+    "id": "reading-55"
+  },
+  {
+    "type": "prayer",
+    "html": "В печі тріщить,",
+    "id": "reading-56"
+  },
+  {
+    "type": "prayer",
+    "html": "Родину зігріває,",
+    "id": "reading-57"
+  },
+  {
+    "type": "prayer",
+    "html": "Хату благословляє!",
+    "id": "reading-58"
+  },
+  {
+    "type": "heading",
+    "title": "Відкривання вікна зранку",
+    "id": "reading-59"
+  },
+  {
+    "type": "prayer",
+    "html": "Відкрию віконечко,",
+    "id": "reading-60"
+  },
+  {
+    "type": "prayer",
+    "html": "Хай загляне в нього Сонечко,",
+    "id": "reading-61"
+  },
+  {
+    "type": "prayer",
+    "html": "Хату освятить,",
+    "id": "reading-62"
+  },
+  {
+    "type": "prayer",
+    "html": "Святим Хрестом благословить.",
+    "id": "reading-63"
+  },
+  {
+    "type": "direction",
+    "html": "<em>(мається на увазі хрест віконної рами)</em>",
+    "id": "reading-64"
+  },
+  {
+    "type": "heading",
+    "title": "Молитва до Ярила",
+    "id": "reading-65"
+  },
+  {
+    "type": "prayer",
+    "html": "Ярило Вишній у Сварзі Синій",
+    "id": "reading-66"
+  },
+  {
+    "type": "prayer",
+    "html": "На коні роз&#039;їжджає, Природу пробуджає:",
+    "id": "reading-67"
+  },
+  {
+    "type": "prayer",
+    "html": "Поля зеленню вкриваються,",
+    "id": "reading-68"
+  },
+  {
+    "type": "prayer",
+    "html": "На деревах листя розпускається!",
+    "id": "reading-69"
+  },
+  {
+    "type": "prayer",
+    "html": "Сонце вже силу велику має,",
+    "id": "reading-70"
+  },
+  {
+    "type": "prayer",
+    "html": "Світ білий благословляє!",
+    "id": "reading-71"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Сонцю весняному -",
+    "id": "reading-72"
+  },
+  {
+    "type": "prayer",
+    "html": "Богу світлому Ярилу!",
+    "id": "reading-73"
+  },
+  {
+    "type": "heading",
+    "title": "До Мокоші",
+    "id": "reading-74"
+  },
+  {
+    "type": "prayer",
+    "html": "Мокошо, Богине вологи!",
+    "id": "reading-75"
+  },
+  {
+    "type": "prayer",
+    "html": "Крапай з Неба дощем по наших полях.",
+    "id": "reading-76"
+  },
+  {
+    "type": "prayer",
+    "html": "Хай Вода джерелом пробиває шлях у ярах,",
+    "id": "reading-77"
+  },
+  {
+    "type": "prayer",
+    "html": "Ріки повноводдям течуть по краях.",
+    "id": "reading-78"
+  },
+  {
+    "type": "prayer",
+    "html": "Море наповнюють до берегів,",
+    "id": "reading-79"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб люд наш в Україні щасливо жив!",
+    "id": "reading-80"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Мокоші!",
+    "id": "reading-81"
+  },
+  {
+    "type": "prayer",
+    "html": "Молимося до Мокоші,",
+    "id": "reading-82"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб сплела долю хорошу:",
+    "id": "reading-83"
+  },
+  {
+    "type": "prayer",
+    "html": "&quot;Ти пряди нитку міцненьку,",
+    "id": "reading-84"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб дитина була здоровенька.",
+    "id": "reading-85"
+  },
+  {
+    "type": "prayer",
+    "html": "Ти пряди нитку довгеньку,",
+    "id": "reading-86"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб дитина була щасливенька.",
+    "id": "reading-87"
+  },
+  {
+    "type": "prayer",
+    "html": "Ти пряди нитку гарненьку,",
+    "id": "reading-88"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб дитина була веселенька!&quot;",
+    "id": "reading-89"
+  },
+  {
+    "type": "prayer",
+    "html": "Богиня нитки звиває –",
+    "id": "reading-90"
+  },
+  {
+    "type": "prayer",
+    "html": "Між собою переплітає,",
+    "id": "reading-91"
+  },
+  {
+    "type": "prayer",
+    "html": "Життя струмочком ллється,",
+    "id": "reading-92"
+  },
+  {
+    "type": "prayer",
+    "html": "Доленька доріжкою в&#039;ється.",
+    "id": "reading-93"
+  },
+  {
+    "type": "prayer",
+    "html": "Дякуємо Мокоші",
+    "id": "reading-94"
+  },
+  {
+    "type": "prayer",
+    "html": "За роботу хорошу!",
+    "id": "reading-95"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Мокоші!",
+    "id": "reading-96"
+  },
+  {
+    "type": "heading",
+    "title": "Мокоша і Дажбог",
+    "id": "reading-97"
+  },
+  {
+    "type": "prayer",
+    "html": "Хай Водиця Мокоша з",
+    "id": "reading-98"
+  },
+  {
+    "type": "prayer",
+    "html": "Сонечком Дажбогом поєднаються.",
+    "id": "reading-99"
+  },
+  {
+    "type": "prayer",
+    "html": "Синьо-жовті кольори перемішаються –",
+    "id": "reading-100"
+  },
+  {
+    "type": "prayer",
+    "html": "На Землі життя зелене проявляється!",
+    "id": "reading-101"
+  },
+  {
+    "type": "prose",
+    "html": "<img src=\"/assets/prayers/images/784b10bc8c21-403.webp\" width=\"403\" height=\"261\" loading=\"lazy\" decoding=\"async\" srcset=\"/assets/prayers/images/784b10bc8c21-403.webp 403w\" sizes=\"(min-width: 900px) 760px, calc(100vw - 64px)\" alt=\"Молитви Світовита Пашника\">",
+    "id": "reading-102"
+  },
+  {
+    "type": "heading",
+    "title": "Для Божого натхнення",
+    "id": "reading-103"
+  },
+  {
+    "type": "prayer",
+    "html": "Боже, в Небі озорись!",
+    "id": "reading-104"
+  },
+  {
+    "type": "prayer",
+    "html": "Боже, в Землі утвердись!",
+    "id": "reading-105"
+  },
+  {
+    "type": "prayer",
+    "html": "Боже, в Сонці і Воді оживись!",
+    "id": "reading-106"
+  },
+  {
+    "type": "prayer",
+    "html": "Боже, серед дітей своїх проявись!",
+    "id": "reading-107"
+  },
+  {
+    "type": "prayer",
+    "html": "Даби силу Твою узріли,",
+    "id": "reading-108"
+  },
+  {
+    "type": "prayer",
+    "html": "Благодать Твою прийняли,",
+    "id": "reading-109"
+  },
+  {
+    "type": "prayer",
+    "html": "Славу Тобі співали,",
+    "id": "reading-110"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб вічно Роду нашому жити!",
+    "id": "reading-111"
+  },
+  {
+    "type": "prayer",
+    "html": "Свароже Всевишній! Батьку Роду нашого!",
+    "id": "reading-112"
+  },
+  {
+    "type": "prayer",
+    "html": "Ти утвердив життя наше на святій Землі Руській.",
+    "id": "reading-113"
+  },
+  {
+    "type": "prayer",
+    "html": "Ми діти твої бережемо її, бо це наша Мати-Покрова.",
+    "id": "reading-114"
+  },
+  {
+    "type": "prayer",
+    "html": "Ми разом з Тобою творимо могуть держави нашої – України.",
+    "id": "reading-115"
+  },
+  {
+    "type": "prayer",
+    "html": "Ми вірні своєму Роду і будемо захищати життя наше",
+    "id": "reading-116"
+  },
+  {
+    "type": "prayer",
+    "html": "Заради наступних поколінь,",
+    "id": "reading-117"
+  },
+  {
+    "type": "prayer",
+    "html": "Які відроджуються з минулих життів.",
+    "id": "reading-118"
+  },
+  {
+    "type": "prayer",
+    "html": "Сила Твоя, Всемогутній Боже, прибуде в наших тілах і душах,",
+    "id": "reading-119"
+  },
+  {
+    "type": "prayer",
+    "html": "Бо ми єдині з Тобою у великій боротьбі за право жити і Працювати на благо Роду нашого.",
+    "id": "reading-120"
+  },
+  {
+    "type": "prayer",
+    "html": "Маємо сильну Віру Предків наших,",
+    "id": "reading-121"
+  },
+  {
+    "type": "prayer",
+    "html": "Що вказує нам праведний шлях життя.",
+    "id": "reading-122"
+  },
+  {
+    "type": "prayer",
+    "html": "Ми боремося за життя наше, бо віримо в свою перемогу!",
+    "id": "reading-123"
+  },
+  {
+    "type": "prayer",
+    "html": "Ми будемо вічно жити на нашій Рідній Землі!",
+    "id": "reading-124"
+  },
+  {
+    "type": "prayer",
+    "html": "Під твоєю опікою, Всемогутній Свароже наш!",
+    "id": "reading-125"
+  },
+  {
+    "type": "heading",
+    "title": "До бою!",
+    "id": "reading-126"
+  },
+  {
+    "type": "prayer",
+    "html": "Зоря Красна вже зійшла –",
+    "id": "reading-127"
+  },
+  {
+    "type": "prayer",
+    "html": "Піснею до бою закликає.",
+    "id": "reading-128"
+  },
+  {
+    "type": "prayer",
+    "html": "Полк Перунів з неба проявляє!",
+    "id": "reading-129"
+  },
+  {
+    "type": "prayer",
+    "html": "Бий, бий, Перуне! Бий!",
+    "id": "reading-130"
+  },
+  {
+    "type": "prayer",
+    "html": "Бий, бий, Перуне! Бий!",
+    "id": "reading-131"
+  },
+  {
+    "type": "prayer",
+    "html": "Бий, бий, Перуне! Бий!",
+    "id": "reading-132"
+  },
+  {
+    "type": "prayer",
+    "html": "Єдиним Родом виступаємо,",
+    "id": "reading-133"
+  },
+  {
+    "type": "prayer",
+    "html": "Перемогу собі прокладаємо.",
+    "id": "reading-134"
+  },
+  {
+    "type": "prayer",
+    "html": "Перун зброю підіймає!",
+    "id": "reading-135"
+  },
+  {
+    "type": "prayer",
+    "html": "Бий, бий, Перуне! Бий!",
+    "id": "reading-136"
+  },
+  {
+    "type": "prayer",
+    "html": "Бий, бий, Перуне! Бий!",
+    "id": "reading-137"
+  },
+  {
+    "type": "prayer",
+    "html": "Бий, бий, Перуне! Бий!",
+    "id": "reading-138"
+  },
+  {
+    "type": "prayer",
+    "html": "Стрибог вітрами стяги розвиває.",
+    "id": "reading-139"
+  },
+  {
+    "type": "prayer",
+    "html": "Військо в атаку рушає –",
+    "id": "reading-140"
+  },
+  {
+    "type": "prayer",
+    "html": "Силу Божу в собі відчуває!",
+    "id": "reading-141"
+  },
+  {
+    "type": "prayer",
+    "html": "Бий, бий, Перуне! Бий!",
+    "id": "reading-142"
+  },
+  {
+    "type": "prayer",
+    "html": "Бий, бий, Перуне! Бий!",
+    "id": "reading-143"
+  },
+  {
+    "type": "prayer",
+    "html": "Бий, бий, Перуне! Бий!",
+    "id": "reading-144"
+  },
+  {
+    "type": "heading",
+    "title": "Обережне коло",
+    "id": "reading-145"
+  },
+  {
+    "type": "prayer",
+    "html": "<em>Роблячи обережне коло чи перепону, посипати сіллю або маковим зерням:</em>",
+    "id": "reading-146"
+  },
+  {
+    "type": "prayer",
+    "html": "Божою силою посипаю –",
+    "id": "reading-147"
+  },
+  {
+    "type": "prayer",
+    "html": "від нечисті захищаю!",
+    "id": "reading-148"
+  },
+  {
+    "type": "heading",
+    "title": "Оберіг",
+    "id": "reading-149"
+  },
+  {
+    "type": "prayer",
+    "html": "Оберіг виготовляю (до грудей притуляю),",
+    "id": "reading-150"
+  },
+  {
+    "type": "prayer",
+    "html": "Щастя всьому Роду бажаю.",
+    "id": "reading-151"
+  },
+  {
+    "type": "prayer",
+    "html": "Перед Богами рідними замовляю,",
+    "id": "reading-152"
+  },
+  {
+    "type": "prayer",
+    "html": "Силу духовну закликаю,",
+    "id": "reading-153"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб нечисть мене не брала,",
+    "id": "reading-154"
+  },
+  {
+    "type": "prayer",
+    "html": "Стіною від зла охороняла.",
+    "id": "reading-155"
+  },
+  {
+    "type": "prayer",
+    "html": "Оберіг світло посилає,",
+    "id": "reading-156"
+  },
+  {
+    "type": "prayer",
+    "html": "Дорогу <strong>(ім&#039;ярек)</strong> осяває.",
+    "id": "reading-157"
+  },
+  {
+    "type": "prayer",
+    "html": "Сміливо вперед іду –",
+    "id": "reading-158"
+  },
+  {
+    "type": "prayer",
+    "html": "Божу силу в собі маю,",
+    "id": "reading-159"
+  },
+  {
+    "type": "prayer",
+    "html": "Всі незгоди долаю.",
+    "id": "reading-160"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Рідним Богам!",
+    "id": "reading-161"
+  },
+  {
+    "type": "heading",
+    "title": "Замовляння з лялькою-мотанкою",
+    "id": "reading-162"
+  },
+  {
+    "type": "direction",
+    "html": "<em>Дія проводиться на відкритому святилищі біля вогнища. Треба принести стару ляльку-мотанку. Думкою своєю маєте віддати ляльці всі свої негаразди. Приготувати нову ляльку-мотанку.</em>",
+    "id": "reading-163"
+  },
+  {
+    "type": "prayer",
+    "html": "Все що тебе турбувало,",
+    "id": "reading-164"
+  },
+  {
+    "type": "prayer",
+    "html": "Жити тобі заважало",
+    "id": "reading-165"
+  },
+  {
+    "type": "prayer",
+    "html": "Землею засипало (присипати землею),",
+    "id": "reading-166"
+  },
+  {
+    "type": "prayer",
+    "html": "Водою змило (змити водою),",
+    "id": "reading-167"
+  },
+  {
+    "type": "prayer",
+    "html": "Вогнем спалило (кинути у вогонь),",
+    "id": "reading-168"
+  },
+  {
+    "type": "prayer",
+    "html": "Вітром розвіяло (дмухнути і махнути руками)!",
+    "id": "reading-169"
+  },
+  {
+    "type": "direction",
+    "html": "<em>Взяти нову ляльку-мотанку.</em>",
+    "id": "reading-170"
+  },
+  {
+    "type": "prayer",
+    "html": "Перун попереду захищає,",
+    "id": "reading-171"
+  },
+  {
+    "type": "prayer",
+    "html": "Велес позаду прикриває",
+    "id": "reading-172"
+  },
+  {
+    "type": "prayer",
+    "html": "Онука(ку) Дажбожого(у) (ім&#039;ярек),",
+    "id": "reading-173"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб Сила Божа берегла,",
+    "id": "reading-174"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб долю щасливу давала,",
+    "id": "reading-175"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб на віки благословляла!",
+    "id": "reading-176"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Рідним Богам і всьому Роду нашому!",
+    "id": "reading-177"
+  },
+  {
+    "type": "heading",
+    "title": "До Перуна і Велеса",
+    "id": "reading-178"
+  },
+  {
+    "type": "prayer",
+    "html": "Перун оружжя силу має –",
+    "id": "reading-179"
+  },
+  {
+    "type": "prayer",
+    "html": "Ворогів від нас відганяє.",
+    "id": "reading-180"
+  },
+  {
+    "type": "prayer",
+    "html": "Велес оборону тримає –",
+    "id": "reading-181"
+  },
+  {
+    "type": "prayer",
+    "html": "Ворогів до нас не пускає.",
+    "id": "reading-182"
+  },
+  {
+    "type": "prayer",
+    "html": "Меч об щит ударяє –",
+    "id": "reading-183"
+  },
+  {
+    "type": "prayer",
+    "html": "Ворог зі страху втікає.",
+    "id": "reading-184"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Перуну і Велесу,",
+    "id": "reading-185"
+  },
+  {
+    "type": "prayer",
+    "html": "Що нам у битві помагають!",
+    "id": "reading-186"
+  },
+  {
+    "type": "heading",
+    "title": "До Перуна",
+    "id": "reading-187"
+  },
+  {
+    "type": "prayer",
+    "html": "Перуне, батько наш!",
+    "id": "reading-188"
+  },
+  {
+    "type": "prayer",
+    "html": "Ми воїни Роду Руського,",
+    "id": "reading-189"
+  },
+  {
+    "type": "prayer",
+    "html": "Звертаємося до Тебе та",
+    "id": "reading-190"
+  },
+  {
+    "type": "prayer",
+    "html": "Війська небесного, що в полку Твоєму.",
+    "id": "reading-191"
+  },
+  {
+    "type": "prayer",
+    "html": "Аби силою могутньою в поміч нам стали",
+    "id": "reading-192"
+  },
+  {
+    "type": "prayer",
+    "html": "В боротьбі з ворогом підступним.",
+    "id": "reading-193"
+  },
+  {
+    "type": "prayer",
+    "html": "Свята дія наша, бо піднялися",
+    "id": "reading-194"
+  },
+  {
+    "type": "prayer",
+    "html": "На боротьбу Вітчизни нашої",
+    "id": "reading-195"
+  },
+  {
+    "type": "prayer",
+    "html": "За вільне життя Роду Руського.",
+    "id": "reading-196"
+  },
+  {
+    "type": "prayer",
+    "html": "Сила Твоя наповнює душу нашу,",
+    "id": "reading-197"
+  },
+  {
+    "type": "prayer",
+    "html": "З вірою будемо битися",
+    "id": "reading-198"
+  },
+  {
+    "type": "prayer",
+    "html": "Не шкодуючи свого життя",
+    "id": "reading-199"
+  },
+  {
+    "type": "prayer",
+    "html": "За Землю Богами нам дану.",
+    "id": "reading-200"
+  },
+  {
+    "type": "prayer",
+    "html": "Відчуваємо підтримку Роду нашого,",
+    "id": "reading-201"
+  },
+  {
+    "type": "prayer",
+    "html": "Що зміцнює силу духу у боротьбі.",
+    "id": "reading-202"
+  },
+  {
+    "type": "prayer",
+    "html": "Ми переможемо, бо маємо Рідну Віру,",
+    "id": "reading-203"
+  },
+  {
+    "type": "prayer",
+    "html": "Що нас захищає і допомагає! Слава Перуну!",
+    "id": "reading-204"
+  },
+  {
+    "type": "heading",
+    "title": "До Русі-України",
+    "id": "reading-205"
+  },
+  {
+    "type": "prayer",
+    "html": "Русь-Україно, свята Земля-Мати Роду нашого!",
+    "id": "reading-206"
+  },
+  {
+    "type": "prayer",
+    "html": "Ти – Покрова, що мертвих береш до лона свого,",
+    "id": "reading-207"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб знову відродилися в наступних поколіннях,",
+    "id": "reading-208"
+  },
+  {
+    "type": "prayer",
+    "html": "Творячи вічне коло життєоновлення.",
+    "id": "reading-209"
+  },
+  {
+    "type": "prayer",
+    "html": "Воїни свято охороняють тебе, бо ти Берегиня наша.",
+    "id": "reading-210"
+  },
+  {
+    "type": "prayer",
+    "html": "За тебе життя віддають на полі бою, і віру мають,",
+    "id": "reading-211"
+  },
+  {
+    "type": "prayer",
+    "html": "Що душа до Сварога-Батька піде,",
+    "id": "reading-212"
+  },
+  {
+    "type": "prayer",
+    "html": "Пребуде до небесного війська Перуна.",
+    "id": "reading-213"
+  },
+  {
+    "type": "prayer",
+    "html": "І буде зі своїми братами і сестрами у єдності",
+    "id": "reading-214"
+  },
+  {
+    "type": "prayer",
+    "html": "Зі всім Родом небесним",
+    "id": "reading-215"
+  },
+  {
+    "type": "prayer",
+    "html": "Надихати Рід земний до битви праведної",
+    "id": "reading-216"
+  },
+  {
+    "type": "prayer",
+    "html": "За Русь-Україну, за Рід наш.",
+    "id": "reading-217"
+  },
+  {
+    "type": "prayer",
+    "html": "Боротьба наша священна,",
+    "id": "reading-218"
+  },
+  {
+    "type": "prayer",
+    "html": "Перемогу отримаємо над ворогом кровожерливим,",
+    "id": "reading-219"
+  },
+  {
+    "type": "prayer",
+    "html": "Що хотів Землю святу у нас відібрати.",
+    "id": "reading-220"
+  },
+  {
+    "type": "prayer",
+    "html": "Та спроби його марні,",
+    "id": "reading-221"
+  },
+  {
+    "type": "prayer",
+    "html": "І буде покараний він мечем справедливим.",
+    "id": "reading-222"
+  },
+  {
+    "type": "prayer",
+    "html": "Боги разом з нами, вони силу свою дають",
+    "id": "reading-223"
+  },
+  {
+    "type": "prayer",
+    "html": "Вірним синам і донькам – онукам Дажбожим!",
+    "id": "reading-224"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб мали ми щастя на своїй Богом даній Землі.",
+    "id": "reading-225"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Рідним Богам! Слава Русі-Україні! Слава Роду нашому!",
+    "id": "reading-226"
+  },
+  {
+    "type": "heading",
+    "title": "Предків закликаємо",
+    "id": "reading-227"
+  },
+  {
+    "type": "prayer",
+    "html": "Боги наші Рідні!",
+    "id": "reading-228"
+  },
+  {
+    "type": "prayer",
+    "html": "Душі Предків наших піднялися на Небо.",
+    "id": "reading-229"
+  },
+  {
+    "type": "prayer",
+    "html": "І сяють нам Зорями.",
+    "id": "reading-230"
+  },
+  {
+    "type": "prayer",
+    "html": "Ми запалюємо свічку Пам&#039;яті та Слави,",
+    "id": "reading-231"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб покликати їх до нашої родини Онуків Дажбожих –",
+    "id": "reading-232"
+  },
+  {
+    "type": "prayer",
+    "html": "Щоб вони знову прийшли до нас в наступних поколіннях.",
+    "id": "reading-233"
+  },
+  {
+    "type": "prayer",
+    "html": "Коло обертається – час воскресіння насувається!",
+    "id": "reading-234"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Рідним Богам!",
+    "id": "reading-235"
+  },
+  {
+    "type": "prayer",
+    "html": "Місяць в нічному Небі оре –",
+    "id": "reading-236"
+  },
+  {
+    "type": "prayer",
+    "html": "Насіння-зорі розсіває по чорному полю.",
+    "id": "reading-237"
+  },
+  {
+    "type": "prayer",
+    "html": "То душі Предків нам зорями сяють,",
+    "id": "reading-238"
+  },
+  {
+    "type": "prayer",
+    "html": "Вони нам до Землі вістку посилають.",
+    "id": "reading-239"
+  },
+  {
+    "type": "prayer",
+    "html": "Свічки запалюємо – Предків на Землю закликаємо.",
+    "id": "reading-240"
+  },
+  {
+    "type": "prayer",
+    "html": "Рід наш вічний, поки Зорі сяють.",
+    "id": "reading-241"
+  },
+  {
+    "type": "prayer",
+    "html": "Зірка на Землю летить – щастя нам благословить.",
+    "id": "reading-242"
+  },
+  {
+    "type": "prayer",
+    "html": "Життя нове народжується – Рід наш продовжується.",
+    "id": "reading-243"
+  },
+  {
+    "type": "prayer",
+    "html": "Слава Роду!",
+    "id": "reading-244"
+  },
+  {
+    "type": "heading",
+    "title": "Чую!",
+    "id": "reading-245"
+  },
+  {
+    "type": "prayer",
+    "html": "Чую, як іде бій жорстокий.<br> Чую, як Перун попереду ступає.<br> Чую, як Велес позаду тримає.<br> Чую, як залізо рветься.<br> Чую, як вогонь палає.<br> Чую, як кров водою ллється.<br> Чую, як життя до волі рветься.<br> Чую, як перемога кується.<br> Чую, як Рід єдиний проявляє.<br> Чую, як Україна світ пробуджає.<br> Слава Україні!<br> Героям Слава!",
+    "id": "reading-246"
+  },
+  {
+    "type": "prose",
+    "html": "<strong>Дивись також розділ <a href=\"/ridna-vira/molytvy\"> Молитви</a></strong>",
+    "id": "reading-247"
+  },
+  {
+    "type": "prose",
+    "html": "<strong>Видиво:</strong>",
+    "id": "reading-248"
+  },
+  {
+    "type": "heading",
+    "title": "Хай піде дощ!",
+    "id": "reading-249"
+  },
+  {
+    "type": "note",
+    "html": "(молитва-пісня)",
+    "id": "reading-250"
+  },
+  {
+    "type": "prose",
+    "html": "<a href=\"/assets/prayers/files/014a2f1bef-doshch.mp3\"> <img src=\"/assets/prayers/images/f8e7c6248567-960.webp\" width=\"960\" height=\"960\" loading=\"lazy\" decoding=\"async\" srcset=\"/assets/prayers/images/f8e7c6248567-480.webp 480w, /assets/prayers/images/f8e7c6248567-960.webp 960w\" sizes=\"(min-width: 900px) 760px, calc(100vw - 64px)\" alt=\"Молитви Світовита Пашника\"></a>",
+    "id": "reading-251"
+  },
+  {
+    "type": "heading",
+    "title": "До бою!",
+    "id": "reading-252"
+  },
+  {
+    "type": "note",
+    "html": "(молитва-пісня)",
+    "id": "reading-253"
+  },
+  {
+    "type": "prose",
+    "html": "<a href=\"/assets/prayers/files/abc228e4fd-perun_byy.mp3\"> <img src=\"/assets/prayers/images/61c104c8aa3c-540.webp\" width=\"540\" height=\"540\" loading=\"lazy\" decoding=\"async\" srcset=\"/assets/prayers/images/61c104c8aa3c-480.webp 480w, /assets/prayers/images/61c104c8aa3c-540.webp 540w\" sizes=\"(min-width: 900px) 760px, calc(100vw - 64px)\" alt=\"Молитви Світовита Пашника\"></a>",
+    "id": "reading-254"
+  }
+]
