@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Holos+Text:wght@400;500;600;700&family=Montserrat:wght@400;500;600&display=swap');
 @import 'bootstrap/scss/bootstrap';
 
 $gold: #c28b2d;
@@ -14,9 +15,9 @@ $shadow: 0 6px 11px rgba(28, 8, 3, .41);
     --rv-paper-start: #{$paper-start};
     --rv-paper-end: #{$paper-end};
     --rv-shadow: #{$shadow};
-    --rv-font-display: 'Holos', sans-serif;
-    --rv-font-ui: 'Kyiv Region', sans-serif;
-    --rv-font-body: 'Kyiv Region', sans-serif;
+    --rv-font-display: 'Holos Text', sans-serif;
+    --rv-font-ui: 'Kyiv Region', 'Montserrat', sans-serif;
+    --rv-font-body: 'Futura PT', 'Montserrat', sans-serif;
 }
 
 * {

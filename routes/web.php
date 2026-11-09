@@ -6,11 +6,10 @@ use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\GodController;
 use App\Http\Controllers\HolidayController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShrineController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', HomeController::class)->name('home');
+Route::view('/', 'home')->name('home');
 
 Route::view('/pro-tsentr', 'pages.about')->name('about');
 Route::view('/pro-tsentr/upravlinnia', 'pages.management')->name('about.management');
