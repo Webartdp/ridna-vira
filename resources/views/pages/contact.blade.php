@@ -474,7 +474,12 @@
             </div>
 
             <div class="community-map-shell">
-                <div class="community-map-canvas" data-community-map-canvas aria-label="Інтерактивна мапа громад і представництв Рідної Віри"></div>
+                <div class="community-map-canvas"
+                     data-community-map-canvas
+                     data-tile-url="{{ config('community_map.tile_url') }}"
+                     data-tile-attribution="{{ config('community_map.attribution') }}"
+                     data-tile-max-zoom="{{ config('community_map.max_zoom') }}"
+                     aria-label="Інтерактивна мапа громад і представництв Рідної Віри"></div>
 
                 <aside class="community-map-directory" aria-label="Перелік громад і представництв">
                     <div class="community-map-directory__head">

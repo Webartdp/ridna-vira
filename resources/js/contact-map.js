@@ -35,10 +35,9 @@ if (mapRoot) {
             maxZoom: 17,
         }).setView([49.05, 31.2], 6);
 
-        window.L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
-            subdomains: 'abcd',
-            maxZoom: 20,
+        window.L.tileLayer(canvas.dataset.tileUrl, {
+            attribution: canvas.dataset.tileAttribution,
+            maxZoom: Number(canvas.dataset.tileMaxZoom) || 19,
         }).addTo(map);
 
         const markers = new Map();
