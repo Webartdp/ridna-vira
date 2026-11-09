@@ -24,11 +24,12 @@
             <p>Для проведення обряду або лекції з рідновір’я можна звернутися до духовних провідників.</p>
         </div>
         <nav class="rituals-nav" aria-label="Зміст розділу">
-            @foreach ($groups as $group)
+        @foreach ($groups as $group)
                 <a href="#{{ $group['id'] }}">{{ $group['title'] }}</a>
             @endforeach
             <a href="#guides">Духовні провідники</a><a href="#videos">Відео</a>
         </nav>
+        <!-- cms-live:catalogue -->
         @foreach ($groups as $group)
             <section class="rituals-section" id="{{ $group['id'] }}" aria-labelledby="heading-{{ $group['id'] }}">
                 <h2 id="heading-{{ $group['id'] }}">{{ $group['title'] }}</h2>
@@ -45,6 +46,7 @@
                 </div>
             </section>
         @endforeach
+        <!-- /cms-live:catalogue -->
         <section class="rituals-section" id="guides" aria-labelledby="heading-guides">
             <h2 id="heading-guides">Духовні провідники</h2>
             <div class="ritual-guides">

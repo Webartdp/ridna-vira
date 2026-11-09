@@ -4,7 +4,7 @@
 @section('description', 'Календар свят Рідної Віри: Коло Свароже, основні дати року та рідновірські свята.')
 
 @php
-    $calendar = config('faith_calendar');
+    $calendar = \App\Support\SiteCalendar::data();
     $months = $calendar['months'] ?? [];
     $monthSlugs = [
         'Січень' => 'sichen',
@@ -84,6 +84,7 @@
             @endforeach
         </nav>
 
+        <!-- cms-live:catalogue -->
         <div class="faith-calendar-grid">
             @foreach ($months as $month => $holidays)
                 <section class="faith-month" id="{{ $monthSlugs[$month] ?? Str::slug($month) }}" aria-labelledby="month-{{ $monthSlugs[$month] ?? Str::slug($month) }}">
@@ -116,6 +117,7 @@
             </aside>
         @endif
 
+        <!-- /cms-live:catalogue -->
         <div class="faith-calendar-footer">
             <a class="document-back-link" href="{{ route('faith') }}">← До розділу «Рідна Віра»</a>
         </div>

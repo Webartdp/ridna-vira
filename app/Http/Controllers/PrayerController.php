@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Support\Cms;
 use Illuminate\Contracts\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -13,7 +14,10 @@ final class PrayerController extends Controller
 
     public function index(): View
     {
-        return view('pages.prayers', $this->catalogue());
+        $catalogue = $this->catalogue();
+        $catalogue['entries'] = collect(Cms::merge('prayers', $catalogue['entries'], ''))->keyBy('slug')->all();
+
+        return view('pages.prayers', $catalogue);
     }
 
     public function show(string $prayer): View

@@ -12,8 +12,8 @@
 <body class="@yield('body-class')">
 <div class="announcement" aria-label="Оголошення">
     <div class="announcement__track" data-ticker-track>
-        <span>Тут якась строчка яка біжить — може оголошення, може ще щось таке</span>
-        <span>Тут якась строчка яка біжить — може оголошення, може ще щось таке</span>
+        <span>{{ \App\Models\SiteSetting::read('announcement', 'Духовний центр «Рідна Віра» — жива традиція українців') }}</span>
+        <span>{{ \App\Models\SiteSetting::read('announcement', 'Духовний центр «Рідна Віра» — жива традиція українців') }}</span>
     </div>
 </div>
 
@@ -21,7 +21,7 @@
     <nav class="navbar navbar-expand-xl">
         <div class="container-fluid site-header__inner">
             <a class="navbar-brand" href="{{ route('home') }}" aria-label="Рідна Віра — головна">
-                <img src="{{ asset('assets/figma/home/logo.png') }}" alt="Духовний центр Рідна Віра">
+                <img src="{{ \App\Models\SiteSetting::read('logo') ? Storage::disk('public')->url(\App\Models\SiteSetting::read('logo')) : asset('assets/figma/home/logo.png') }}" alt="Духовний центр Рідна Віра">
             </a>
 
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Відкрити меню">
@@ -30,31 +30,16 @@
 
             <div class="collapse navbar-collapse" id="mainNav">
                 <ul class="navbar-nav site-nav ms-auto align-items-xl-center">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->is('pro-tsentr*') ? 'active' : '' }}" href="{{ route('about') }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">Про центр</a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('about.management') }}">Управління</a></li>
-                            <li><a class="dropdown-item" href="{{ route('contact') }}">Зв’язок</a></li>
-                            <li><a class="dropdown-item" href="https://ridnovir.in.ua/" target="_blank" rel="noopener noreferrer">Академія</a></li>
-                            <li><a class="dropdown-item" href="https://wiki.svit.in.ua/" target="_blank" rel="noopener noreferrer">Енциклопедія</a></li>
-                        </ul>
+                    @foreach(\App\Support\Site::navigation() as $item)
+                    <li class="nav-item {{ !empty($item['children']) ? 'dropdown' : '' }}">
+                        <a class="nav-link {{ !empty($item['children']) ? 'dropdown-toggle' : '' }} {{ request()->getPathInfo() === $item['url'] ? 'active' : '' }}" href="{{ url($item['url']) }}" @if(!empty($item['children'])) role="button" data-bs-toggle="dropdown" aria-expanded="false" @endif>{{ $item['label'] }}</a>
+                        @if(!empty($item['children']))<ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url($item['url']) }}">{{ $item['label'] }}</a></li>
+                            @foreach($item['children'] as $child)<li><a class="dropdown-item" href="{{ url($child['url']) }}">{{ $child['label'] }}</a></li>@endforeach
+                        </ul>@endif
                     </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->is('ridna-vira*') ? 'active' : '' }}" href="{{ route('faith') }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">Рідна Віра</a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ route('faith.calendar') }}">Календар свят</a></li>
-                            <li><a class="dropdown-item" href="{{ route('faith.books') }}">Книги</a></li>
-                            <li><a class="dropdown-item" href="{{ route('faith.shrines') }}">Святині</a></li>
-                            <li><a class="dropdown-item" href="{{ route('faith.gods') }}">Боги</a></li>
-                            <li><a class="dropdown-item" href="{{ route('faith.rituals') }}">Обряди</a></li>
-                            <li><a class="dropdown-item" href="{{ route('faith.prayers') }}">Молитви</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item"><a class="nav-link {{ request()->is('novyny*') ? 'active' : '' }}" href="{{ url('/novyny') }}">Новини</a></li>
-                    <li class="nav-item"><a class="nav-link {{ request()->is('statti*') ? 'active' : '' }}" href="{{ url('/statti') }}">Статті</a></li>
-                    <li class="nav-item"><a class="nav-link {{ request()->is('tvorchist*') ? 'active' : '' }}" href="{{ url('/tvorchist') }}">Творчість</a></li>
-                    <li class="nav-item"><a class="nav-link {{ request()->is('kramnychka*') ? 'active' : '' }}" href="{{ url('/kramnychka') }}">Крамниця</a></li>
-                    <li class="nav-item"><a class="nav-link {{ request()->is('zviazok*') ? 'active' : '' }}" href="{{ route('contact') }}">Зв’язок</a></li>
+                    @endforeach
+                    @foreach(json_decode(\App\Models\SiteSetting::read('extra_links', '[]'), true) as $item)<li class="nav-item"><a class="nav-link" href="{{ url($item['url']) }}">{{ $item['label'] }}</a></li>@endforeach
                 </ul>
 
                 <div class="header-actions">
@@ -65,11 +50,11 @@
                             <li><a class="dropdown-item" href="{{ url('/en') }}">EN</a></li>
                         </ul>
                     </div>
-                    <a class="basket-link" href="{{ url('/koshyk') }}" aria-label="Кошик, 4 товари">
+                    <a class="basket-link" href="{{ url('/koshyk') }}" aria-label="Кошик, {{ array_sum(session('cart', [])) }} товарів">
                         <img class="basket-link__image" src="{{ asset('assets/figma/home/basket.png') }}" alt="">
                         <span class="basket-link__badge">
                             <img src="{{ asset('assets/figma/home/star.svg') }}" alt="">
-                            <b>4</b>
+                            <b>{{ array_sum(session('cart', [])) }}</b>
                         </span>
                     </a>
                 </div>
@@ -86,27 +71,16 @@
     </div>
 
     <nav class="footer-nav" aria-label="Меню в підвалі">
-        <a href="{{ route('about') }}">Про центр</a>
-        <a href="{{ route('faith') }}">Рідна Віра</a>
-        <a href="{{ url('/novyny') }}">Новини</a>
-        <a href="{{ url('/statti') }}">Статті</a>
-        <a href="{{ url('/tvorchist') }}">Творчість</a>
-        <a href="{{ url('/kramnychka') }}">Крамниця</a>
-        <a href="{{ route('contact') }}">Зв’язок</a>
+        @foreach(\App\Support\Site::navigation() as $item)<a href="{{ url($item['url']) }}">{{ $item['label'] }}</a>@endforeach
+        @foreach(json_decode(\App\Models\SiteSetting::read('extra_links', '[]'), true) as $item)<a href="{{ url($item['url']) }}">{{ $item['label'] }}</a>@endforeach
     </nav>
 
     <div class="footer-partners" aria-label="Ресурси Рідної Віри">
-        <a class="footer-partner footer-partner--polumya" href="https://yaro.dp.ua/" target="_blank" rel="noopener noreferrer" aria-label="Полум’я Роду">
-            <img src="{{ asset('assets/figma/home/partner-polumya.svg') }}" alt="Полум’я Роду">
+        @foreach(json_decode(\App\Models\SiteSetting::read('partners', json_encode(config('site_partners'), JSON_UNESCAPED_UNICODE)), true) as $partner)
+        <a class="footer-partner footer-partner--{{ $partner['style'] }}" href="{{ url($partner['url']) }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $partner['name'] }}">
+            <img src="{{ asset($partner['image']) }}" alt="{{ $partner['name'] }}" loading="lazy" decoding="async">
         </a>
-
-        <a class="footer-partner footer-partner--ridna" href="https://ridnovir.in.ua/" target="_blank" rel="noopener noreferrer" aria-label="Рідна Віра">
-            <img src="{{ asset('assets/figma/home/footer-logo.png') }}" alt="Рідна Віра">
-        </a>
-
-        <a class="footer-partner footer-partner--svarga" href="https://svarga.com.ua/" target="_blank" rel="noopener noreferrer" aria-label="Сварга — портал Рідної Віри">
-            <img src="{{ asset('assets/figma/home/partner-svarga.svg') }}" alt="Сварга — портал Рідної Віри">
-        </a>
+        @endforeach
     </div>
 
     <div class="footer-utilities">
@@ -136,7 +110,7 @@
     </div>
 
     <div class="footer-rule"><img src="{{ asset('assets/figma/home/footer-line.svg') }}" alt=""></div>
-    <p class="footer-copy">© 2006–{{ date('Y') }} РІДНА ВІРА — Всі права захищені — Політика конфіденційності</p>
+    <p class="footer-copy">© 2006–{{ date('Y') }} {{ \App\Models\SiteSetting::read('footer_text', 'РІДНА ВІРА — Всі права захищені') }} — <a href="{{ url('/umovy-kramnytsi') }}">Умови та конфіденційність</a></p>
 </footer>
 @stack('scripts')
 </body>

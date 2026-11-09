@@ -10,7 +10,10 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PrayerController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\RitualController;
+use App\Http\Controllers\ShopController;
 use App\Http\Controllers\ShrineController;
+use App\Models\ContentPage;
+use App\Support\Cms;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -82,9 +85,20 @@ Route::get('/tvorchist', [PublicationController::class, 'index'])->defaults('sec
 Route::get('/tvorchist/{publication}', [PublicationController::class, 'show'])
     ->where('publication', '[a-z0-9\-]+')->defaults('section', 'creativity')->name('creativity.show');
 
-foreach ([
-    'kramnychka' => 'Крамниця',
-    'koshyk' => 'Кошик',
-] as $slug => $title) {
-    Route::view('/'.$slug, 'pages.placeholder', compact('title'));
-}
+Route::get('/kramnychka', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/kramnychka/{product:slug}', [ShopController::class, 'show'])->name('shop.product');
+Route::get('/koshyk', [ShopController::class, 'cart'])->name('shop.cart');
+Route::post('/koshyk/{product:slug}', [ShopController::class, 'updateCart'])->middleware('throttle:60,1')->name('shop.cart.update');
+Route::post('/zamovlennia', [ShopController::class, 'checkout'])->middleware('throttle:10,1')->name('shop.checkout');
+Route::get('/zamovlennia/{token}', [ShopController::class, 'order'])->where('token', '[A-Za-z0-9]{64}')->name('shop.order');
+Route::post('/zamovlennia/{token}/oplata', [ShopController::class, 'pay'])->where('token', '[A-Za-z0-9]{64}')->middleware('throttle:10,1')->name('shop.pay');
+Route::match(['get', 'post'], '/oplata/povernennia/{token}', [ShopController::class, 'returned'])->where('token', '[A-Za-z0-9]{64}')->name('shop.return');
+Route::post('/oplata/wayforpay', [ShopController::class, 'webhook'])->name('shop.webhook');
+
+Route::fallback(function () {
+    abort_unless(Cms::ready(), 404);
+    $page = ContentPage::where('path', '/'.trim(request()->path(), '/'))->first();
+    abort_unless($page && $page->visible(), 404);
+
+    return view('cms.page', compact('page'));
+});

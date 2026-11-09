@@ -172,6 +172,7 @@
             <p class="gods-intro__statement">У множині бачимо гармонію та єдність, у єдності прозріваємо єдинство, і це є воістину.</p>
         </header>
 
+        <!-- cms-live:catalogue -->
         @if (empty($gods))
             <div class="gods-empty">
                 <p>Матеріали розділу буде відкрито після імпорту.</p>
@@ -203,6 +204,7 @@
             </ol>
         @endif
 
+        <!-- /cms-live:catalogue -->
         <footer class="gods-footer">
             <a class="document-back-link" href="{{ route('faith') }}">← До розділу «Рідна Віра»</a>
         </footer>

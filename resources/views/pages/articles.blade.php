@@ -25,6 +25,7 @@
             <h2>Пізнаємо свою спадщину</h2>
             <p>Світогляд, історія та жива традиція — у статтях і дослідженнях.</p>
         </header>
+        <!-- cms-live:catalogue -->
         <div class="articles-list" aria-label="Статті та дослідження">
             @forelse ($articles as $article)
                 <article class="article-preview">
@@ -43,6 +44,7 @@
         @if ($articles->hasPages())
             {{ $articles->links('partials.articles-pagination') }}
         @endif
+        <!-- /cms-live:catalogue -->
     </div>
 </section>
 @endsection

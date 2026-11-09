@@ -15,17 +15,21 @@ final class Publications
 
     public function entries(string $section): array
     {
-        $entries = array_values($this->catalogue()[$section] ?? []);
-        if ($section === 'news') {
-            usort($entries, static fn ($left, $right) => strcmp($right['date'], $left['date']));
-        }
+        $entries = Cms::merge($section, array_values($this->catalogue()[$section] ?? []), '');
+        usort($entries, static fn ($left, $right) => strcmp($right['date'] ?? '', $left['date'] ?? ''));
 
         return $entries;
     }
 
     public function find(string $section, string $slug): ?array
     {
-        return $this->catalogue()[$section][$slug] ?? null;
+        foreach ($this->entries($section) as $entry) {
+            if ($entry['slug'] === $slug) {
+                return $entry;
+            }
+        }
+
+        return null;
     }
 
     public function articleHighlights(): array
@@ -37,7 +41,7 @@ final class Publications
         foreach ($this->entries('articles') as $article) {
             $slug = $article['slug'];
             foreach ($imported as $key => $entry) {
-                if (! empty($entry['source_url']) && $canonical($entry['source_url']) === $canonical($article['source_url'])) {
+                if (! empty($entry['source_url']) && ! empty($article['source_url']) && $canonical($entry['source_url']) === $canonical($article['source_url'])) {
                     $relative = (string) ($entry['path'] ?? '');
                     if ($relative !== '' && ! str_contains($relative, '..') && is_file(storage_path('app/content/articles/'.$relative))) {
                         $slug = (string) ($entry['slug'] ?? $key);
@@ -48,6 +52,6 @@ final class Publications
             $items[] = [...$article, 'url' => route('articles.show', $slug)];
         }
 
-        return $items;
+        return array_slice($items, 0, 4);
     }
 }

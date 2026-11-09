@@ -110,6 +110,7 @@
     </div>
 </section>
 
+<!-- cms-live:materials -->
 @foreach ($materialSections as $section)
 <section class="materials-section" aria-labelledby="materials-title-{{ $loop->index }}">
     <div class="figma-container">
@@ -148,4 +149,5 @@
     </div>
 </section>
 @endforeach
+<!-- /cms-live:materials -->
 @endsection

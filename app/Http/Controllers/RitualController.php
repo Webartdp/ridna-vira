@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Support\Cms;
 use App\Support\RitualReading;
 use Illuminate\Contracts\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -14,7 +15,10 @@ final class RitualController extends Controller
 
     public function index(): View
     {
-        return view('pages.rituals', $this->catalogue());
+        $catalogue = $this->catalogue();
+        $catalogue['entries'] = collect(Cms::merge('rituals', $catalogue['entries'], ''))->keyBy('slug')->all();
+
+        return view('pages.rituals', $catalogue);
     }
 
     public function show(string $ritual, RitualReading $reading): View

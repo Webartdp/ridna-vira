@@ -24,9 +24,10 @@
             <p>Оберіть тему або автора. Повні тексти можна читати на сайті, а молитовник — завантажити для збереження.</p>
         </div>
         <nav class="rituals-nav" aria-label="Зміст розділу">
-            @foreach ($groups as $group)<a href="#{{ $group['id'] }}">{{ $group['title'] }}</a>@endforeach
+        @foreach ($groups as $group)<a href="#{{ $group['id'] }}">{{ $group['title'] }}</a>@endforeach
             <a href="#videos">Відеомолитви</a>
         </nav>
+        <!-- cms-live:catalogue -->
         @foreach ($groups as $group)
             <section class="rituals-section" id="{{ $group['id'] }}" aria-labelledby="heading-{{ $group['id'] }}">
                 <h2 id="heading-{{ $group['id'] }}">{{ $group['title'] }}</h2>
@@ -46,6 +47,7 @@
                 @endif
             </section>
         @endforeach
+        <!-- /cms-live:catalogue -->
         <section class="rituals-section" id="videos" aria-labelledby="heading-videos">
             <h2 id="heading-videos">Відеомолитви</h2>
             @include('partials.prayer-videos', ['videos' => $videos])

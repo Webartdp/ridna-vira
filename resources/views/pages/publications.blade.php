@@ -15,6 +15,7 @@
     </div>
 </section>
 <section class="articles-page"><div class="figma-container">
+    <!-- cms-live:catalogue -->
     @if ($section === 'creativity')
         <nav class="publication-categories" aria-label="Напрями творчості">
             <a href="{{ route('creativity.index') }}" @class(['is-current' => $category === ''])>Усі напрями</a>
@@ -36,5 +37,6 @@
         @endforeach
     </div>
     {{ $entries->links('partials.articles-pagination', ['paginationLabel' => 'Сторінки розділу «'.$title.'»']) }}
+<!-- /cms-live:catalogue -->
 </div></section>
 @endsection

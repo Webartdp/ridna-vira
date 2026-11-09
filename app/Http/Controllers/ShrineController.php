@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Support\Cms;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -17,6 +18,7 @@ final class ShrineController extends Controller
     {
         $manifest = $this->manifest();
         $shrines = $this->visibleShrines($manifest['shrines'] ?? []);
+        $shrines = Cms::merge('shrines', $shrines, '');
 
         return view('pages.shrines', [
             'shrines' => $shrines,
@@ -50,7 +52,7 @@ final class ShrineController extends Controller
     {
         $path = storage_path('app/content/shrines/manifest.json');
 
-        if (!is_file($path)) {
+        if (! is_file($path)) {
             return [];
         }
 
@@ -63,13 +65,13 @@ final class ShrineController extends Controller
     /** @return array<int, array<string, mixed>> */
     private function visibleShrines($shrines): array
     {
-        if (!is_array($shrines)) {
+        if (! is_array($shrines)) {
             return [];
         }
 
         $availableSlugs = [];
         foreach ($shrines as $key => $shrine) {
-            if (!is_array($shrine)) {
+            if (! is_array($shrine)) {
                 continue;
             }
 
@@ -81,7 +83,7 @@ final class ShrineController extends Controller
 
         $visible = [];
         foreach ($shrines as $key => $shrine) {
-            if (!is_array($shrine)) {
+            if (! is_array($shrine)) {
                 continue;
             }
 
@@ -113,7 +115,7 @@ final class ShrineController extends Controller
 
         if (isset($manifest['shrines']) && is_array($manifest['shrines'])) {
             foreach ($manifest['shrines'] as $key => $shrine) {
-                if (!is_array($shrine)) {
+                if (! is_array($shrine)) {
                     continue;
                 }
 
@@ -164,7 +166,7 @@ final class ShrineController extends Controller
     private function absolutePath(array $entry): string
     {
         $relativePath = trim((string) ($entry['path'] ?? ''), '/\\');
-        abort_unless($relativePath !== '' && !str_contains($relativePath, '..'), 404);
+        abort_unless($relativePath !== '' && ! str_contains($relativePath, '..'), 404);
 
         $base = storage_path('app/content/shrines');
         $path = $base.DIRECTORY_SEPARATOR.str_replace(['/', '\\'], DIRECTORY_SEPARATOR, $relativePath);

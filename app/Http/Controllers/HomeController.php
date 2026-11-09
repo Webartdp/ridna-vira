@@ -13,11 +13,8 @@ final class HomeController extends Controller
     {
         $news = array_map(static fn ($entry) => [...$entry, 'url' => route('news.show', $entry['slug'])], array_slice($publications->entries('news'), 0, 4));
         $creative = [];
-        foreach ($publications->catalogue()['featured_creativity'] as $slug) {
-            $entry = $publications->find('creativity', $slug);
-            if ($entry !== null) {
-                $creative[] = [...$entry, 'url' => route('creativity.show', $slug)];
-            }
+        foreach (array_slice($publications->entries('creativity'), 0, 4) as $entry) {
+            $creative[] = [...$entry, 'url' => route('creativity.show', $entry['slug'])];
         }
 
         return view('home', ['materialSections' => [

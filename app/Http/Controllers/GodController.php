@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Support\Cms;
 use App\Support\GodDescriptions;
 use Illuminate\Contracts\View\View;
 
@@ -23,6 +24,7 @@ final class GodController extends Controller
             }
         }
         unset($god);
+        $gods = Cms::merge('gods', $gods, '/ridna-vira/bohy');
 
         return view('pages.gods', [
             'gods' => $gods,

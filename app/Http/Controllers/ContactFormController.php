@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Mail\ContactFormMessage;
+use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -72,7 +73,7 @@ final class ContactFormController extends Controller
         $validated['ip'] = (string) $request->ip();
 
         try {
-            Mail::to(self::RECIPIENT)->send(new ContactFormMessage($validated));
+            Mail::to(SiteSetting::read('contact_email', self::RECIPIENT))->send(new ContactFormMessage($validated));
         } catch (Throwable $exception) {
             report($exception);
 

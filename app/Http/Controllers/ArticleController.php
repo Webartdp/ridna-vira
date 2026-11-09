@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Support\ArticleContent;
+use App\Support\Cms;
 use App\Support\Publications;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -30,6 +31,7 @@ final class ArticleController extends Controller
             $articles[] = [...$entry, 'slug' => $slug, 'title' => $presented['title'], 'excerpt' => $presented['excerpt']];
         }
 
+        $articles = Cms::merge('articles', $articles, '/statti');
         usort($articles, static fn (array $left, array $right): int => strcmp($left['title'] ?? '', $right['title'] ?? ''));
 
         $page = max(1, (int) $request->query('page', 1));

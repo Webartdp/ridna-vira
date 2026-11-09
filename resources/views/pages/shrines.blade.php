@@ -224,6 +224,7 @@
             <p>Давні святилища, городища, могили, печери, камені, дерева та природні пам’ятки, що бережуть духовну пам’ять Роду.</p>
         </header>
 
+        <!-- cms-live:catalogue -->
         @if ($shrineCollection->isEmpty())
             <div class="shrines-empty">
                 <h3>Святині ще не відкрито</h3>
@@ -255,6 +256,7 @@
                 @endforeach
             </ol>
         @endif
+        <!-- /cms-live:catalogue -->
     </div>
 </section>
 @endsection

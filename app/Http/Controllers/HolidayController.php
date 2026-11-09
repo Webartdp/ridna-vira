@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Support\SiteCalendar;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Str;
 
@@ -11,7 +12,7 @@ final class HolidayController extends Controller
 {
     public function __invoke(string $holiday): View
     {
-        $calendar = config('faith_calendar');
+        $calendar = SiteCalendar::data();
         $descriptions = config('faith_holidays', []);
         $months = $calendar['months'] ?? [];
 
