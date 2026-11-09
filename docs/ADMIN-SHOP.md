@@ -13,8 +13,8 @@ sudo -u ridnavira-com-ua -H /bin/bash -c '
 set -e
 cd /home/ridnavira-com-ua/web/ridnavira.com.ua/public_html/app
 git pull --ff-only origin feature/site-build
-php artisan down --retry=60
 composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
+php artisan down --retry=60
 php artisan migrate --force
 php artisan storage:link
 php artisan optimize:clear
@@ -27,7 +27,9 @@ php artisan up
 '
 ```
 
-Якщо крок завершується помилкою, сайт залишається в режимі обслуговування. Після виправлення повторіть потрібний крок і виконайте `php artisan up`.
+Composer встановлюється перед першою командою Artisan: після отримання нового коду Artisan уже потребує Filament. Якщо встановлення Composer завершується помилкою, спочатку усуньте її; не використовуйте `--ignore-platform-reqs`.
+
+Якщо крок після ввімкнення режиму обслуговування завершується помилкою, сайт залишається в цьому режимі. Після виправлення повторіть потрібний крок і виконайте `php artisan up`.
 
 Створіть першого адміністратора інтерактивно. Команда запитає ім’я, пошту та двічі пароль; пароль не передається в аргументах процесу й не виводиться:
 
