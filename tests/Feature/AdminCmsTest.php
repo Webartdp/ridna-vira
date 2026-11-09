@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Filament\Pages\CalendarSettings;
 use App\Filament\Pages\SiteSettings;
 use App\Filament\Resources\ContentPageResource\Pages\ManageContentPages;
+use App\Filament\Resources\NewsResource\Pages\ManageNewsEntries;
 use App\Filament\Resources\ProductResource\Pages\ManageProducts;
 use App\Models\ContentPage;
 use App\Models\Product;
@@ -184,7 +185,7 @@ class AdminCmsTest extends TestCase
     public function test_wrong_section_address_is_rejected_by_admin_form(): void
     {
         $this->actingAs($this->admin());
-        Livewire::test(ManageContentPages::class)
+        Livewire::test(ManageNewsEntries::class)
             ->callAction('create', data: ['title' => 'Новина', 'section' => 'news', 'path' => '/wrong-path', 'editor_mode' => 'reading', 'body' => '<p>Текст</p>', 'is_published' => true])
             ->assertHasActionErrors(['path']);
         $this->assertDatabaseMissing('content_pages', ['path' => '/wrong-path']);

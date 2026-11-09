@@ -12,6 +12,8 @@ class ManageContentPages extends ManageRecords
 
     protected function getHeaderActions(): array
     {
-        return [CreateAction::make()->label('Додати сторінку або матеріал')->modalWidth('7xl')];
+        $resource = static::getResource();
+
+        return [CreateAction::make()->label($resource::getCreateLabel())->modalWidth('7xl')];
     }
 }

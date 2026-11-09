@@ -24,7 +24,6 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -39,9 +38,18 @@ class ContentPageResource extends Resource
 
     protected static ?string $modelLabel = 'сторінку';
 
-    protected static ?string $pluralModelLabel = 'Сторінки та матеріали';
+    protected static ?string $pluralModelLabel = 'Сторінки';
 
-    protected static ?string $navigationLabel = 'Увесь сайт';
+    protected static ?string $navigationLabel = 'Сторінки';
+
+    protected static string $contentSection = 'pages';
+
+    protected static string $createLabel = 'Додати сторінку';
+
+    public static function getCreateLabel(): string
+    {
+        return static::$createLabel;
+    }
 
     protected static string|\UnitEnum|null $navigationGroup = 'Сайт';
 
@@ -53,7 +61,7 @@ class ContentPageResource extends Resource
     {
         return $schema->columns(2)->components([
             TextInput::make('title')->label('Назва')->required()->maxLength(255)->columnSpanFull(),
-            Select::make('section')->label('Розділ')->options(ContentPage::sections())->required()->default('pages')->live(),
+            Hidden::make('section')->default(static::$contentSection)->required()->in([static::$contentSection])->dehydrateStateUsing(fn () => static::$contentSection),
             Select::make('category')->label('Група обрядів / молитов')->options(['life' => 'Обряди життєвого кола', 'calendar' => 'Обряди Кола Сварожого', 'school' => 'Обряди Недільної школи', 'literature' => 'Література про обряди', 'themes' => 'Молитви за темами', 'authors' => 'Авторські молитви', 'books' => 'Молитовник', 'research' => 'Дослідження'])->placeholder('Залишити наявну групу')->visible(fn (Get $get) => in_array($get('section'), ['rituals', 'prayers'], true)),
             TextInput::make('category')->label('Категорія')->maxLength(190)->visible(fn (Get $get) => ! in_array($get('section'), ['rituals', 'prayers'], true)),
             TextInput::make('path')->label('Адреса на сайті')->placeholder('/novyny/nazva-novyny')->required()->unique(ignoreRecord: true)
@@ -97,12 +105,11 @@ class ContentPageResource extends Resource
     {
         return $table->defaultSort('updated_at', 'desc')->columns([
             TextColumn::make('title')->label('Назва')->searchable()->sortable()->wrap(),
-            TextColumn::make('section')->label('Розділ')->formatStateUsing(fn ($state) => ContentPage::sections()[$state] ?? $state)->badge(),
             TextColumn::make('path')->label('Адреса')->searchable()->toggleable(),
             IconColumn::make('is_published')->label('Опубліковано')->boolean(),
             IconColumn::make('is_override')->label('Відредаговано')->boolean(),
             TextColumn::make('updated_at')->label('Оновлено')->dateTime('d.m.Y H:i')->sortable(),
-        ])->filters([SelectFilter::make('section')->label('Розділ')->options(ContentPage::sections()), TrashedFilter::make()->label('Кошик')])
+        ])->filters([TrashedFilter::make()->label('Кошик')])
             ->recordActions([
                 EditAction::make()->modalWidth('7xl'),
                 Action::make('preview')->label('На сайт')->icon('heroicon-o-arrow-top-right-on-square')->url(fn (ContentPage $record) => url($record->path))->openUrlInNewTab(),
@@ -120,7 +127,7 @@ class ContentPageResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
+        return parent::getEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class])->where('section', static::$contentSection);
     }
 
     public static function getPages(): array

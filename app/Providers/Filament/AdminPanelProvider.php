@@ -30,6 +30,7 @@ class AdminPanelProvider extends PanelProvider
             ->profile()
             ->brandName('Рідна Віра · Керування сайтом')
             ->databaseNotifications(false)
+            ->navigationGroups(['Публікації', 'Сайт', 'Рідна Віра', 'Крамниця'])
             ->colors([
                 'primary' => Color::Amber,
             ])
