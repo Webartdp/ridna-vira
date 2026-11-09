@@ -41,7 +41,7 @@
             @endforelse
         </div>
         @if ($articles->hasPages())
-            <div class="articles-pagination">{{ $articles->links('pagination::bootstrap-5') }}</div>
+            {{ $articles->links('partials.articles-pagination') }}
         @endif
     </div>
 </section>
