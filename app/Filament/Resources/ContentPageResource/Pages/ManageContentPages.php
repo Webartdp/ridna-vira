@@ -14,6 +14,6 @@ class ManageContentPages extends ManageRecords
     {
         $resource = static::getResource();
 
-        return [CreateAction::make()->label($resource::getCreateLabel())->modalWidth('7xl')];
+        return [CreateAction::make()->label($resource::getCreateLabel())->modalWidth('6xl')];
     }
 }

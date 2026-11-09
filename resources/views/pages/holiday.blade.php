@@ -38,15 +38,13 @@
                 </div>
             </header>
 
-            @if ($content !== null && trim($content) !== '')
-                <div class="holiday-sheet__content">
+            <div class="holiday-sheet__content">
+                @if ($content !== null && trim($content) !== '')
                     {!! $content !!}
-                </div>
-            @elseif (!empty($holiday['description']))
-                <div class="holiday-sheet__content holiday-sheet__content--short">
+                @elseif (!empty($holiday['description']))
                     <p>{{ $holiday['description'] }}</p>
-                </div>
-            @endif
+                @endif
+            </div>
 
             <footer class="holiday-sheet__footer">
                 <a class="document-back-link" href="{{ route('faith.calendar') }}">← До календаря свят</a>

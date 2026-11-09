@@ -13,7 +13,7 @@ use App\Models\SiteSetting;
 use App\Models\User;
 use App\Support\Cms;
 use App\Support\CmsHtml;
-use App\Support\EditableLayout;
+use App\Support\PageBlocks;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -145,14 +145,14 @@ class AdminCmsTest extends TestCase
     {
         $this->actingAs($this->admin());
         $page = ContentPage::create(['path' => '/pro-tsentr', 'title' => 'Про центр', 'body' => '<section class="preserved-layout"><h1>Про центр</h1><p>Початковий текст</p><a href="/zviazok">Зв’язок</a></section>', 'editor_mode' => 'layout']);
-        $fields = EditableLayout::fields($page->body);
+        $fields = PageBlocks::fields($page->body);
         foreach ($fields as &$field) {
-            if ($field['value'] === 'Початковий текст') {
-                $field['value'] = 'Текст після редагування';
+            if (str_contains($field['value'], 'Початковий текст')) {
+                $field['value'] = str_replace('Початковий текст', 'Текст після редагування', $field['value']);
             }
         }
         unset($field);
-        Livewire::test(ManageContentPages::class)->callTableAction('edit', $page, data: ['layout_fields' => $fields])->assertHasNoTableActionErrors();
+        Livewire::test(ManageContentPages::class)->callTableAction('edit', $page, data: ['page_blocks' => $fields])->assertHasNoTableActionErrors();
         $this->get('/pro-tsentr')->assertOk()->assertSee('Текст після редагування')->assertSee('preserved-layout');
     }
 

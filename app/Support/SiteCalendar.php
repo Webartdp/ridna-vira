@@ -20,6 +20,7 @@ class SiteCalendar
                     unset($holidays[$key]);
                 } elseif ($page?->is_override) {
                     $holiday['name'] = $page->title;
+                    $holiday['description'] = $page->excerpt ?? '';
                 }
             }
             unset($holiday);

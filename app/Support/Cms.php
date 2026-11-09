@@ -23,12 +23,19 @@ final class Cms
     {
         $document = self::document($html);
         $xpath = new \DOMXPath($document);
-        $node = $xpath->query('//*[contains(concat(" ", normalize-space(@class), " "), " article-prose ") or contains(concat(" ", normalize-space(@class), " "), " god-reading-content ")]')->item(0);
+        $classes = ['article-prose', 'god-reading-content', 'holiday-sheet__content', 'shrine-reading-content', 'document-sheet__content', 'article-attachment', 'shrine-reading-empty', 'god-reading-empty', 'document-sheet__empty'];
+        $condition = implode(' or ', array_map(fn ($class) => 'contains(concat(" ", normalize-space(@class), " "), " '.$class.' ")', $classes));
+        $node = $xpath->query('//*['.$condition.']')->item(0);
         if (! $node) {
             return null;
         }
         if ($replacement === null) {
             return implode('', array_map(fn ($child) => $document->saveHTML($child), iterator_to_array($node->childNodes)));
+        }
+        foreach (['shrine-reading-empty' => 'shrine-reading-content', 'god-reading-empty' => 'god-reading-content', 'document-sheet__empty' => 'document-sheet__content', 'article-attachment' => 'article-prose'] as $empty => $content) {
+            if (str_contains(' '.$node->getAttribute('class').' ', ' '.$empty.' ')) {
+                $node->setAttribute('class', str_replace($empty, $content, $node->getAttribute('class')));
+            }
         }
         while ($node->firstChild) {
             $node->removeChild($node->firstChild);
@@ -39,6 +46,11 @@ final class Cms
         }
         if ($title && $heading = $document->getElementsByTagName('h1')->item(0)) {
             $heading->textContent = $title;
+        }
+        if ($title) {
+            foreach ($xpath->query('//*[contains(concat(" ",normalize-space(@class)," ")," holiday-sheet__heading ") or contains(concat(" ",normalize-space(@class)," ")," document-sheet__header ")]//h2') as $heading) {
+                $heading->textContent = $title;
+            }
         }
 
         return implode('', array_map(fn ($child) => $document->saveHTML($child), iterator_to_array($document->getElementById('cms-root')->childNodes)));

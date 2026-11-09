@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Support\CmsHtml;
 use App\Support\EditableLayout;
+use App\Support\PageBlocks;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,6 +17,13 @@ class ContentPage extends Model
     protected $guarded = ['id', 'is_imported'];
 
     private ?array $pendingLayoutFields = null;
+
+    private ?array $pendingPageBlocks = null;
+
+    public function setPageBlocksAttribute(?array $blocks): void
+    {
+        $this->pendingPageBlocks = $blocks;
+    }
 
     public function setLayoutFieldsAttribute(?array $fields): void
     {
@@ -41,6 +49,10 @@ class ContentPage extends Model
         });
         static::saving(function (self $page) {
             if (! app()->bound('cms.importing')) {
+                if ($page->editor_mode === 'layout' && $page->pendingPageBlocks !== null) {
+                    $page->body = PageBlocks::apply($page->body ?? '', $page->pendingPageBlocks);
+                    $page->pendingPageBlocks = null;
+                }
                 if ($page->editor_mode === 'layout' && $page->pendingLayoutFields !== null) {
                     $page->body = EditableLayout::apply($page->body ?? '', $page->pendingLayoutFields);
                     $page->pendingLayoutFields = null;

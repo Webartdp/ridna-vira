@@ -5,7 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Blocks\ReadingPassage;
 use App\Models\ContentPage;
 use App\Support\CmsHtml;
-use App\Support\EditableLayout;
+use App\Support\ContentEditor;
+use App\Support\PageBlocks;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -20,7 +21,11 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Image;
+use Filament\Schemas\Components\Tabs;
+use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -29,6 +34,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class ContentPageResource extends Resource
 {
@@ -59,45 +65,66 @@ class ContentPageResource extends Resource
 
     public static function form(Schema $schema): Schema
     {
-        return $schema->columns(2)->components([
-            TextInput::make('title')->label('Назва')->required()->maxLength(255)->columnSpanFull(),
+        return $schema->columns(1)->components([
             Hidden::make('section')->default(static::$contentSection)->required()->in([static::$contentSection])->dehydrateStateUsing(fn () => static::$contentSection),
-            Select::make('category')->label('Група обрядів / молитов')->options(['life' => 'Обряди життєвого кола', 'calendar' => 'Обряди Кола Сварожого', 'school' => 'Обряди Недільної школи', 'literature' => 'Література про обряди', 'themes' => 'Молитви за темами', 'authors' => 'Авторські молитви', 'books' => 'Молитовник', 'research' => 'Дослідження'])->placeholder('Залишити наявну групу')->visible(fn (Get $get) => in_array($get('section'), ['rituals', 'prayers'], true)),
-            TextInput::make('category')->label('Категорія')->maxLength(190)->visible(fn (Get $get) => ! in_array($get('section'), ['rituals', 'prayers'], true)),
-            TextInput::make('path')->label('Адреса на сайті')->placeholder('/novyny/nazva-novyny')->required()->unique(ignoreRecord: true)
-                ->maxLength(255)->regex('~^/(?:[a-z0-9-]+(?:/[a-z0-9-]+)*)?$~D')->disabled(fn (?ContentPage $record) => (bool) $record?->is_imported)
-                ->rules([fn (Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
-                    if (preg_match('~^/(?:admin|livewire|assets|storage|build|up|kramnychka|koshyk|zamovlennia|oplata)(?:/|$)~', $value)) {
-                        $fail('Цю адресу зарезервовано для системи та крамниці.');
-                    }
-                    $prefix = ['news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/'][$get('section')] ?? null;
-                    if ($prefix && ! preg_match('~^'.preg_quote($prefix, '~').'[a-z0-9-]+$~D', $value)) {
-                        $fail('Для цього розділу адреса має вигляд '.$prefix.'nazva-materialu');
-                    }
-                }])->helperText('Латинські літери, цифри й дефіси. Імпортовані адреси збережено.'),
-            Textarea::make('excerpt')->label('Короткий опис / опис для пошуку')->rows(3)->maxLength(1000)->columnSpanFull(),
-            Select::make('editor_mode')->label('Редактор')->options(['reading' => 'Новий матеріал', 'fragment' => 'Текст у наявному оформленні', 'layout' => 'Повна сторінка (HTML)'])->default('reading')->required()->live()
-                ->helperText('Для головної й сторінок зі складною версткою збережіть режим HTML. Позначки [[live:…]] виводять актуальні форми, мапу та стрічки.'),
-            Toggle::make('source_editor')->label('Редагувати HTML тексту')->default(false)->live()->dehydrated(false),
-            Toggle::make('is_published')->label('Опубліковано')->default(true),
-            DateTimePicker::make('published_at')->label('Дата публікації (Київ)')->timezone('Europe/Kyiv')->seconds(false)->helperText('Майбутня дата запланує публікацію.'),
-            TextInput::make('video_url')->label('Відео YouTube')->url()->maxLength(255)->regex('~^https://(?:www\.)?(?:youtube\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)[A-Za-z0-9_-]{11}(?:[?&#/].*)?$~D'),
-            FileUpload::make('image')->label('Обкладинка')->disk('public')->directory('content')->visibility('public')->image()->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->maxSize(4096),
-            Repeater::make('layout_fields')->label('Тексти, зображення та посилання сторінки')->columnSpanFull()->collapsed()->addable(false)->deletable(false)->reorderable(false)
-                ->visible(fn (Get $get) => $get('editor_mode') === 'layout' && ! $get('source_editor'))
-                ->afterStateHydrated(fn ($component, Get $get) => $component->state(EditableLayout::fields($get('body') ?? '')))
-                ->itemLabel(fn (array $state) => $state['label'] ?? 'Текст')->schema([
-                    Hidden::make('key'), Hidden::make('type'), Hidden::make('label'),
-                    Textarea::make('value')->label('Вміст')->rows(3)->maxLength(50000),
-                ])->helperText('Змінюйте вміст блоків без редагування коду. Для нового зображення завантажте його в «Файли та видання» й вставте адресу.'),
-            RichEditor::make('body')->label('Матеріал')->visible(fn (Get $get) => $get('editor_mode') !== 'layout' && ! $get('source_editor'))->columnSpanFull()
-                ->formatStateUsing(fn ($state, Get $get) => $get('editor_mode') === 'layout' ? $state : CmsHtml::forEditor($state ?? ''))
-                ->customBlocks([ReadingPassage::class])
-                ->fileAttachmentsDisk('public')->fileAttachmentsDirectory('content')->fileAttachmentsVisibility('public')->fileAttachmentsAcceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->fileAttachmentsMaxSize(4096)
-                ->toolbarButtons([['bold', 'italic', 'underline', 'strike', 'link'], ['h2', 'h3', 'blockquote', 'bulletList', 'orderedList'], ['attachFiles', 'table', 'customBlocks'], ['undo', 'redo']])
-                ->helperText('Заголовки ділять текст на розділи. Цитатою можна виділити молитву або славу. Для збереження складних обрядових позначень доступний HTML-редактор.'),
-            Textarea::make('body')->label('HTML сторінки')->visible(fn (Get $get) => (bool) $get('source_editor'))->rows(26)->columnSpanFull()
-                ->helperText('Редагуйте текст, зображення та посилання. Не видаляйте [[live:…]], якщо потрібні жива стрічка, карта чи форма.'),
+            Hidden::make('editor_mode')->default('reading')->required()->in(['reading', 'fragment', 'layout']),
+            Tabs::make('Редагування матеріалу')->columnSpanFull()->tabs([
+                Tab::make('Матеріал')->schema([
+                    TextInput::make('title')->label('Назва')->required()->maxLength(255)->columnSpanFull()->live(onBlur: true)->afterStateUpdated(function ($state, Set $set, Get $get, ?ContentPage $record) {
+                        if (! $record && blank($get('path')) && filled($state)) {
+                            $prefix = ['news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/'][static::$contentSection] ?? '/';
+                            $set('path', $prefix.Str::slug($state));
+                        }
+                    }),
+                    Textarea::make('excerpt')->label('Короткий опис')->rows(3)->maxLength(1000)->columnSpanFull(),
+                    RichEditor::make('body')->label('Основний текст')->visible(fn (Get $get) => $get('editor_mode') !== 'layout' && ! $get('source_editor'))->columnSpanFull()
+                        ->minHeight('22rem')->maxHeight('32rem')
+                        ->formatStateUsing(fn ($state, Get $get) => $get('editor_mode') === 'layout' ? $state : CmsHtml::forEditor($state ?? ''))
+                        ->customBlocks([ReadingPassage::class])
+                        ->fileAttachmentsDisk('public')->fileAttachmentsDirectory('content')->fileAttachmentsVisibility('public')->fileAttachmentsAcceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->fileAttachmentsMaxSize(4096)
+                        ->toolbarButtons([['bold', 'italic', 'underline', 'strike', 'link'], ['h2', 'h3', 'blockquote', 'bulletList', 'orderedList'], ['attachFiles', 'table', 'customBlocks'], ['undo', 'redo']])
+                        ->helperText('Форматуйте абзаци, заголовки й списки. Для молитов, славлень та обрядових дій використовуйте окремий блок на панелі редактора.'),
+                    Repeater::make('page_blocks')->label('Блоки сторінки')->columnSpanFull()->collapsed()->addable(false)->deletable(false)->reorderable(false)
+                        ->visible(fn (Get $get) => static::$contentSection === 'pages' && $get('editor_mode') === 'layout' && ! $get('source_editor'))
+                        ->afterStateHydrated(fn ($component, Get $get) => $component->state(static::$contentSection === 'pages' && $get('editor_mode') === 'layout' ? PageBlocks::fields($get('body') ?? '') : []))
+                        ->itemLabel(fn (array $state) => $state['label'] ?? 'Текстовий блок')->schema([
+                            Hidden::make('key'), Hidden::make('kind'), Hidden::make('label'),
+                            RichEditor::make('value')->label('Текст блоку')->minHeight('12rem')->maxHeight('24rem')->visible(fn (Get $get) => in_array($get('kind'), ['rich', 'paragraph']))->toolbarButtons([['bold', 'italic', 'link'], ['h2', 'h3', 'bulletList', 'orderedList'], ['undo', 'redo']]),
+                            Image::make(fn (Get $get) => preg_match('~^(https?://|/(?!/))~i', $get('value') ?? '') ? $get('value') : '', 'Поточне зображення')->imageHeight('140px')->visible(fn (Get $get) => $get('kind') === 'image'),
+                            TextInput::make('value')->label(fn (Get $get) => match ($get('kind')) {
+                                'image' => 'Адреса зображення', 'link' => 'Посилання', default => 'Заголовок'
+                            })->visible(fn (Get $get) => ! in_array($get('kind'), ['rich', 'paragraph']))->maxLength(2000),
+                            FileUpload::make('replacement')->label('Замінити зображення')->visible(fn (Get $get) => $get('kind') === 'image')->image()->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->disk('public')->directory('pages')->visibility('public')->maxSize(4096),
+                        ]),
+                ]),
+                Tab::make('Медіа')->schema([
+                    FileUpload::make('image')->label('Обкладинка')->disk('public')->directory('content')->visibility('public')->image()->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->maxSize(4096),
+                    TextInput::make('video_url')->label('Відео YouTube')->url()->maxLength(255)->regex('~^https://(?:www\.)?(?:youtube\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)[A-Za-z0-9_-]{11}(?:[?&#/].*)?$~D'),
+                ]),
+                Tab::make('Публікація')->schema([
+                    Toggle::make('is_published')->label('Опубліковано')->default(true),
+                    DateTimePicker::make('published_at')->label('Дата публікації (Київ)')->timezone('Europe/Kyiv')->seconds(false)->helperText('Майбутня дата запланує публікацію.'),
+                    Select::make('category')->label('Група обрядів / молитов')->options(['life' => 'Обряди життєвого кола', 'calendar' => 'Обряди Кола Сварожого', 'school' => 'Обряди Недільної школи', 'literature' => 'Література про обряди', 'themes' => 'Молитви за темами', 'authors' => 'Авторські молитви', 'books' => 'Молитовник', 'research' => 'Дослідження'])->placeholder('Залишити наявну групу')->visible(fn (Get $get) => in_array($get('section'), ['rituals', 'prayers'], true)),
+                    TextInput::make('category')->label('Категорія')->maxLength(190)->visible(fn (Get $get) => ! in_array($get('section'), ['rituals', 'prayers'], true)),
+                ]),
+                Tab::make('Налаштування')->schema([
+                    TextInput::make('path')->label('Адреса на сайті')->placeholder('/novyny/nazva-novyny')->required()->unique(ignoreRecord: true)
+                        ->maxLength(255)->regex('~^/(?:[a-z0-9-]+(?:/[a-z0-9-]+)*)?$~D')->disabled(fn (?ContentPage $record) => (bool) $record?->is_imported)
+                        ->rules([fn (Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
+                            if (preg_match('~^/(?:admin|livewire|assets|storage|build|up|kramnychka|koshyk|zamovlennia|oplata)(?:/|$)~', $value)) {
+                                $fail('Цю адресу зарезервовано для системи та крамниці.');
+                            }
+                            $prefix = ['news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/'][$get('section')] ?? null;
+                            if ($prefix && ! preg_match('~^'.preg_quote($prefix, '~').'[a-z0-9-]+$~D', $value)) {
+                                $fail('Для цього розділу адреса має вигляд '.$prefix.'nazva-materialu');
+                            }
+                        }])->helperText('Латинські літери, цифри й дефіси. Імпортовані адреси збережено.'),
+                    Toggle::make('source_editor')->label('Редагувати HTML тексту')->default(false)->live()->dehydrated(false),
+                    Textarea::make('body')->label('HTML сторінки')->visible(fn (Get $get) => (bool) $get('source_editor'))->rows(26)->columnSpanFull()
+                        ->helperText('Редагуйте текст, зображення та посилання. Не видаляйте [[live:…]], якщо потрібні жива стрічка, карта чи форма.'),
+
+                ]),
+            ]),
         ]);
     }
 
@@ -111,7 +138,7 @@ class ContentPageResource extends Resource
             TextColumn::make('updated_at')->label('Оновлено')->dateTime('d.m.Y H:i')->sortable(),
         ])->filters([TrashedFilter::make()->label('Кошик')])
             ->recordActions([
-                EditAction::make()->modalWidth('7xl'),
+                EditAction::make()->modalWidth('6xl')->mutateRecordDataUsing(fn (array $data) => ContentEditor::prepare($data)),
                 Action::make('preview')->label('На сайт')->icon('heroicon-o-arrow-top-right-on-square')->url(fn (ContentPage $record) => url($record->path))->openUrlInNewTab(),
                 Action::make('revision')->label('Попередня версія')->schema([
                     Select::make('revision')->label('Версія')->options(fn (ContentPage $record) => $record->revisions()->latest('id')->limit(30)->get()->mapWithKeys(fn ($revision) => [$revision->id => $revision->created_at->format('d.m.Y H:i:s').' · #'.$revision->id]))->required(),
