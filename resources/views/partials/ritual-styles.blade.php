@@ -29,6 +29,26 @@
     .ritual-toc ol { padding-left: 22px; margin: 16px 0 0; }
     .ritual-toc a { display: inline-block; padding: 6px 0; color: #6a401c; overflow-wrap: anywhere; }
     .rituals-view .article-prose h2, .rituals-view .article-prose h3, .rituals-view .article-prose h4 { scroll-margin-top: 110px; }
+    .ritual-reading-key { display: flex; flex-wrap: wrap; gap: 10px 20px; margin: 0 0 32px; padding: 16px 0; border-block: 1px solid #dfd6c7; font-family: var(--rv-font-ui); font-size: 13px; line-height: 1.6; color: #665548; }
+    .ritual-reading-key span { display: inline-flex; align-items: center; gap: 8px; }
+    .ritual-reading-key i { width: 10px; height: 10px; border-radius: 2px; background: #b78d4d; }
+    .ritual-reading-key .ritual-key-direction { background: #9b9a8f; }
+    .ritual-reading-key .ritual-key-song { background: #65765d; }
+    .article-prose .ritual-passage { margin: 28px 0; padding: 24px 28px; border: 1px solid #ddc9a6; border-left: 4px solid #a47937; border-radius: 0 10px 10px 0; background: #f7efdf; color: #382b1c; }
+    .article-prose .ritual-passage > p { margin: 0 0 18px; line-height: 1.9; }
+    .article-prose .ritual-passage > p:last-child { margin-bottom: 0; }
+    .article-prose .ritual-passage > .ritual-passage__label { margin: 0 0 16px; color: #82551c; font-family: var(--rv-font-ui); font-size: 12px; font-weight: 400; line-height: 1.5; letter-spacing: .06em; text-transform: uppercase; }
+    .article-prose .ritual-passage--praise { background: #eee4ce; border-color: #cfb47f; border-left-color: #8b601c; }
+    .article-prose .ritual-passage--direction { padding: 14px 20px; background: #f4f3ee; border-color: #deddd4; border-left: 2px solid #9b9a8f; color: #625f53; font-size: 15px; }
+    .article-prose .ritual-passage--direction > .ritual-passage__label { color: #747063; margin-bottom: 10px; font-size: 11px; }
+    .article-prose .ritual-passage--song { background: #f0f2ea; border-color: #d1d8c7; border-left-color: #65765d; }
+    .article-prose .ritual-passage--song > .ritual-passage__label { color: #536249; }
+    .article-prose .ritual-passage--oath { background: #f4ece3; border-color: #d5bca0; border-left-color: #8b5936; }
+    .article-prose .ritual-passage img { display: block; }
+    @media (max-width: 600px) {
+        .article-prose .ritual-passage { margin-block: 24px; padding: 20px 16px; }
+        .article-prose .ritual-passage--direction { padding: 14px 16px; }
+    }
     @media (max-width: 1000px) { .ritual-guides { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 600px) { .ritual-guides, .ritual-videos { grid-template-columns: 1fr; } .rituals-section { margin-top: 36px; } .ritual-guide { padding: 20px; } }
 </style>

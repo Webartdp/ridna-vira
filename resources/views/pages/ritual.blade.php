@@ -34,6 +34,13 @@
                 </details>
             @endif
             @if ($content)
+                @if ($entry['category'] !== 'literature')
+                    <div class="ritual-reading-key" aria-label="Позначення в тексті">
+                        <span><i aria-hidden="true"></i>Молитви та славлення</span>
+                        <span><i class="ritual-key-song" aria-hidden="true"></i>Пісні</span>
+                        <span><i class="ritual-key-direction" aria-hidden="true"></i>Обрядові дії</span>
+                    </div>
+                @endif
                 <div class="article-prose">{!! $content !!}</div>
             @else
                 <div class="article-attachment"><p>Повний текст видання доступний у документі. Завантажте його для читання та збереження.</p></div>

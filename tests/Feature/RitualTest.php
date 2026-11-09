@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Support\RitualReading;
 use DOMDocument;
 use Tests\TestCase;
 
@@ -37,7 +38,7 @@ class RitualTest extends TestCase
                 $this->assertGreaterThan(500, mb_strlen(strip_tags($content)));
                 $this->assertDoesNotMatchRegularExpression('/<(?:script|iframe|style|font|form|table)\b|\s(?:style|onclick|bgcolor)=/i', $content);
                 $this->assertStringNotContainsString('До розділу', $content);
-                $response->assertSee($content, false);
+                $response->assertSee((new RitualReading)->format($content, $slug), false);
             } else {
                 $this->assertNotEmpty($entry['files']);
                 $response->assertSee('Завантажити PDF');

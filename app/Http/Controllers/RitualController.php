@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Support\RitualReading;
 use Illuminate\Contracts\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -16,11 +17,14 @@ final class RitualController extends Controller
         return view('pages.rituals', $this->catalogue());
     }
 
-    public function show(string $ritual): View
+    public function show(string $ritual, RitualReading $reading): View
     {
         $entry = $this->entry($ritual);
         $content = isset($entry['page'])
             ? file_get_contents(resource_path('content/rituals/'.$entry['page'])) : null;
+        if ($content !== null) {
+            $content = $reading->format($content, $ritual);
+        }
 
         return view('pages.ritual', [
             'entry' => $entry,
