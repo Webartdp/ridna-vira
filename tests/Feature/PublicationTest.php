@@ -46,6 +46,11 @@ class PublicationTest extends TestCase
                     $response->assertRedirect($entry['redirect']);
                 } else {
                     $response->assertOk()->assertSee($entry['title']);
+                    if ($section === 'news') {
+                        foreach ($entry['videos'] ?? [] as $video) {
+                            $response->assertSee('https://www.youtube-nocookie.com/embed/'.$video, false);
+                        }
+                    }
                     $content = file_get_contents(resource_path('content/publications/'.$entry['path']));
                     $response->assertSee($content, false);
                     $this->assertDoesNotMatchRegularExpression('/<(?:script|iframe|font|form)\b|\s(?:style|bgcolor|onclick)=/i', $content);

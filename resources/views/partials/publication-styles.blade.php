@@ -29,6 +29,7 @@
     .publication-prose table img { max-width: 100%; }
     .publication-videos { margin-top: 32px; display: grid; gap: 12px; font-family: var(--rv-font-ui); }
     .publication-videos a { display: block; padding: 16px; border: 1px solid #d8ccba; border-radius: 8px; color: #6a401c; }
+    .publication-video-player { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; border: 0; border-radius: 10px; background: #1c2019; }
     @media (max-width: 1000px) { .publication-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 600px) {
         .publication-cards { grid-template-columns: 1fr; }
