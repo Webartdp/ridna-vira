@@ -176,7 +176,7 @@ for slug, entry in catalogue['entries'].items():
     if len(re.sub('<[^>]+>', '', content)) < 500:
         raise ValueError('Incomplete text: ' + slug)
     content = re.sub(r'(</(?:p|h[234]|blockquote|ul|ol)>)', r'\1\n', content)
-    (pages / (slug + '.html')).write_text(content + '\n', encoding='utf-8')
+    (pages / (slug + '.html')).write_text(content.rstrip() + '\n', encoding='utf-8')
     entry['page'] = 'pages/' + slug + '.html'
     primary = {
         'bohoslavlennia': 'bogoslav', 'posviachennia': 'posviata',
