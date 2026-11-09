@@ -9,7 +9,7 @@
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     @stack('styles')
 </head>
-<body>
+<body class="@yield('body-class')">
 <div class="announcement" aria-label="Оголошення">
     <div class="announcement__track" data-ticker-track>
         <span>Тут якась строчка яка біжить — може оголошення, може ще щось таке</span>
