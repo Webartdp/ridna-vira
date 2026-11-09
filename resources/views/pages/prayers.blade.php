@@ -50,7 +50,6 @@
             <h2 id="heading-videos">Відеомолитви</h2>
             @include('partials.prayer-videos', ['videos' => $videos])
         </section>
-        <p class="ritual-source">Матеріали перенесено з <a href="{{ $source }}" target="_blank" rel="noopener noreferrer">svit.in.ua</a>. Авторство збережено.</p>
     </div>
 </section>
 @endsection
