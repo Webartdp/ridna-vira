@@ -1,23 +1,14 @@
 @extends('layouts.app')
 
 @section('title', $godTitle.' — Боги — Рідна Віра')
+@section('body-class', 'gods-view')
 @section('description', $godTitle.' — матеріал розділу Богів Духовного центру «Рідна Віра».')
-
-@php
-    $webpPortrait = 'assets/gods/'.$godSlug.'/portrait.webp';
-    $pngPortrait = 'assets/gods/'.$godSlug.'/portrait.png';
-
-    if (is_file(public_path($webpPortrait))) {
-        $image = asset($webpPortrait).'?v='.filemtime(public_path($webpPortrait));
-    } elseif (is_file(public_path($pngPortrait))) {
-        $image = asset($pngPortrait).'?v='.filemtime(public_path($pngPortrait));
-    } else {
-        $image = (string) ($god['image'] ?? asset('assets/gods/'.$godSlug.'/portrait.svg'));
-    }
-@endphp
 
 @push('styles')
 <style>
+    body.gods-view { background: #f3efe3; }
+    body.gods-view::before { content: none; }
+
     .god-reading-page {
         padding: 72px 0 94px;
     }
@@ -160,7 +151,13 @@
     <div class="figma-container">
         <article class="god-reading-article">
             <figure class="god-reading-figure">
-                <img src="{{ $image }}" alt="{{ $godTitle }}" decoding="async">
+                @include('partials.god-image', [
+                    'slug' => $godSlug,
+                    'sizes' => '(min-width: 392px) 354px, calc(100vw - 38px)',
+                    'imageAlt' => $godTitle,
+                    'imageLoading' => 'eager',
+                    'imagePriority' => 'high',
+                ])
             </figure>
 
             @if ($content !== null && trim($content) !== '')

@@ -1,30 +1,14 @@
 @extends('layouts.app')
 
 @section('title', 'Боги — Рідна Віра')
+@section('body-class', 'gods-view')
 @section('description', 'Розділ Рідні Боги: перенесені матеріали, образи та описи Богів Рідної Віри.')
-
-@php
-    $imageFor = static function (array $god): string {
-        $image = (string) ($god['image'] ?? '');
-        $slug = (string) ($god['slug'] ?? 'bog');
-
-        $webpPortrait = 'assets/gods/'.$slug.'/portrait.webp';
-        $pngPortrait = 'assets/gods/'.$slug.'/portrait.png';
-
-        if (is_file(public_path($webpPortrait))) {
-            return asset($webpPortrait).'?v='.filemtime(public_path($webpPortrait));
-        }
-
-        if (is_file(public_path($pngPortrait))) {
-            return asset($pngPortrait).'?v='.filemtime(public_path($pngPortrait));
-        }
-
-        return $image !== '' ? $image : asset('assets/gods/'.$slug.'/portrait.svg');
-    };
-@endphp
 
 @push('styles')
 <style>
+    body.gods-view { background: #f3efe3; }
+    body.gods-view::before { content: none; }
+
     .gods-page {
         padding: 70px 0 94px;
     }
@@ -180,7 +164,12 @@
                     <li>
                         <a class="god-card" href="{{ route('faith.gods.show', ['god' => $slug]) }}">
                             <span class="god-card__image" aria-hidden="true">
-                                <img src="{{ $imageFor($god) }}" alt="" loading="lazy" decoding="async">
+                                @include('partials.god-image', [
+                                    'slug' => $slug,
+                                    'sizes' => '(min-width: 1200px) 248px, (min-width: 1076px) 336px, (min-width: 768px) calc((100vw - 68px) / 3), calc((100vw - 44px) / 2)',
+                                    'imageLoading' => $loop->index < 4 ? 'eager' : 'lazy',
+                                    'imagePriority' => $loop->index < 4 ? 'auto' : 'low',
+                                ])
                             </span>
                             <span class="god-card__body">
                                 <strong>{{ $god['title'] ?? 'Бог' }}</strong>
