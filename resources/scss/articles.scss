@@ -1,0 +1,54 @@
+.articles-page { padding: 56px 0 80px; background: #f7f3ea; }
+.articles-intro { max-width: 720px; margin-bottom: 40px; }
+.articles-intro h2 { color: var(--rv-brown); font-family: var(--rv-font-display); font-size: clamp(27px, 4vw, 38px); line-height: 1.2; }
+.articles-intro p { color: #665548; font-family: var(--rv-font-body); line-height: 1.7; }
+.articles-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 48px; }
+.article-preview { min-width: 0; padding: 28px 0; border-top: 1px solid #c8bdaa; }
+.article-preview h3 { margin-bottom: 16px; font-family: var(--rv-font-ui); font-size: clamp(20px, 2.2vw, 25px); line-height: 1.4; overflow-wrap: anywhere; text-wrap: pretty; }
+.article-preview h3 a { color: var(--rv-brown); }
+.article-preview h3 a:hover { color: #885b1d; }
+.article-preview p { margin-bottom: 16px; color: #665548; font-family: var(--rv-font-body); font-size: 15px; line-height: 1.75; overflow-wrap: anywhere; }
+.article-preview__link { display: inline-flex; align-items: center; gap: 20px; min-height: 44px; color: #775020; font-family: var(--rv-font-ui); font-size: 14px; }
+.articles-pagination { margin-top: 32px; }
+.articles-pagination .pagination { flex-wrap: wrap; gap: 4px; }
+.articles-pagination .page-link { color: var(--rv-brown); border-color: #d5c5ac; }
+.articles-pagination .active > .page-link { color: #fff; background: var(--rv-brown); border-color: var(--rv-brown); }
+.articles-empty { font-family: var(--rv-font-body); }
+
+.article-page { padding: 28px 0 72px; background: #f7f3ea; }
+.article-breadcrumbs { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 28px; font-family: var(--rv-font-ui); font-size: 13px; color: #746251; }
+.article-reader { padding: clamp(24px, 5vw, 64px); border: 1px solid #e0d6c7; background: #fffdf8; }
+.article-reader__header, .article-prose, .article-reader__footer, .article-attachment { max-width: 740px; margin-inline: auto; }
+.article-reader__header { padding-bottom: 32px; border-bottom: 1px solid #dfd6c7; margin-bottom: 36px; }
+.article-reader__eyebrow { margin-bottom: 16px; color: #86622f; font-family: var(--rv-font-ui); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
+.article-reader h1 { margin: 0; color: var(--rv-brown); font-family: var(--rv-font-display); font-size: clamp(27px, 3.5vw, 42px); font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; text-wrap: balance; }
+.article-prose { color: #322b25; font-family: var(--rv-font-body); font-size: 18px; line-height: 1.85; overflow-wrap: anywhere; }
+.article-prose p { margin: 0 0 1.3em; text-align: left; }
+.article-prose h2, .article-prose h3, .article-prose h4 { margin: 1.7em 0 .8em; color: var(--rv-brown); font-family: var(--rv-font-display); font-weight: 700; line-height: 1.4; }
+.article-prose h2 { font-size: 27px; }
+.article-prose h3 { font-size: 23px; }
+.article-prose h4 { font-size: 20px; }
+.article-prose ul, .article-prose ol { padding-left: 1.5em; margin-bottom: 1.3em; }
+.article-prose li + li { margin-top: .5em; }
+.article-prose blockquote { margin: 1.5em 0; padding: 8px 0 8px 24px; border-left: 3px solid #b88a4b; color: #695440; }
+.article-prose blockquote p:last-child { margin-bottom: 0; }
+.article-prose img { max-width: 100%; height: auto; margin: 24px auto; }
+.article-prose a { color: #82571d; text-decoration: underline; text-underline-offset: 3px; }
+.article-prose pre { overflow-x: auto; padding: 16px; background: #f1ece2; }
+.article-prose .article-table { overflow-x: auto; margin: 1.5em 0; }
+.article-prose table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.article-prose th, .article-prose td { padding: 12px; border: 1px solid #d8cebf; vertical-align: top; min-width: 100px; }
+.article-prose th { background: #f1ece2; }
+.article-reader__footer { padding-top: 28px; margin-top: 40px; border-top: 1px solid #dfd6c7; font-family: var(--rv-font-ui); font-size: 14px; }
+.article-attachment { font-family: var(--rv-font-body); line-height: 1.8; }
+.article-attachment .figma-button { margin-top: 20px; }
+.articles-page a:focus-visible, .article-page a:focus-visible { outline: 3px solid #b88a4b; outline-offset: 4px; }
+@media (max-width: 767px) {
+    .articles-page { padding-top: 36px; }
+    .articles-list { grid-template-columns: 1fr; }
+    .article-preview { padding-block: 24px; }
+    .article-reader { padding: 28px 20px; }
+    .article-reader__header { margin-bottom: 28px; padding-bottom: 24px; }
+    .article-prose { font-size: 16px; line-height: 1.8; }
+    .article-prose blockquote { padding-left: 16px; }
+}

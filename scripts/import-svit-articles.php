@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Support\ArticleContent;
 use Illuminate\Support\Str;
 
 require_once dirname(__DIR__).'/vendor/autoload.php';
@@ -10,7 +11,6 @@ require_once dirname(__DIR__).'/vendor/autoload.php';
  * One-time migration of articles and article documents from the legacy portal.
  * The public site reads the generated manifest and never links to svit.in.ua.
  */
-
 const SOURCE_PAGE = 'https://www.svit.in.ua/sta.htm';
 const USER_AGENT = 'Mozilla/5.0 (compatible; RidnaViraArticleMigration/1.0; +https://ridnavira.com.ua)';
 
@@ -34,7 +34,14 @@ try {
 
     $articles = [];
     $failed = [];
-    $usedSlugs = [];
+    $existing = is_file($manifestPath) ? json_decode((string) file_get_contents($manifestPath), true) : [];
+    $slugsByUrl = [];
+    foreach ($existing['articles'] ?? [] as $key => $entry) {
+        if (! empty($entry['source_url'])) {
+            $slugsByUrl[$entry['source_url']] = (string) ($entry['slug'] ?? $key);
+        }
+    }
+    $usedSlugs = array_fill_keys(array_values($slugsByUrl), true);
     $imported = 0;
 
     foreach ($links as $link) {
@@ -48,13 +55,13 @@ try {
 
             if ($isHtml) {
                 $utf8 = normalizeEncoding($body, $response['contentType']);
-                $contentTitle = titleFromHtml($utf8) ?: $contentTitle;
-                $slug = uniqueSlug($contentTitle, $link['url'], $usedSlugs);
+                $contentTitle = (new ArticleContent)->title($utf8, ['title' => $contentTitle]);
+                $slug = $slugsByUrl[$link['url']] ?? uniqueSlug($contentTitle, $link['url'], $usedSlugs);
                 $destination = $storageRoot.'/'.$directory.'/'.$slug.'.html';
-                file_put_contents($destination, sanitizeHtmlArticle($utf8, $contentTitle, $link['url']));
+                file_put_contents($destination, (new ArticleContent)->body($utf8, $contentTitle));
             } else {
                 rejectHtmlResponse($response, $link['url']);
-                $slug = uniqueSlug($contentTitle, $link['url'], $usedSlugs);
+                $slug = $slugsByUrl[$link['url']] ?? uniqueSlug($contentTitle, $link['url'], $usedSlugs);
                 $destination = $storageRoot.'/'.$directory.'/'.$slug.'.'.$extension;
                 writeBinaryFile($destination, $body);
             }
@@ -136,7 +143,7 @@ function fetchUrl(string $url): array
     $effectiveUrl = (string) curl_getinfo($ch, CURLINFO_EFFECTIVE_URL);
     curl_close($ch);
 
-    if (!is_string($body)) {
+    if (! is_string($body)) {
         throw new RuntimeException("Помилка завантаження {$url}: {$error}");
     }
 
@@ -222,7 +229,7 @@ function detectDeclaredEncoding(string $content, string $contentType): ?string
 /** @return array<int, string> */
 function repairMojibakeVariants(string $text): array
 {
-    if (!hasMojibakeMarkers($text)) {
+    if (! hasMojibakeMarkers($text)) {
         return [];
     }
 
@@ -277,7 +284,7 @@ function stripUtf8Bom(string $content): string
 function extractArticleLinks(string $html, string $baseUrl): array
 {
     $html = normalizeHtmlCharset($html);
-    $dom = new DOMDocument();
+    $dom = new DOMDocument;
     libxml_use_internal_errors(true);
     $dom->loadHTML('<?xml encoding="UTF-8">'.$html, LIBXML_NOWARNING | LIBXML_NOERROR);
     libxml_clear_errors();
@@ -297,11 +304,11 @@ function extractArticleLinks(string $html, string $baseUrl): array
         $path = (string) parse_url($url, PHP_URL_PATH);
         $extension = strtolower(pathinfo($path, PATHINFO_EXTENSION));
 
-        if (!in_array($host, ['svit.in.ua', 'www.svit.in.ua'], true)) {
+        if (! in_array($host, ['svit.in.ua', 'www.svit.in.ua'], true)) {
             continue;
         }
 
-        if (!str_starts_with($path, '/stat/') && !in_array($extension, ['pdf', 'doc', 'docx', 'rtf'], true)) {
+        if (! str_starts_with($path, '/stat/') && ! in_array($extension, ['pdf', 'doc', 'docx', 'rtf'], true)) {
             continue;
         }
 
@@ -340,123 +347,6 @@ function normalizeHtmlCharset(string $html): string
     $html = preg_replace('/<meta\b[^>]*http-equiv\s*=\s*["\']?content-type["\']?[^>]*>/i', '', $html) ?? $html;
 
     return $html;
-}
-
-function titleFromHtml(string $html): ?string
-{
-    $html = normalizeHtmlCharset($html);
-    $dom = new DOMDocument();
-    libxml_use_internal_errors(true);
-    $dom->loadHTML('<?xml encoding="UTF-8">'.$html, LIBXML_NOWARNING | LIBXML_NOERROR);
-    libxml_clear_errors();
-
-    foreach (['h1', 'h2', 'title'] as $tagName) {
-        $node = $dom->getElementsByTagName($tagName)->item(0);
-        $title = $node !== null ? compactText((string) $node->textContent) : '';
-
-        if ($title !== '') {
-            return $title;
-        }
-    }
-
-    return null;
-}
-
-function sanitizeHtmlArticle(string $html, string $title, string $sourceUrl): string
-{
-    $html = normalizeHtmlCharset($html);
-    $dom = new DOMDocument('1.0', 'UTF-8');
-    libxml_use_internal_errors(true);
-    $dom->loadHTML('<?xml encoding="UTF-8">'.$html, LIBXML_NOWARNING | LIBXML_NOERROR);
-    libxml_clear_errors();
-
-    foreach (['script', 'iframe', 'object', 'embed', 'base', 'link', 'style', 'form', 'input', 'select', 'button'] as $tagName) {
-        $nodes = [];
-        foreach ($dom->getElementsByTagName($tagName) as $node) {
-            $nodes[] = $node;
-        }
-        foreach ($nodes as $node) {
-            $node->parentNode?->removeChild($node);
-        }
-    }
-
-    foreach ($dom->getElementsByTagName('*') as $element) {
-        $attributesToRemove = [];
-
-        foreach ($element->attributes ?? [] as $attribute) {
-            $name = strtolower($attribute->name);
-            $value = trim($attribute->value);
-
-            if (str_starts_with($name, 'on') || $name === 'style' || $name === 'class' || $name === 'id') {
-                $attributesToRemove[] = $attribute->name;
-                continue;
-            }
-
-            if (in_array($name, ['href', 'src'], true)) {
-                $absolute = resolveUrl($sourceUrl, $value);
-                $host = strtolower((string) parse_url($absolute, PHP_URL_HOST));
-
-                if ($host === 'svit.in.ua' || $host === 'www.svit.in.ua') {
-                    $attributesToRemove[] = $attribute->name;
-                }
-            }
-        }
-
-        foreach ($attributesToRemove as $attributeName) {
-            $element->removeAttribute($attributeName);
-        }
-    }
-
-    $body = $dom->getElementsByTagName('body')->item(0);
-
-    if ($body === null) {
-        return '';
-    }
-
-    $content = contentAfterFirstHeading($dom, $body, $title);
-
-    return trim($content);
-}
-
-function contentAfterFirstHeading(DOMDocument $dom, DOMElement $body, string $title): string
-{
-    $content = '';
-    $started = false;
-    $normalizedTitle = normalizeText($title);
-
-    foreach ($body->childNodes as $child) {
-        if (!$started) {
-            $text = normalizeText((string) $child->textContent);
-            $tagName = $child instanceof DOMElement ? strtolower($child->tagName) : '';
-
-            if (in_array($tagName, ['h1', 'h2', 'h3'], true) || ($normalizedTitle !== '' && $text !== '' && str_contains($normalizedTitle, $text))) {
-                $started = true;
-            } else {
-                continue;
-            }
-        }
-
-        $content .= $dom->saveHTML($child);
-    }
-
-    if (trim(strip_tags($content)) !== '') {
-        return $content;
-    }
-
-    foreach ($body->childNodes as $child) {
-        $content .= $dom->saveHTML($child);
-    }
-
-    return $content;
-}
-
-function normalizeText(string $text): string
-{
-    $text = str_replace(["\u{00A0}", '’', '`', 'ʼ', '«', '»', '„', '“', '”'], [' ', "'", "'", "'", ' ', ' ', ' ', ' ', ' '], $text);
-    $text = mb_strtolower($text, 'UTF-8');
-    $text = preg_replace('/[^\p{L}\p{N}\s\'\-]+/u', ' ', $text) ?? $text;
-
-    return compactText($text);
 }
 
 function compactText(string $text): string
@@ -557,7 +447,7 @@ function writeBinaryFile(string $destination, string $body): void
         throw new RuntimeException("Не вдалося записати {$temporaryPath}");
     }
 
-    if (!rename($temporaryPath, $destination)) {
+    if (! rename($temporaryPath, $destination)) {
         @unlink($temporaryPath);
         throw new RuntimeException("Не вдалося замінити {$destination}");
     }
@@ -597,6 +487,7 @@ function resolveUrl(string $baseUrl, string $href): string
         }
         if ($part === '..') {
             array_pop($parts);
+
             continue;
         }
         $parts[] = $part;
@@ -607,7 +498,7 @@ function resolveUrl(string $baseUrl, string $href): string
 
 function ensureDirectory(string $directory): void
 {
-    if (!is_dir($directory) && !mkdir($directory, 0775, true) && !is_dir($directory)) {
+    if (! is_dir($directory) && ! mkdir($directory, 0775, true) && ! is_dir($directory)) {
         throw new RuntimeException("Не вдалося створити каталог {$directory}");
     }
 }
