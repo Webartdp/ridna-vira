@@ -36,6 +36,15 @@
         text-transform: uppercase;
     }
 
+    .gods-intro__statement {
+        margin: 24px 0 0;
+        color: #665548;
+        font-family: var(--rv-font-ui);
+        font-size: clamp(16px, 2vw, 19px);
+        line-height: 1.75;
+        text-wrap: pretty;
+    }
+
     .gods-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -160,6 +169,7 @@
         <header class="gods-intro">
             <span class="gods-intro__eyebrow">Рідні Боги</span>
             <h2>Пантеон Рідної Віри</h2>
+            <p class="gods-intro__statement">У множині бачимо гармонію та єдність, у єдності прозріваємо єдинство, і це є воістину.</p>
         </header>
 
         @if (empty($gods))
