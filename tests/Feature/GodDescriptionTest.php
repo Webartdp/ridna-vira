@@ -44,12 +44,11 @@ class GodDescriptionTest extends TestCase
             foreach ($entry['sources'] as $source) {
                 $this->assertNotFalse(filter_var($source['url'], FILTER_VALIDATE_URL));
                 $host = parse_url($source['url'], PHP_URL_HOST);
-                $this->assertContains($host, ['svit.in.ua', 'www.svit.in.ua', 'yaro.dp.ua', 'www.oru.org.ua']);
+                $this->assertContains($host, ['svit.in.ua', 'www.svit.in.ua', 'yaro.dp.ua']);
                 $hosts[] = $host;
             }
         }
         $this->assertContains('yaro.dp.ua', $hosts);
-        $this->assertContains('www.oru.org.ua', $hosts);
     }
 
     public function test_all_existing_god_routes_open_with_new_descriptions_and_source_links(): void
@@ -58,7 +57,8 @@ class GodDescriptionTest extends TestCase
         foreach (config('faith_gods.gods') as $god) {
             $description = $descriptions[$god['slug']];
             $response = $this->get(route('faith.gods.show', $god['slug']));
-            $response->assertOk()->assertSee($description['lead'])->assertSee('Джерела опису');
+            $response->assertOk()->assertSee($description['lead'])->assertSee('Джерела опису')
+                ->assertDontSee('oru.org.ua');
             foreach ($description['sources'] as $source) {
                 $response->assertSee(e($source['url']), false);
             }
