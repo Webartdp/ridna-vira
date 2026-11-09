@@ -15,7 +15,13 @@ class CreateSiteAdmin extends Command
 
     public function handle(): int
     {
-        $data = ['name' => $this->ask('Ім’я адміністратора'), 'email' => $this->ask('Електронна пошта'), 'password' => $this->secret('Пароль (мінімум 12 символів)')];
+        $name = $this->ask('Ім’я адміністратора');
+        if (is_string($name) && (! mb_check_encoding($name, 'UTF-8') || str_contains($name, "\u{FFFD}"))) {
+            $this->error('Ім’я містить пошкоджені символи. Перевірте кодування термінала UTF-8 або введіть ім’я латиницею, наприклад Admin.');
+
+            return self::FAILURE;
+        }
+        $data = ['name' => $name, 'email' => $this->ask('Електронна пошта'), 'password' => $this->secret('Пароль (мінімум 12 символів)')];
         $validator = Validator::make($data, ['name' => 'required|string|max:150', 'email' => 'required|email|unique:users|max:190', 'password' => ['required', Password::min(12)->letters()->numbers()]]);
         if ($validator->fails()) {
             foreach ($validator->errors()->all() as $error) {
