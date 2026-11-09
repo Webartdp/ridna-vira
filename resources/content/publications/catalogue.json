@@ -58,7 +58,30 @@
       "source": "index.htm",
       "path": "pages/news-2026-10-30-d9bda10b.html",
       "excerpt": "Нещодавно «33 канал» (м. Хмельницький) запросив жерця Рідно Віри Асура Ярового на інтерв’ю, щоб поговорити про Велесову ніч, її символіку та місце в традиції наших Предків: \"Хотілося…",
-      "image": null
+      "image": {
+        "src": "/assets/publications/images/5a60689df6b0c1-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "variants": [
+          {
+            "src": "/assets/publications/images/5a60689df6b0c1-320.webp",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "src": "/assets/publications/images/5a60689df6b0c1-640.webp",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "src": "/assets/publications/images/5a60689df6b0c1-1280.webp",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      "image_origin": "youtube",
+      "video_cover_id": "oC9dZp6-V6A"
     },
     "2026-10-24-610c31d5": {
       "date": "2026-10-24",
@@ -151,7 +174,30 @@
       "source": "index.htm",
       "path": "pages/news-2026-10-09-2f67ae8f.html",
       "excerpt": "Жриця Рідної Віри, голова тернопільської громади \"Велесія\" Зореквіта Біленька взяла участь у фестивалі",
-      "image": null
+      "image": {
+        "src": "/assets/publications/images/863364a18e2a7f-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "variants": [
+          {
+            "src": "/assets/publications/images/863364a18e2a7f-320.webp",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "src": "/assets/publications/images/863364a18e2a7f-640.webp",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "src": "/assets/publications/images/863364a18e2a7f-1280.webp",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      "image_origin": "youtube",
+      "video_cover_id": "nh4E456XTVg"
     },
     "2026-09-26-88298877": {
       "date": "2026-09-26",
@@ -455,7 +501,30 @@
       "source": "index.htm",
       "path": "pages/news-2026-01-05-5db607e8.html",
       "excerpt": "Яна Яковенко - засновниця мандрівного музею \"Родовід\" та Світовит Пашник - Верховний волхв ДЦ \"Рідна Віра\" До архіву новин>>>",
-      "image": null
+      "image": {
+        "src": "/assets/publications/images/1926106e57fa0b-1280.webp",
+        "width": 1280,
+        "height": 720,
+        "variants": [
+          {
+            "src": "/assets/publications/images/1926106e57fa0b-320.webp",
+            "width": 320,
+            "height": 180
+          },
+          {
+            "src": "/assets/publications/images/1926106e57fa0b-640.webp",
+            "width": 640,
+            "height": 360
+          },
+          {
+            "src": "/assets/publications/images/1926106e57fa0b-1280.webp",
+            "width": 1280,
+            "height": 720
+          }
+        ]
+      },
+      "image_origin": "youtube",
+      "video_cover_id": "qxjPrBDMN4Y"
     }
   },
   "creativity": {

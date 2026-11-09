@@ -193,6 +193,17 @@ for section, entries in catalogue.items():
         entry['image'] = parser.images[0] if parser.images else None
         print(section, slug, len(content), 'characters', len(parser.images), 'images', flush=True)
 
+for entry in catalogue['news'].values():
+    if not entry.get('image') and entry.get('videos'):
+        video = entry['videos'][0]
+        for quality in ['maxresdefault', 'hqdefault']:
+            cover = image(f'https://i.ytimg.com/vi/{video}/{quality}.jpg')
+            if cover is not None:
+                entry['image'] = cover
+                entry['image_origin'] = 'youtube'
+                entry['video_cover_id'] = video
+                break
+
 catalogue['featured_creativity'] = ['vakulenko', 'rush1', 'vir4', 'mal1']
 catalogue['imported_at'] = '2026-11-09'
 catalogue['unavailable_images'] = sorted(set(unavailable))

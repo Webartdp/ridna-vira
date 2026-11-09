@@ -27,6 +27,10 @@ class PublicationTest extends TestCase
         $this->assertSame('2026-11-08', $sections[0]['items'][0]['date']);
         $this->assertArrayNotHasKey('date', $sections[1]['items'][0]);
         $this->assertArrayNotHasKey('date', $sections[2]['items'][0]);
+        $videoNews = (new Publications)->find('news', '2026-10-30-d9bda10b');
+        $this->assertSame('youtube', $videoNews['image_origin']);
+        $this->assertSame($videoNews['videos'][0], $videoNews['video_cover_id']);
+        $response->assertSee($videoNews['image']['src'], false);
     }
 
     public function test_news_and_creativity_are_paginated_and_all_imported_pages_open(): void
@@ -36,6 +40,12 @@ class PublicationTest extends TestCase
         $this->assertCount(19, $library->entries('news'));
         $this->assertCount(44, $library->entries('creativity'));
         $this->get('/novyny')->assertOk()->assertSee('На Харківщині прославили Сварога')->assertDontSee('Showing');
+        foreach ($library->entries('news') as $entry) {
+            if (!empty($entry['videos'])) {
+                $this->assertNotEmpty($entry['image']);
+                $this->assertFileExists(public_path(ltrim($entry['image']['src'], '/')));
+            }
+        }
         $this->get('/novyny?page=2')->assertOk()->assertSee('Дідух: значення')->assertDontSee('На Харківщині прославили Сварога');
         $this->get('/tvorchist')->assertOk()->assertSee('Сонцеслав');
         $this->get('/tvorchist?category='.urlencode('Писанкарство'))->assertOk()->assertSee('Писанкарство — колекція')->assertDontSee('Олеся Вакуленко');
