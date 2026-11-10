@@ -84,7 +84,7 @@
                 @endforeach
             </div>
 
-            <a class="figma-button" href="#">Всі громади</a>
+            <a class="figma-button" href="{{ route('contact') }}#communities-map-title">Всі громади</a>
         </article>
     </div>
 </section>
