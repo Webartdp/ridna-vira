@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BookFileController;
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\ContactFormController;
 use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\GodController;
@@ -67,6 +68,9 @@ Route::get('/statti/{article}', [ArticleController::class, 'show'])
 Route::get('/statti/{article}/zavantazhyty', [ArticleController::class, 'download'])
     ->where('article', '[a-z0-9\-]+')
     ->name('articles.download');
+
+Route::get('/hromady', [CommunityController::class, 'index'])->name('communities.index');
+Route::get('/hromady/{slug}', [CommunityController::class, 'show'])->where('slug', '[a-z0-9-]+')->name('communities.show');
 
 Route::view('/zviazok', 'pages.contact')->name('contact');
 Route::post('/zviazok', ContactFormController::class)

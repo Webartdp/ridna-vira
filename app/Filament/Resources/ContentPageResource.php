@@ -74,7 +74,7 @@ class ContentPageResource extends Resource
                 Tab::make('Матеріал')->schema([
                     TextInput::make('title')->label('Назва')->required()->maxLength(255)->columnSpanFull()->live(onBlur: true)->afterStateUpdated(function ($state, Set $set, Get $get, ?ContentPage $record) {
                         if (! $record && blank($get('path')) && filled($state)) {
-                            $prefix = ['news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/'][static::$contentSection] ?? '/';
+                            $prefix = ['communities' => '/hromady/', 'news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/'][static::$contentSection] ?? '/';
                             $set('path', $prefix.Str::slug($state));
                         }
                     }),
@@ -112,6 +112,7 @@ class ContentPageResource extends Resource
                     Select::make('category')->label('Група обрядів / молитов')->options(['life' => 'Обряди життєвого кола', 'calendar' => 'Обряди Кола Сварожого', 'school' => 'Обряди Недільної школи', 'literature' => 'Література про обряди', 'themes' => 'Молитви за темами', 'authors' => 'Авторські молитви', 'books' => 'Молитовник', 'research' => 'Дослідження'])->placeholder('Залишити наявну групу')->visible(fn (Get $get) => in_array($get('section'), ['rituals', 'prayers'], true)),
                     TextInput::make('category')->label('Категорія')->maxLength(190)->visible(fn (Get $get) => ! in_array($get('section'), ['rituals', 'prayers'], true)),
                 ]),
+                ...static::extraTabs(),
                 Tab::make('SEO')->schema([
                     TextInput::make('seo_title')->label('Заголовок у пошуку')->maxLength(255)->helperText('Якщо порожньо — використовується назва матеріалу.'),
                     Textarea::make('seo_description')->label('Опис у пошуку')->rows(3)->maxLength(500)->helperText('Коротко опишіть зміст сторінки. Якщо порожньо — опис формується автоматично.'),
@@ -123,7 +124,7 @@ class ContentPageResource extends Resource
                             if (preg_match('~^/(?:kabinet|uviyty|vyity|reiestratsiia|parol|mcp|admin|livewire|assets|storage|build|up|kramnychka|koshyk|zamovlennia|oplata)(?:/|$)~', $value)) {
                                 $fail('Цю адресу зарезервовано для системи та крамниці.');
                             }
-                            $prefix = ['news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/'][$get('section')] ?? null;
+                            $prefix = ['communities' => '/hromady/', 'news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/'][$get('section')] ?? null;
                             if ($prefix && ! preg_match('~^'.preg_quote($prefix, '~').'[a-z0-9-]+$~D', $value)) {
                                 $fail('Для цього розділу адреса має вигляд '.$prefix.'nazva-materialu');
                             }
@@ -135,6 +136,11 @@ class ContentPageResource extends Resource
                 ]),
             ]),
         ]);
+    }
+
+    protected static function extraTabs(): array
+    {
+        return [];
     }
 
     public static function table(Table $table): Table
@@ -154,7 +160,7 @@ class ContentPageResource extends Resource
                 ])->action(function (ContentPage $record, array $data) {
                     $revision = $record->revisions()->findOrFail($data['revision']);
                     $snapshot = json_decode($revision->snapshot, true, 512, JSON_THROW_ON_ERROR);
-                    $record->fill(Arr::only($snapshot, ['title', 'body', 'excerpt', 'image', 'image_origin', 'video_url', 'editor_mode', 'is_published', 'published_at', 'seo_title', 'seo_description']))->save();
+                    $record->fill(Arr::only($snapshot, ['title', 'body', 'excerpt', 'image', 'image_origin', 'video_url', 'editor_mode', 'is_published', 'published_at', 'seo_title', 'seo_description', 'community']))->save();
                 })->visible(fn (ContentPage $record) => $record->revisions()->exists()),
                 Action::make('original')->label('Початковий вигляд')->authorize(fn () => auth()->user()?->canManage('content'))->requiresConfirmation()->visible(fn (ContentPage $record) => $record->is_imported && $record->is_override)->action(fn (ContentPage $record) => $record->forceFill(['is_override' => false])->saveQuietly()),
                 DeleteAction::make(), RestoreAction::make(),

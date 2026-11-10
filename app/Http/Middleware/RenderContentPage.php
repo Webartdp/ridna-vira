@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\ContentPage;
 use App\Support\Cms;
 use App\Support\CmsHtml;
+use App\Support\CommunityDirectory;
 use App\Support\ContentImages;
 use Closure;
 use Illuminate\Http\Request;
@@ -26,6 +27,9 @@ class RenderContentPage
             return $next($request);
         }
         $page->refresh();
+        if ($page->section === 'communities') {
+            return $next($request);
+        }
         if ($page->editor_mode === 'reading') {
             return response()->view('cms.page', compact('page'));
         }
@@ -34,7 +38,11 @@ class RenderContentPage
             $html = $response->getContent();
             if (preg_match('~<main\b[^>]*>(.*?)</main>~s', $html, $match)) {
                 [, $islands] = Cms::islands($match[1]);
-                $body = strtr($page->body ?? '', $islands);
+                $saved = $page->body ?? '';
+                if ($path === '/') {
+                    $saved = CommunityDirectory::refreshHomeSlots($saved, $islands);
+                }
+                $body = strtr($saved, $islands);
                 if ($page->editor_mode === 'fragment') {
                     $body = CmsHtml::render($body);
                     $extra = '';

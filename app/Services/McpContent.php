@@ -125,7 +125,7 @@ class McpContent
 
     public function create(array $input): array
     {
-        $prefixes = ['news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/', 'books' => '/ridna-vira/knyhy/'];
+        $prefixes = ['communities' => '/hromady/', 'news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/', 'books' => '/ridna-vira/knyhy/'];
         $prefix = $prefixes[$input['section']] ?? null;
         if (! $prefix || ! preg_match('~^'.preg_quote($prefix, '~').'[a-z0-9-]+$~D', $input['path'])) {
             $this->fail('path', 'Use an address inside the chosen section, with a Latin slug.');

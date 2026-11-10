@@ -352,9 +352,11 @@ p {
     left: 0;
     width: 100%;
     height: 474px;
-    background:
-        linear-gradient(rgba(0, 0, 0, .4), rgba(0, 0, 0, .4)),
-        url('/assets/figma/home/communities-bg.png') center / cover no-repeat;
+    overflow: hidden;
+    background: #253022;
+
+    img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
+    &::after { position: absolute; inset: 0; content: ''; background: linear-gradient(180deg, #10170c0a, #10170c40); }
 }
 
 .communities-section__inner {

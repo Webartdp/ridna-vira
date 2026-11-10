@@ -34,12 +34,12 @@ class ContentPage extends Model
 
     protected function casts(): array
     {
-        return ['image_origin' => 'array', 'published_at' => 'datetime', 'is_published' => 'boolean', 'is_override' => 'boolean', 'is_imported' => 'boolean'];
+        return ['community' => 'array', 'image_origin' => 'array', 'published_at' => 'datetime', 'is_published' => 'boolean', 'is_override' => 'boolean', 'is_imported' => 'boolean'];
     }
 
     public static function sections(): array
     {
-        return ['pages' => 'Основні сторінки', 'news' => 'Новини', 'articles' => 'Статті', 'creativity' => 'Творчість', 'gods' => 'Боги', 'holidays' => 'Свята', 'shrines' => 'Святині', 'rituals' => 'Обряди', 'prayers' => 'Молитви та слави', 'books' => 'Книги', 'documents' => 'Документи'];
+        return ['pages' => 'Основні сторінки', 'communities' => 'Громади', 'news' => 'Новини', 'articles' => 'Статті', 'creativity' => 'Творчість', 'gods' => 'Боги', 'holidays' => 'Свята', 'shrines' => 'Святині', 'rituals' => 'Обряди', 'prayers' => 'Молитви та слави', 'books' => 'Книги', 'documents' => 'Документи'];
     }
 
     protected static function booted(): void

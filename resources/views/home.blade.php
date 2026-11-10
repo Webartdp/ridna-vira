@@ -22,7 +22,7 @@
         ['title' => 'Слави', 'image' => 'category-glory.png', 'route' => 'faith.prayers'],
     ];
 
-    $communities = ['Полум’я Роду', 'Права', 'Росичі'];
+
 
     $holidays = [
         ['title' => 'Велес', 'name' => 'Велес (Мороз, Микола)', 'image' => 'holiday-veles.png', 'position' => 'top-left'],
@@ -65,7 +65,9 @@
 </section>
 
 <section class="communities-section">
-    <div class="communities-section__background"></div>
+    <!-- cms-live:community-banner -->
+    @include('communities.banner')
+    <!-- /cms-live:community-banner -->
     <div class="figma-container communities-section__inner">
         <article class="paper-panel communities-panel">
             <h2>Громади та представництва</h2>
@@ -75,14 +77,9 @@
                 <p>На порталі зібрано відомості про громади та представництва, їхні події, свята, служіння і контакти для всіх, хто прагне долучитися до Рідної Віри.</p>
             </div>
 
-            <div class="communities-grid">
-                @foreach ($communities as $community)
-                    <a class="community-card" href="#">
-                        <img src="{{ asset('assets/figma/home/community-card.png') }}" alt="">
-                        <span>{{ $community }}</span>
-                    </a>
-                @endforeach
-            </div>
+            <!-- cms-live:featured-communities -->
+            @include('communities.featured')
+            <!-- /cms-live:featured-communities -->
 
             <a class="figma-button" href="{{ route('contact') }}#communities-map-title">Всі громади</a>
         </article>

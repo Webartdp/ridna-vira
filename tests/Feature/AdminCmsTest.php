@@ -79,7 +79,7 @@ class AdminCmsTest extends TestCase
     {
         ContentPage::create(['path' => '/ridna-vira/bohy/rod', 'section' => 'gods', 'title' => 'Род', 'body' => '<p>Оновлений опис Рода.</p>', 'editor_mode' => 'fragment']);
         $this->get('/ridna-vira/bohy/rod')->assertOk()->assertSee('Оновлений опис Рода.')->assertSee('god-reading-figure');
-        $page = ContentPage::first();
+        $page = ContentPage::where('path', '/ridna-vira/bohy/rod')->firstOrFail();
         $page->update(['body' => '<p>Наступна версія</p>']);
         $this->assertSame(1, $page->revisions()->count());
         $this->assertStringContainsString('Оновлений опис Рода', $page->revisions()->first()->snapshot);
