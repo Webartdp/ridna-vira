@@ -89,7 +89,7 @@ class SocialMetadataTest extends TestCase
         $this->assertSame([32, 32], array_slice(getimagesize(public_path('favicon-32x32.png')), 0, 2));
         $manifest = json_decode(file_get_contents(public_path('site.webmanifest')), true, 512, JSON_THROW_ON_ERROR);
         foreach ($manifest['icons'] as $icon) {
-            [$width, $height] = getimagesize(public_path(ltrim($icon['src'], '/')));
+            [$width, $height] = getimagesize(public_path(ltrim(parse_url($icon['src'], PHP_URL_PATH), '/')));
             $this->assertSame($icon['sizes'], $width.'x'.$height);
         }
         $this->get('/admin/login')->assertOk()->assertSee('favicon.svg', false);
