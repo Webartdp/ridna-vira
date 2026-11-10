@@ -172,6 +172,9 @@ final class Seo
         }
         $logoInfo = self::imageInfo($logo);
         $org = ['@type' => 'Organization', '@id' => self::url('/').'#organization', 'name' => 'Духовний центр «Рідна Віра»', 'url' => self::url('/'), 'logo' => ['@type' => 'ImageObject', 'url' => $logo, ...Arr::only($logoInfo, ['width', 'height'])]];
+        if ($socialLinks = Site::socialLinks()) {
+            $org['sameAs'] = array_values(array_column($socialLinks, 'url'));
+        }
         $pageType = match (true) {
             $type === 'article' => str_starts_with($path, '/novyny/') ? 'NewsArticle' : 'Article', $path === '/zviazok' => 'ContactPage', str_starts_with($path, '/pro-tsentr') => 'AboutPage', isset(config('seo.pages')[$path]) && ! in_array($path, ['/', '/umovy-kramnytsi']) => 'CollectionPage', default => 'WebPage'
         };

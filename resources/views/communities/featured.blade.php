@@ -4,7 +4,7 @@
             @if ($community->image)
                 @include('partials.publication-image', ['visual' => \App\Support\ContentImages::visual($community->image), 'imageAlt' => $community->title, 'sizes' => '(min-width: 1000px) 320px, (min-width: 600px) 45vw, 90vw'])
             @else
-                <img src="{{ asset('assets/communities/sacred-grove-800.webp') }}" width="800" height="267" alt="" loading="lazy" decoding="async">
+                <img src="{{ asset('assets/brand/image-placeholder.svg') }}" width="1600" height="900" alt="" loading="lazy" decoding="async">
             @endif
             <span>{{ $community->title }}</span>
         </a>

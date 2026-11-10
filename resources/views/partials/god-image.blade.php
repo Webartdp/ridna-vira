@@ -14,7 +14,8 @@
     $imageSrcset = implode(', ', array_map(static fn ($width, $url) => $url.' '.$width.'w', array_keys($variants), array_values($variants)));
     if ($imageSource === null) {
         $fallback = 'assets/gods/'.$imageSlug.'/portrait.png';
-        $imageSource = is_file(public_path($fallback)) ? asset($fallback) : ($god['image'] ?? asset('assets/gods/'.$imageSlug.'/portrait.svg'));
+        $imageSource = is_file(public_path($fallback)) ? asset($fallback) : (is_array($god['image'] ?? null) ? ($god['image']['src'] ?? null) : ($god['image'] ?? null));
+        $imageSource ??= asset('assets/brand/image-placeholder.svg');
     }
 @endphp
 <img src="{{ $imageSource }}"

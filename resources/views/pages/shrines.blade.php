@@ -244,7 +244,7 @@
                                 @if ($imagePath)
                                     <img src="{{ $imagePath }}" @if(!empty($shrine['image']['variants'])) srcset="{{ collect($shrine['image']['variants'])->map(fn ($variant) => $variant['src'].' '.$variant['width'].'w')->implode(', ') }}" sizes="96px" @endif alt="" width="96" height="96" loading="lazy" decoding="async">
                                 @else
-                                    <span class="shrine-list-row__fallback"><span></span></span>
+                                    <img src="{{ asset('assets/brand/image-placeholder.svg') }}" width="96" height="96" alt="" loading="lazy" decoding="async">
                                 @endif
                             </span>
                             <span>

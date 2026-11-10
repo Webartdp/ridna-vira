@@ -2,7 +2,7 @@
     .publication-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
     .materials-section .publication-heading h2 { margin-bottom: 0; }
     .publication-heading > a { color: #83591e; font-family: var(--rv-font-ui); font-size: 14px; white-space: nowrap; text-decoration: underline; text-underline-offset: 4px; }
-    .publication-placeholder { display: grid; place-items: center; width: 100%; height: 100%; min-height: 100px; padding: 24px; background: radial-gradient(ellipse at 20% 10%, #8a7544, transparent 65%), #393d2e; color: #f8eacc; }
+    .publication-placeholder { display: block; width: 100%; height: 100%; min-height: 100px; padding: 0; object-fit: cover; background: #171c19; }
     .publication-placeholder > span { font-family: var(--rv-font-display); font-size: 28px; text-align: center; line-height: 1.3; }
     .material-row > .publication-placeholder { display: grid; place-items: center; width: 154px; height: 100px; border: 3px solid #fff; border-radius: 20px; }
     .material-row > .publication-placeholder > span { font-size: 16px; }
@@ -35,7 +35,7 @@
         .publication-cards { grid-template-columns: 1fr; }
         .publication-heading { gap: 12px; }
         .publication-heading > a { font-size: 12px; }
-        .material-row > .publication-placeholder { width: 100px; height: 90px; padding: 8px; }
+        .material-row > .publication-placeholder { width: 100px; height: 90px; padding: 0; }
         .publication-card__body { padding: 20px; }
         .publication-prose .article-table table { min-width: 0; }
         .publication-prose .article-table td { min-width: 0; padding: 5px; }

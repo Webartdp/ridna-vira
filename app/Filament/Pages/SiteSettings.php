@@ -12,6 +12,7 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
 
@@ -40,6 +41,7 @@ class SiteSettings extends Page
             'footer_text' => SiteSetting::read('footer_text', 'РІДНА ВІРА — Всі права захищені'),
             'extra_links' => json_decode(SiteSetting::read('extra_links', '[]'), true),
             'navigation' => Site::navigation(),
+            'social_links' => json_decode(SiteSetting::read('social_links', '{}'), true),
             'logo' => SiteSetting::read('logo'),
             'partners' => json_decode(SiteSetting::read('partners', json_encode(config('site_partners'), JSON_UNESCAPED_UNICODE)), true),
             'contact_email' => SiteSetting::read('contact_email', 'help@jaromir.com.ua'),
@@ -56,6 +58,9 @@ class SiteSettings extends Page
         return $schema->statePath('data')->components([
             TextInput::make('announcement')->label('Рядок оголошення')->maxLength(500),
             Textarea::make('footer_text')->label('Текст у підвалі')->maxLength(1000),
+            Section::make('Соціальні мережі')->description('Посилання відображаються в підвалі сайту. Залиште поле порожнім, щоб приховати мережу.')->schema(
+                collect(Site::socialNetworks())->map(fn ($label, $network) => TextInput::make('social_links.'.$network)->label($label)->url()->regex('~^https://~')->maxLength(500)->placeholder('https://'))->values()->all()
+            )->columns(2),
             TextInput::make('contact_email')->label('Пошта для звернень із контактної форми')->email()->required()->maxLength(190),
             TextInput::make('order_email')->label('Пошта для сповіщень про оплачені замовлення')->email()->maxLength(190),
             Toggle::make('shop_enabled')->label('Дозволити оформлення замовлень')->helperText('Для оплати також потрібні налаштовані реквізити WayForPay.'),

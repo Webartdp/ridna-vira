@@ -13,7 +13,7 @@
     <div class="shop-grid">
     @forelse($products as $product)
         <article class="shop-card">
-            <a href="{{ route('shop.product', $product) }}">@if($product->images)<img src="{{ $product->imageUrl($product->images[0], 400) }}" srcset="{{ $product->imageSrcset($product->images[0]) }}" sizes="(min-width: 900px) 380px, (min-width: 540px) 45vw, 90vw" alt="{{ $product->name }}" loading="lazy" decoding="async" width="400" height="400">@else<div class="shop-empty" aria-hidden="true">Рідна Віра</div>@endif</a>
+            <a href="{{ route('shop.product', $product) }}">@if($product->images)<img src="{{ $product->imageUrl($product->images[0], 400) }}" srcset="{{ $product->imageSrcset($product->images[0]) }}" sizes="(min-width: 900px) 380px, (min-width: 540px) 45vw, 90vw" alt="{{ $product->name }}" loading="lazy" decoding="async" width="400" height="400">@else<img src="{{ asset('assets/brand/image-placeholder.svg') }}" width="400" height="400" alt="" loading="lazy" decoding="async">@endif</a>
             <h2><a href="{{ route('shop.product', $product) }}">{{ $product->name }}</a></h2>
             <span class="shop-price">{{ \App\Support\Money::display($product->price_minor) }}</span>
             <small>{{ $product->stock ? 'Є в наявності' : 'Немає в наявності' }}</small>

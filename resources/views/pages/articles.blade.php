@@ -29,11 +29,9 @@
         <div class="articles-list" aria-label="Статті та дослідження">
             @forelse ($articles as $article)
                 <article class="article-preview">
-                    @if(!empty($article['image']))
                         <a href="{{ route('articles.show', $article['slug']) }}" class="article-preview__cover" tabindex="-1" aria-hidden="true">
-                            @include('partials.publication-image', ['visual' => $article['image'], 'imageAlt' => '', 'sizes' => '(min-width: 900px) 400px, 90vw'])
+                            @include('partials.publication-image', ['visual' => $article['image'] ?? null, 'imageAlt' => '', 'sizes' => '(min-width: 900px) 400px, 90vw'])
                         </a>
-                    @endif
                     <h3><a href="{{ route('articles.show', $article['slug']) }}">{{ $article['title'] }}</a></h3>
                     <p>{{ $article['excerpt'] }}</p>
                     <a class="article-preview__link" href="{{ route('articles.show', $article['slug']) }}">

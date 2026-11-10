@@ -97,17 +97,15 @@
             </span>
         </div>
 
+        @if($socialLinks = \App\Support\Site::socialLinks())
         <div class="footer-socials" aria-label="Соціальні мережі">
-            <span class="footer-social-icon" title="Facebook" role="img" aria-label="Facebook">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.6 22v-8h2.7l.4-3.1h-3.1V8.9c0-.9.3-1.5 1.6-1.5h1.7V4.6c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.1H7.4V14h2.8v8h3.4Z"/></svg>
-            </span>
-            <span class="footer-social-icon" title="Instagram" role="img" aria-label="Instagram">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 2h9.6A5.2 5.2 0 0 1 22 7.2v9.6a5.2 5.2 0 0 1-5.2 5.2H7.2A5.2 5.2 0 0 1 2 16.8V7.2A5.2 5.2 0 0 1 7.2 2Zm0 1.9a3.3 3.3 0 0 0-3.3 3.3v9.6a3.3 3.3 0 0 0 3.3 3.3h9.6a3.3 3.3 0 0 0 3.3-3.3V7.2a3.3 3.3 0 0 0-3.3-3.3H7.2Zm10.1 1.4a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.9a3.1 3.1 0 1 0 0 6.2 3.1 3.1 0 0 0 0-6.2Z"/></svg>
-            </span>
-            <span class="footer-social-icon" title="Telegram" role="img" aria-label="Telegram">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.5 3.4-3.1 16.2c-.2 1.1-.9 1.4-1.8.9l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2L6.1 13.5l-4.7-1.5c-1-.3-1-1 .2-1.5L20 3.4c.9-.3 1.7.2 1.5 0Z"/></svg>
-            </span>
+            @foreach($socialLinks as $network => $social)
+                <a class="footer-social-icon" href="{{ $social['url'] }}" target="_blank" rel="noopener noreferrer" title="{{ $social['label'] }}" aria-label="{{ $social['label'] }}">
+                    @include('partials.social-icon', ['network' => $network])
+                </a>
+            @endforeach
         </div>
+        @endif
     </div>
 
     <div class="footer-rule"><img src="{{ asset('assets/figma/home/footer-line.svg') }}" alt=""></div>
