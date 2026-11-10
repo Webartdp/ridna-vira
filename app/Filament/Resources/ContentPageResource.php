@@ -120,7 +120,7 @@ class ContentPageResource extends Resource
                     TextInput::make('path')->label('Адреса на сайті')->placeholder('/novyny/nazva-novyny')->required()->unique(ignoreRecord: true)
                         ->maxLength(255)->regex('~^/(?:[a-z0-9-]+(?:/[a-z0-9-]+)*)?$~D')->disabled(fn (?ContentPage $record) => (bool) $record?->is_imported)
                         ->rules([fn (Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
-                            if (preg_match('~^/(?:admin|livewire|assets|storage|build|up|kramnychka|koshyk|zamovlennia|oplata)(?:/|$)~', $value)) {
+                            if (preg_match('~^/(?:mcp|admin|livewire|assets|storage|build|up|kramnychka|koshyk|zamovlennia|oplata)(?:/|$)~', $value)) {
                                 $fail('Цю адресу зарезервовано для системи та крамниці.');
                             }
                             $prefix = ['news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/'][$get('section')] ?? null;

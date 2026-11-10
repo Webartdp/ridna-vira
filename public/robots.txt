@@ -1,5 +1,6 @@
 User-agent: *
 Disallow: /admin
+Disallow: /mcp
 Disallow: /livewire
 Disallow: /koshyk
 Disallow: /zamovlennia

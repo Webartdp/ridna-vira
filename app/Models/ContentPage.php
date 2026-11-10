@@ -60,7 +60,9 @@ class ContentPage extends Model
                     $page->pendingLayoutFields = null;
                 }
                 $page->is_override = true;
-                $page->body = CmsHtml::clean($page->body ?? '', $page->editor_mode === 'layout');
+                if ($page->isDirty('body')) {
+                    $page->body = CmsHtml::clean($page->body ?? '', $page->editor_mode === 'layout');
+                }
                 if ($page->isDirty('image') && $page->image && Storage::disk('public')->exists($page->image)
                     && in_array(strtolower(pathinfo($page->image, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'], true)) {
                     app(ProductImages::class)->generate($page->image);

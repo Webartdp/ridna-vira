@@ -16,7 +16,7 @@ final class Seo
 
     public static function privatePath(string $path): bool
     {
-        return (bool) preg_match('~^/(?:admin|livewire|koshyk|zamovlennia|oplata|up)(?:/|$)~', $path);
+        return (bool) preg_match('~^/(?:mcp|admin|livewire|koshyk|zamovlennia|oplata|up)(?:/|$)~', $path);
     }
 
     public static function text(string $html, int $limit = 165): string
