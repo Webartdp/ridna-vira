@@ -6,6 +6,7 @@ use App\Filament\Blocks\ReadingPassage;
 use App\Models\ContentPage;
 use App\Support\CmsHtml;
 use App\Support\ContentEditor;
+use App\Support\ContentImages;
 use App\Support\PageBlocks;
 use Filament\Actions\Action;
 use Filament\Actions\DeleteAction;
@@ -68,6 +69,7 @@ class ContentPageResource extends Resource
         return $schema->columns(1)->components([
             Hidden::make('section')->default(static::$contentSection)->required()->in([static::$contentSection])->dehydrateStateUsing(fn () => static::$contentSection),
             Hidden::make('editor_mode')->default('reading')->required()->in(['reading', 'fragment', 'layout']),
+            Hidden::make('image_origin'),
             Tabs::make('Редагування матеріалу')->columnSpanFull()->tabs([
                 Tab::make('Матеріал')->schema([
                     TextInput::make('title')->label('Назва')->required()->maxLength(255)->columnSpanFull()->live(onBlur: true)->afterStateUpdated(function ($state, Set $set, Get $get, ?ContentPage $record) {
@@ -77,6 +79,9 @@ class ContentPageResource extends Resource
                         }
                     }),
                     Textarea::make('excerpt')->label('Короткий опис')->rows(3)->maxLength(1000)->columnSpanFull(),
+                    FileUpload::make('image')->label('Зображення')->disk('public')->directory('content')->visibility('public')->image()->imageResizeMode('contain')->imageResizeTargetWidth('1600')->imageResizeTargetHeight('1600')->imageResizeUpscale(false)->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->maxSize(4096)
+                        ->preventFilePathTampering(true, fn (string $file, ?ContentPage $record) => $record && $file === (ContentImages::prepare($record->attributesToArray())['image'] ?? null))
+                        ->helperText('Головне фото для сторінки, картки матеріалу та поширення в соцмережах.'),
                     RichEditor::make('body')->label('Основний текст')->visible(fn (Get $get) => $get('editor_mode') !== 'layout' && ! $get('source_editor'))->columnSpanFull()
                         ->minHeight('22rem')->maxHeight('32rem')
                         ->formatStateUsing(fn ($state, Get $get) => $get('editor_mode') === 'layout' ? $state : CmsHtml::forEditor($state ?? ''))
@@ -98,7 +103,7 @@ class ContentPageResource extends Resource
                         ]),
                 ]),
                 Tab::make('Медіа')->schema([
-                    FileUpload::make('image')->label('Обкладинка')->disk('public')->directory('content')->visibility('public')->image()->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->maxSize(4096),
+
                     TextInput::make('video_url')->label('Відео YouTube')->url()->maxLength(255)->regex('~^https://(?:www\.)?(?:youtube\.com/(?:watch\?v=|embed/|shorts/)|youtu\.be/)[A-Za-z0-9_-]{11}(?:[?&#/].*)?$~D'),
                 ]),
                 Tab::make('Публікація')->schema([
@@ -106,6 +111,10 @@ class ContentPageResource extends Resource
                     DateTimePicker::make('published_at')->label('Дата публікації (Київ)')->timezone('Europe/Kyiv')->seconds(false)->helperText('Майбутня дата запланує публікацію.'),
                     Select::make('category')->label('Група обрядів / молитов')->options(['life' => 'Обряди життєвого кола', 'calendar' => 'Обряди Кола Сварожого', 'school' => 'Обряди Недільної школи', 'literature' => 'Література про обряди', 'themes' => 'Молитви за темами', 'authors' => 'Авторські молитви', 'books' => 'Молитовник', 'research' => 'Дослідження'])->placeholder('Залишити наявну групу')->visible(fn (Get $get) => in_array($get('section'), ['rituals', 'prayers'], true)),
                     TextInput::make('category')->label('Категорія')->maxLength(190)->visible(fn (Get $get) => ! in_array($get('section'), ['rituals', 'prayers'], true)),
+                ]),
+                Tab::make('SEO')->schema([
+                    TextInput::make('seo_title')->label('Заголовок у пошуку')->maxLength(255)->helperText('Якщо порожньо — використовується назва матеріалу.'),
+                    Textarea::make('seo_description')->label('Опис у пошуку')->rows(3)->maxLength(500)->helperText('Коротко опишіть зміст сторінки. Якщо порожньо — опис формується автоматично.'),
                 ]),
                 Tab::make('Налаштування')->schema([
                     TextInput::make('path')->label('Адреса на сайті')->placeholder('/novyny/nazva-novyny')->required()->unique(ignoreRecord: true)
@@ -145,7 +154,7 @@ class ContentPageResource extends Resource
                 ])->action(function (ContentPage $record, array $data) {
                     $revision = $record->revisions()->findOrFail($data['revision']);
                     $snapshot = json_decode($revision->snapshot, true, 512, JSON_THROW_ON_ERROR);
-                    $record->fill(Arr::only($snapshot, ['title', 'body', 'excerpt', 'image', 'video_url', 'editor_mode', 'is_published', 'published_at']))->save();
+                    $record->fill(Arr::only($snapshot, ['title', 'body', 'excerpt', 'image', 'image_origin', 'video_url', 'editor_mode', 'is_published', 'published_at', 'seo_title', 'seo_description']))->save();
                 })->visible(fn (ContentPage $record) => $record->revisions()->exists()),
                 Action::make('original')->label('Початковий вигляд')->requiresConfirmation()->visible(fn (ContentPage $record) => $record->is_imported && $record->is_override)->action(fn (ContentPage $record) => $record->forceFill(['is_override' => false])->saveQuietly()),
                 DeleteAction::make(), RestoreAction::make(),

@@ -5,6 +5,9 @@
 
 @php
     $imageFor = static function (array $item): ?string {
+        if (!empty($item['_cms_image_managed'])) {
+            return $item['image']['src'] ?? null;
+        }
         foreach (($item['assets'] ?? []) as $asset) {
             $path = (string) ($asset['path'] ?? '');
 
@@ -239,7 +242,7 @@
                         <a class="shrine-list-row" href="{{ route('faith.shrines.show', ['shrine' => $shrine['slug']]) }}">
                             <span class="shrine-list-row__photo" aria-hidden="true">
                                 @if ($imagePath)
-                                    <img src="{{ $imagePath }}" alt="">
+                                    <img src="{{ $imagePath }}" @if(!empty($shrine['image']['variants'])) srcset="{{ collect($shrine['image']['variants'])->map(fn ($variant) => $variant['src'].' '.$variant['width'].'w')->implode(', ') }}" sizes="96px" @endif alt="" width="96" height="96" loading="lazy" decoding="async">
                                 @else
                                     <span class="shrine-list-row__fallback"><span></span></span>
                                 @endif

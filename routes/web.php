@@ -12,11 +12,13 @@ use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\RitualController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\ShrineController;
+use App\Http\Controllers\SitemapController;
 use App\Models\ContentPage;
 use App\Support\Cms;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
 Route::view('/pro-tsentr', 'pages.about')->name('about');
 Route::view('/pro-tsentr/upravlinnia', 'pages.management')->name('about.management');

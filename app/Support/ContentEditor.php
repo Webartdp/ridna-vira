@@ -6,6 +6,7 @@ final class ContentEditor
 {
     public static function prepare(array $data): array
     {
+        $data = ContentImages::prepare($data);
         if (($data['section'] ?? 'pages') === 'pages' || ($data['editor_mode'] ?? 'reading') !== 'layout') {
             return $data;
         }

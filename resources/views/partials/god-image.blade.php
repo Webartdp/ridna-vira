@@ -1,3 +1,6 @@
+@if (!empty($god['_cms_image_managed']))
+    @include('partials.publication-image', ['visual' => $god['image'], 'imageAlt' => $imageAlt ?? '', 'placeholder' => $god['title'] ?? 'Рідна Віра'])
+@else
 @php
     $imageSlug = (string) ($slug ?? $god['slug'] ?? 'bog');
     $variants = [];
@@ -18,3 +21,4 @@
      @if ($imageSrcset !== '') srcset="{{ $imageSrcset }}" sizes="{{ $sizes }}" @endif
      width="640" height="800" alt="{{ $imageAlt ?? '' }}"
      loading="{{ $imageLoading ?? 'lazy' }}" decoding="async" fetchpriority="{{ $imagePriority ?? 'auto' }}">
+@endif

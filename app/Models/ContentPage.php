@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ProductImages;
 use App\Support\CmsHtml;
 use App\Support\EditableLayout;
 use App\Support\PageBlocks;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class ContentPage extends Model
 {
@@ -32,7 +34,7 @@ class ContentPage extends Model
 
     protected function casts(): array
     {
-        return ['published_at' => 'datetime', 'is_published' => 'boolean', 'is_override' => 'boolean', 'is_imported' => 'boolean'];
+        return ['image_origin' => 'array', 'published_at' => 'datetime', 'is_published' => 'boolean', 'is_override' => 'boolean', 'is_imported' => 'boolean'];
     }
 
     public static function sections(): array
@@ -59,6 +61,10 @@ class ContentPage extends Model
                 }
                 $page->is_override = true;
                 $page->body = CmsHtml::clean($page->body ?? '', $page->editor_mode === 'layout');
+                if ($page->isDirty('image') && $page->image && Storage::disk('public')->exists($page->image)
+                    && in_array(strtolower(pathinfo($page->image, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'], true)) {
+                    app(ProductImages::class)->generate($page->image);
+                }
             }
         });
     }
@@ -76,7 +82,7 @@ class ContentPage extends Model
     public function scopePublicOverrides(Builder $query): Builder
     {
         return $query->withTrashed()
-            ->select(['id', 'path', 'section', 'category', 'title', 'excerpt', 'image', 'video_url', 'published_at', 'created_at', 'is_published', 'is_override', 'deleted_at'])
+            ->select(['id', 'path', 'section', 'category', 'title', 'excerpt', 'image', 'image_origin', 'video_url', 'published_at', 'created_at', 'is_published', 'is_override', 'deleted_at'])
             ->where(fn ($query) => $query->where('is_override', true)->orWhere('is_published', false)->orWhereNotNull('deleted_at')->orWhere('published_at', '>', now()));
     }
 }

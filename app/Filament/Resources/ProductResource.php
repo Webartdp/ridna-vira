@@ -11,6 +11,7 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -52,6 +53,8 @@ class ProductResource extends Resource
             Toggle::make('is_active')->label('Показувати в крамниці')->default(false),
             FileUpload::make('images')->label('Фотографії')->multiple()->reorderable()->image()->imageResizeMode('contain')->imageResizeTargetWidth('1600')->imageResizeTargetHeight('1600')->imageResizeUpscale(false)->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->disk('public')->directory('products')->visibility('public')->maxSize(4096)->maxFiles(8)->columnSpanFull(),
             RichEditor::make('description')->label('Опис')->fileAttachmentsDisk('public')->fileAttachmentsDirectory('products')->fileAttachmentsVisibility('public')->fileAttachmentsAcceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->fileAttachmentsMaxSize(4096)->columnSpanFull(),
+            TextInput::make('seo_title')->label('SEO: заголовок у пошуку')->maxLength(255),
+            Textarea::make('seo_description')->label('SEO: опис у пошуку')->rows(3)->maxLength(500)->helperText('Якщо порожньо — опис формується з опису товару.'),
         ]);
     }
 

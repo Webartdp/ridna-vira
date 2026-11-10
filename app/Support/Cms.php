@@ -4,7 +4,6 @@ namespace App\Support;
 
 use App\Models\ContentPage;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 
 final class Cms
 {
@@ -106,11 +105,11 @@ final class Cms
             if (! $page->is_override) {
                 continue;
             }
-            $image = $page->image ? ['src' => Storage::disk('public')->url($page->image), 'width' => 800, 'height' => 600] : ($bySlug[$slug]['image'] ?? null);
+            $image = $page->image ? ContentImages::visual($page->image) : ($page->image_origin ? null : ($bySlug[$slug]['image'] ?? null));
             if (! $image && $page->video_url && preg_match('~(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|shorts/))([A-Za-z0-9_-]{11})(?:[?&#/]|$)~', $page->video_url, $video)) {
                 $image = ['src' => 'https://i.ytimg.com/vi/'.$video[1].'/hqdefault.jpg', 'width' => 480, 'height' => 360];
             }
-            $bySlug[$slug] = [...($bySlug[$slug] ?? []), 'slug' => $slug, 'title' => $page->title, 'excerpt' => $page->excerpt ?? '', 'summary' => $page->excerpt ?? '', 'date' => ($page->published_at ?? $page->created_at)->format('Y-m-d'), 'image' => $image, 'url' => url($page->path), 'category' => $page->category ?? $bySlug[$slug]['category'] ?? match ($section) {
+            $bySlug[$slug] = [...($bySlug[$slug] ?? []), 'slug' => $slug, 'title' => $page->title, 'excerpt' => $page->excerpt ?? '', 'summary' => $page->excerpt ?? '', 'date' => ($page->published_at ?? $page->created_at)->format('Y-m-d'), 'image' => $image, '_cms_image_managed' => (bool) ($page->image || $page->image_origin), 'url' => url($page->path), 'category' => $page->category ?? $bySlug[$slug]['category'] ?? match ($section) {
                 'prayers' => 'themes', 'rituals' => 'life', default => 'Матеріали'
             }, 'cms' => true];
         }

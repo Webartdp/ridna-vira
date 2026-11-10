@@ -5,9 +5,9 @@ namespace App\Http\Middleware;
 use App\Models\ContentPage;
 use App\Support\Cms;
 use App\Support\CmsHtml;
+use App\Support\ContentImages;
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class RenderContentPage
 {
@@ -37,7 +37,7 @@ class RenderContentPage
                 $body = strtr($page->body ?? '', $islands);
                 if ($page->editor_mode === 'fragment') {
                     $body = CmsHtml::render($body);
-                    $extra = $page->image ? '<img src="'.e(Storage::disk('public')->url($page->image)).'" alt="'.e($page->title).'" width="1200" height="800" loading="lazy">' : '';
+                    $extra = '';
                     if ($page->video_url && preg_match('~(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|shorts/))([A-Za-z0-9_-]{11})(?:[?&#/]|$)~', $page->video_url, $video)) {
                         $extra .= '<iframe src="https://www.youtube-nocookie.com/embed/'.$video[1].'" title="Відео" width="760" height="428" loading="lazy" allowfullscreen></iframe>';
                     }
@@ -45,6 +45,7 @@ class RenderContentPage
                 } else {
                     $body = preg_replace_callback('~(<h1\b[^>]*>).*?(</h1>)~s', fn ($parts) => $parts[1].e($page->title).$parts[2], $body, 1);
                 }
+                $body = ContentImages::render($body, $page);
                 // Preserve freshly rendered forms, maps and feeds instead of saving expiring tokens or stale lists.
                 $html = preg_replace_callback('~(<main\b[^>]*>).*?(</main>)~s', fn ($parts) => $parts[1].$body.$parts[2], $html, 1);
                 $html = preg_replace_callback('~<title>.*?</title>~s', fn () => '<title>'.e($page->title).' — Рідна Віра</title>', $html, 1);

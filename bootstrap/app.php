@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\RenderContentPage;
+use App\Http\Middleware\SearchMetadata;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(SearchMetadata::class);
         $middleware->validateCsrfTokens(except: ['oplata/wayforpay', 'oplata/povernennia/*']);
         $middleware->web(append: [RenderContentPage::class]);
     })
