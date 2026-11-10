@@ -167,6 +167,9 @@ class AdminCmsTest extends TestCase
         $this->assertSame('Свято після редагування', $calendar['months']['Січень'][0]['name']);
         $this->assertSame(config('faith_calendar.months.Лютий'), $calendar['months']['Лютий']);
         $this->get('/ridna-vira/kalendar')->assertOk()->assertSee('Свято після редагування');
+        $component->set('month', 'Лютий')->assertHasNoErrors();
+        $february = array_values($component->get('data.entries'));
+        $this->assertSame(config('faith_calendar.months.Лютий.0.name'), $february[0]['name']);
     }
 
     public function test_import_is_idempotent_and_preserves_editor_changes(): void

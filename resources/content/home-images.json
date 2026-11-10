@@ -1,0 +1,865 @@
+{
+  "article-feature.png": {
+    "width": 650,
+    "height": 436,
+    "original_bytes": 213523,
+    "variants": [
+      {
+        "src": "assets/optimized-home/article-feature-160.webp",
+        "width": 160,
+        "height": 107,
+        "bytes": 30568
+      },
+      {
+        "src": "assets/optimized-home/article-feature-320.webp",
+        "width": 320,
+        "height": 215,
+        "bytes": 108420
+      },
+      {
+        "src": "assets/figma/home/article-feature.png",
+        "width": 650,
+        "height": 436,
+        "bytes": 213523
+      }
+    ]
+  },
+  "article-thumb.png": {
+    "width": 1024,
+    "height": 1024,
+    "original_bytes": 2739807,
+    "variants": [
+      {
+        "src": "assets/optimized-home/article-thumb-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 46934
+      },
+      {
+        "src": "assets/optimized-home/article-thumb-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 179860
+      },
+      {
+        "src": "assets/optimized-home/article-thumb-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 664726
+      },
+      {
+        "src": "assets/optimized-home/article-thumb-960.webp",
+        "width": 960,
+        "height": 960,
+        "bytes": 1410328
+      },
+      {
+        "src": "assets/optimized-home/article-thumb-1024.webp",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1579046
+      }
+    ]
+  },
+  "basket.png": {
+    "width": 1024,
+    "height": 1024,
+    "original_bytes": 1582477,
+    "variants": [
+      {
+        "src": "assets/optimized-home/basket-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 15830
+      },
+      {
+        "src": "assets/optimized-home/basket-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 50736
+      },
+      {
+        "src": "assets/optimized-home/basket-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 183230
+      },
+      {
+        "src": "assets/figma/home/basket.png",
+        "width": 1024,
+        "height": 1024,
+        "bytes": 1582477
+      }
+    ]
+  },
+  "category-glory.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 1587759,
+    "variants": [
+      {
+        "src": "assets/optimized-home/category-glory-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 42322
+      },
+      {
+        "src": "assets/optimized-home/category-glory-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 142232
+      },
+      {
+        "src": "assets/optimized-home/category-glory-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 461342
+      },
+      {
+        "src": "assets/figma/home/category-glory.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 1587759
+      }
+    ]
+  },
+  "category-gods.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 1740763,
+    "variants": [
+      {
+        "src": "assets/optimized-home/category-gods-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 41882
+      },
+      {
+        "src": "assets/optimized-home/category-gods-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 144900
+      },
+      {
+        "src": "assets/optimized-home/category-gods-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 455028
+      },
+      {
+        "src": "assets/figma/home/category-gods.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 1740763
+      }
+    ]
+  },
+  "category-rites.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 1534877,
+    "variants": [
+      {
+        "src": "assets/optimized-home/category-rites-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 39906
+      },
+      {
+        "src": "assets/optimized-home/category-rites-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 135368
+      },
+      {
+        "src": "assets/optimized-home/category-rites-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 429572
+      },
+      {
+        "src": "assets/figma/home/category-rites.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 1534877
+      }
+    ]
+  },
+  "category-sanctuary.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 1509356,
+    "variants": [
+      {
+        "src": "assets/optimized-home/category-sanctuary-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 39942
+      },
+      {
+        "src": "assets/optimized-home/category-sanctuary-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 136478
+      },
+      {
+        "src": "assets/optimized-home/category-sanctuary-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 415800
+      },
+      {
+        "src": "assets/figma/home/category-sanctuary.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 1509356
+      }
+    ]
+  },
+  "communities-bg.png": {
+    "width": 1280,
+    "height": 960,
+    "original_bytes": 425433,
+    "variants": [
+      {
+        "src": "assets/optimized-home/communities-bg-160.webp",
+        "width": 160,
+        "height": 120,
+        "bytes": 34014
+      },
+      {
+        "src": "assets/optimized-home/communities-bg-320.webp",
+        "width": 320,
+        "height": 240,
+        "bytes": 121876
+      },
+      {
+        "src": "assets/figma/home/communities-bg.png",
+        "width": 1280,
+        "height": 960,
+        "bytes": 425433
+      }
+    ]
+  },
+  "community-card.png": {
+    "width": 807,
+    "height": 605,
+    "original_bytes": 205086,
+    "variants": [
+      {
+        "src": "assets/optimized-home/community-card-160.webp",
+        "width": 160,
+        "height": 120,
+        "bytes": 28326
+      },
+      {
+        "src": "assets/optimized-home/community-card-320.webp",
+        "width": 320,
+        "height": 240,
+        "bytes": 106580
+      },
+      {
+        "src": "assets/figma/home/community-card.png",
+        "width": 807,
+        "height": 605,
+        "bytes": 205086
+      }
+    ]
+  },
+  "footer-logo.png": {
+    "width": 1326,
+    "height": 268,
+    "original_bytes": 41200,
+    "variants": [
+      {
+        "src": "assets/optimized-home/footer-logo-160.webp",
+        "width": 160,
+        "height": 32,
+        "bytes": 2916
+      },
+      {
+        "src": "assets/optimized-home/footer-logo-320.webp",
+        "width": 320,
+        "height": 65,
+        "bytes": 7626
+      },
+      {
+        "src": "assets/optimized-home/footer-logo-640.webp",
+        "width": 640,
+        "height": 129,
+        "bytes": 16806
+      },
+      {
+        "src": "assets/optimized-home/footer-logo-960.webp",
+        "width": 960,
+        "height": 194,
+        "bytes": 29642
+      },
+      {
+        "src": "assets/optimized-home/footer-logo-1326.webp",
+        "width": 1326,
+        "height": 268,
+        "bytes": 19774
+      }
+    ]
+  },
+  "hero.png": {
+    "width": 1280,
+    "height": 848,
+    "original_bytes": 311236,
+    "variants": [
+      {
+        "src": "assets/figma/home/hero.png",
+        "width": 1280,
+        "height": 848,
+        "bytes": 311236
+      }
+    ]
+  },
+  "holiday-kolodiy.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2018724,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-kolodiy-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 41056
+      },
+      {
+        "src": "assets/optimized-home/holiday-kolodiy-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 149264
+      },
+      {
+        "src": "assets/optimized-home/holiday-kolodiy-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 476946
+      },
+      {
+        "src": "assets/figma/home/holiday-kolodiy.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2018724
+      }
+    ]
+  },
+  "holiday-kolyada.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2210392,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-kolyada-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 44522
+      },
+      {
+        "src": "assets/optimized-home/holiday-kolyada-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 161922
+      },
+      {
+        "src": "assets/optimized-home/holiday-kolyada-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 526620
+      },
+      {
+        "src": "assets/figma/home/holiday-kolyada.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2210392
+      }
+    ]
+  },
+  "holiday-kupalo.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2183191,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-kupalo-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 44988
+      },
+      {
+        "src": "assets/optimized-home/holiday-kupalo-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 152040
+      },
+      {
+        "src": "assets/optimized-home/holiday-kupalo-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 524192
+      },
+      {
+        "src": "assets/figma/home/holiday-kupalo.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2183191
+      }
+    ]
+  },
+  "holiday-mokosh.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2232564,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-mokosh-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 44460
+      },
+      {
+        "src": "assets/optimized-home/holiday-mokosh-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 161308
+      },
+      {
+        "src": "assets/optimized-home/holiday-mokosh-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 537756
+      },
+      {
+        "src": "assets/figma/home/holiday-mokosh.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2232564
+      }
+    ]
+  },
+  "holiday-perun.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2144979,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-perun-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 43968
+      },
+      {
+        "src": "assets/optimized-home/holiday-perun-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 157692
+      },
+      {
+        "src": "assets/optimized-home/holiday-perun-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 508338
+      },
+      {
+        "src": "assets/figma/home/holiday-perun.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2144979
+      }
+    ]
+  },
+  "holiday-radogosh.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2187584,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-radogosh-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 44188
+      },
+      {
+        "src": "assets/optimized-home/holiday-radogosh-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 144178
+      },
+      {
+        "src": "assets/optimized-home/holiday-radogosh-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 508530
+      },
+      {
+        "src": "assets/figma/home/holiday-radogosh.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2187584
+      }
+    ]
+  },
+  "holiday-spas.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2214871,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-spas-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 44600
+      },
+      {
+        "src": "assets/optimized-home/holiday-spas-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 161490
+      },
+      {
+        "src": "assets/optimized-home/holiday-spas-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 534086
+      },
+      {
+        "src": "assets/figma/home/holiday-spas.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2214871
+      }
+    ]
+  },
+  "holiday-veles.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2254307,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-veles-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 43540
+      },
+      {
+        "src": "assets/optimized-home/holiday-veles-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 157296
+      },
+      {
+        "src": "assets/optimized-home/holiday-veles-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 509534
+      },
+      {
+        "src": "assets/figma/home/holiday-veles.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2254307
+      }
+    ]
+  },
+  "holiday-velykden.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2189750,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-velykden-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 45436
+      },
+      {
+        "src": "assets/optimized-home/holiday-velykden-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 164166
+      },
+      {
+        "src": "assets/optimized-home/holiday-velykden-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 536464
+      },
+      {
+        "src": "assets/figma/home/holiday-velykden.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2189750
+      }
+    ]
+  },
+  "holiday-vodo.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2089030,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-vodo-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 43486
+      },
+      {
+        "src": "assets/optimized-home/holiday-vodo-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 144998
+      },
+      {
+        "src": "assets/optimized-home/holiday-vodo-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 504158
+      },
+      {
+        "src": "assets/figma/home/holiday-vodo.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2089030
+      }
+    ]
+  },
+  "holiday-yarylo.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2164523,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-yarylo-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 45382
+      },
+      {
+        "src": "assets/optimized-home/holiday-yarylo-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 154094
+      },
+      {
+        "src": "assets/optimized-home/holiday-yarylo-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 524720
+      },
+      {
+        "src": "assets/figma/home/holiday-yarylo.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2164523
+      }
+    ]
+  },
+  "holiday-zeleni.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 2074811,
+    "variants": [
+      {
+        "src": "assets/optimized-home/holiday-zeleni-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 39636
+      },
+      {
+        "src": "assets/optimized-home/holiday-zeleni-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 145998
+      },
+      {
+        "src": "assets/optimized-home/holiday-zeleni-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 492508
+      },
+      {
+        "src": "assets/figma/home/holiday-zeleni.png",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2074811
+      }
+    ]
+  },
+  "logo.png": {
+    "width": 1357,
+    "height": 515,
+    "original_bytes": 524048,
+    "variants": [
+      {
+        "src": "assets/optimized-home/logo-160.webp",
+        "width": 160,
+        "height": 61,
+        "bytes": 11432
+      },
+      {
+        "src": "assets/optimized-home/logo-320.webp",
+        "width": 320,
+        "height": 121,
+        "bytes": 36308
+      },
+      {
+        "src": "assets/optimized-home/logo-640.webp",
+        "width": 640,
+        "height": 243,
+        "bytes": 112302
+      },
+      {
+        "src": "assets/optimized-home/logo-960.webp",
+        "width": 960,
+        "height": 364,
+        "bytes": 234634
+      },
+      {
+        "src": "assets/optimized-home/logo-1357.webp",
+        "width": 1357,
+        "height": 515,
+        "bytes": 436832
+      }
+    ]
+  },
+  "ornament.png": {
+    "width": 2172,
+    "height": 724,
+    "original_bytes": 725438,
+    "variants": [
+      {
+        "src": "assets/optimized-home/ornament-160.webp",
+        "width": 160,
+        "height": 53,
+        "bytes": 8468
+      },
+      {
+        "src": "assets/optimized-home/ornament-320.webp",
+        "width": 320,
+        "height": 107,
+        "bytes": 28876
+      },
+      {
+        "src": "assets/optimized-home/ornament-640.webp",
+        "width": 640,
+        "height": 213,
+        "bytes": 94462
+      },
+      {
+        "src": "assets/optimized-home/ornament-960.webp",
+        "width": 960,
+        "height": 320,
+        "bytes": 184112
+      },
+      {
+        "src": "assets/optimized-home/ornament-2172.webp",
+        "width": 2172,
+        "height": 724,
+        "bytes": 483750
+      }
+    ]
+  },
+  "partner-polumya.png": {
+    "width": 300,
+    "height": 84,
+    "original_bytes": 5865,
+    "variants": [
+      {
+        "src": "assets/optimized-home/partner-polumya-160.webp",
+        "width": 160,
+        "height": 45,
+        "bytes": 3572
+      },
+      {
+        "src": "assets/optimized-home/partner-polumya-300.webp",
+        "width": 300,
+        "height": 84,
+        "bytes": 2778
+      }
+    ]
+  },
+  "partner-svarga.png": {
+    "width": 328,
+    "height": 108,
+    "original_bytes": 8384,
+    "variants": [
+      {
+        "src": "assets/optimized-home/partner-svarga-160.webp",
+        "width": 160,
+        "height": 53,
+        "bytes": 4258
+      },
+      {
+        "src": "assets/optimized-home/partner-svarga-328.webp",
+        "width": 328,
+        "height": 108,
+        "bytes": 3630
+      }
+    ]
+  },
+  "texture.png": {
+    "width": 4096,
+    "height": 2731,
+    "original_bytes": 15496640,
+    "variants": [
+      {
+        "src": "assets/optimized-home/texture-622.webp",
+        "width": 622,
+        "height": 415,
+        "bytes": 367046
+      },
+      {
+        "src": "assets/optimized-home/texture-1244.webp",
+        "width": 1244,
+        "height": 829,
+        "bytes": 1342372
+      },
+      {
+        "src": "assets/optimized-home/texture-1866.webp",
+        "width": 1866,
+        "height": 1244,
+        "bytes": 2981098
+      }
+    ]
+  },
+  "wheel.png": {
+    "width": 1254,
+    "height": 1254,
+    "original_bytes": 3298839,
+    "variants": [
+      {
+        "src": "assets/optimized-home/wheel-160.webp",
+        "width": 160,
+        "height": 160,
+        "bytes": 53618
+      },
+      {
+        "src": "assets/optimized-home/wheel-320.webp",
+        "width": 320,
+        "height": 320,
+        "bytes": 216870
+      },
+      {
+        "src": "assets/optimized-home/wheel-640.webp",
+        "width": 640,
+        "height": 640,
+        "bytes": 849070
+      },
+      {
+        "src": "assets/optimized-home/wheel-960.webp",
+        "width": 960,
+        "height": 960,
+        "bytes": 1585268
+      },
+      {
+        "src": "assets/optimized-home/wheel-1254.webp",
+        "width": 1254,
+        "height": 1254,
+        "bytes": 2524320
+      }
+    ]
+  }
+}

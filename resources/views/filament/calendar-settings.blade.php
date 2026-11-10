@@ -1,6 +1,9 @@
 <x-filament-panels::page>
-    <p>Тут можна додати свято, змінити дату та короткий опис. Повні тексти свят редагуються в розділі «Свята — тексти».</p>
-    <label>Місяць <select wire:model.live="month" class="rounded-lg border p-2">@foreach(array_keys(config('faith_calendar.months')) as $month)<option value="{{ $month }}">{{ $month }}</option>@endforeach</select></label>
-    <p>Збережіть зміни перед переходом до іншого місяця.</p>
+    <x-filament::section>
+        <x-slot name="heading">Місяць календаря</x-slot>
+        <x-slot name="description">Додавайте свята, змінюйте дати й короткі описи. Повні матеріали редагуються в розділі «Свята — тексти».</x-slot>
+        <div style="max-width: 360px">{{ $this->monthForm }}</div>
+        <p style="margin-top: 16px; font-size: 14px">Збережіть зміни перед переходом до іншого місяця.</p>
+    </x-filament::section>
     <form wire:submit="save" class="space-y-6">{{ $this->form }}<x-filament::button type="submit">Зберегти календар</x-filament::button></form>
 </x-filament-panels::page>

@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\SiteSetting;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
@@ -56,13 +57,21 @@ class CalendarSettings extends Page
     public function form(Schema $schema): Schema
     {
         return $schema->statePath('data')->components([
-            Repeater::make('entries')->label('Свята')->collapsed()->itemLabel(fn (array $state) => ($state['month'] ?? '').' · '.($state['day'] ?? '').' · '.($state['name'] ?? 'Нове свято'))->maxItems(500)->schema([
+            Repeater::make('entries')->label('Свята')->collapsed()->itemLabel(fn (array $state) => ($state['day'] ?? '—').' · '.($state['name'] ?? 'Нове свято'))->maxItems(500)->schema([
                 TextInput::make('day')->label('День')->required()->integer()->minValue(1)->maxValue(31),
                 TextInput::make('name')->label('Назва')->required()->maxLength(190),
                 TextInput::make('slug')->label('Код адреси')->required()->regex('/^[a-z0-9-]+$/D')->maxLength(190)->distinct()->helperText('Збережіть код наявного свята, щоб його посилання продовжувало працювати.'),
                 Textarea::make('description')->label('Короткий опис')->maxLength(10000)->columnSpanFull(),
             ])->columns(2),
             Textarea::make('notes')->label('Примітки (кожна з нового рядка)')->rows(5)->maxLength(10000),
+        ]);
+    }
+
+    public function monthForm(Schema $schema): Schema
+    {
+        return $schema->components([
+            Select::make('month')->label('Місяць')->options(array_combine(array_keys(config('faith_calendar.months')), array_keys(config('faith_calendar.months'))))
+                ->native(false)->searchable()->selectablePlaceholder(false)->required()->live(),
         ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\HomeImages;
 use App\Support\Seo;
 use Closure;
 use Illuminate\Http\Request;
@@ -19,7 +20,7 @@ class SearchMetadata
         if (! $request->isMethod('GET') || $response->getStatusCode() !== 200 || $private || ! str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
             return $response;
         }
-        $html = $response->getContent();
+        $html = HomeImages::optimize($response->getContent(), $request->routeIs('home'));
         if (! str_contains($html, '</head>')) {
             return $response;
         }

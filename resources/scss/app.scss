@@ -30,7 +30,7 @@ html {
 body {
     margin: 0;
     color: $dark;
-    background: #f3efe3 url('/assets/figma/home/texture.png') top left / 622px auto repeat;
+    background: #f3efe3 image-set(url('/assets/optimized-home/texture-622.webp') 1x, url('/assets/optimized-home/texture-1244.webp') 2x, url('/assets/optimized-home/texture-1866.webp') 3x) top left / 622px auto repeat;
     font-family: var(--rv-font-body);
     font-size: 16px;
 }
