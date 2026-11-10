@@ -34,7 +34,7 @@ class ContentPage extends Model
 
     protected function casts(): array
     {
-        return ['community' => 'array', 'image_origin' => 'array', 'published_at' => 'datetime', 'is_published' => 'boolean', 'is_override' => 'boolean', 'is_imported' => 'boolean'];
+        return ['book' => 'array', 'community' => 'array', 'image_origin' => 'array', 'published_at' => 'datetime', 'is_published' => 'boolean', 'is_override' => 'boolean', 'is_imported' => 'boolean'];
     }
 
     public static function sections(): array

@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\ContentPage;
+use App\Support\BookLibrary;
 use App\Support\Cms;
 use Illuminate\Console\Command;
 use Illuminate\Contracts\Http\Kernel;
@@ -22,7 +23,7 @@ class ImportSiteContent extends Command
         PreventRequestsDuringMaintenance::except(['*']);
         $queue = ['/', '/pro-tsentr', '/pro-tsentr/upravlinnia', '/ridna-vira', '/ridna-vira/kalendar', '/ridna-vira/knyhy', '/ridna-vira/bohy', '/ridna-vira/sviatyni', '/ridna-vira/obriady', '/ridna-vira/molytvy', '/zviazok', '/novyny', '/statti', '/tvorchist'];
         $seen = [];
-        $created = 0;
+        $created = BookLibrary::import();
         $failed = [];
         $kernel = app(Kernel::class);
         $originalRequest = app('request');

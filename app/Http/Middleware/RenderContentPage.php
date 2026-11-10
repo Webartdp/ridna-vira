@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\ContentPage;
+use App\Support\BookLibrary;
 use App\Support\Cms;
 use App\Support\CmsHtml;
 use App\Support\CommunityDirectory;
@@ -41,6 +42,9 @@ class RenderContentPage
                 $saved = $page->body ?? '';
                 if ($path === '/') {
                     $saved = CommunityDirectory::refreshHomeSlots($saved, $islands);
+                }
+                if ($path === '/ridna-vira/knyhy') {
+                    $saved = BookLibrary::refreshLayout($saved);
                 }
                 $body = strtr($saved, $islands);
                 if ($page->editor_mode === 'fragment') {

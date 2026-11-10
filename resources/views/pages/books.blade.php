@@ -4,7 +4,7 @@
 @section('description', 'Книги Духовного центру Рідна Віра: основи віри, календар, Рідні Боги, обряди, молитви, пісні та дослідження.')
 
 @php
-    $books = config('faith_books.books', []);
+    $books = \App\Support\BookLibrary::entries();
     $categories = [];
     foreach ($books as $book) {
         $category = $book['category'] ?? null;
@@ -35,9 +35,10 @@
             <div>
                 <span class="faith-books-intro__eyebrow">Бібліотека</span>
                 <h2>Книги Рідної Віри</h2>
-                <p>Добірка видань Духовного центру «Рідна Віра»: основи віровчення, календар, Рідні Боги, святині, молитви, пісні, обряди та дослідницькі праці. Матеріали подані для читання, друку й подальшого перенесення в нашу систему керування контентом.</p>
+                <p>Добірка видань Духовного центру «Рідна Віра»: основи віровчення, календар, Рідні Боги, святині, молитви, пісні, обряди та дослідницькі праці. Матеріали для читання, дослідження та друку.</p>
             </div>
 
+            <!-- cms-live:books-summary -->
             <dl class="faith-books-summary" aria-label="Підсумок бібліотеки">
                 <div>
                     <dt>{{ count($books) }}</dt>
@@ -52,40 +53,39 @@
                     <dd>для друку</dd>
                 </div>
             </dl>
+            <!-- /cms-live:books-summary -->
         </header>
 
+        <!-- cms-live:books-catalogue -->
         <ol class="faith-books-list" aria-label="Список книг">
             @foreach ($books as $book)
                 @php
                     $bookSlug = $book['slug'] ?? \Illuminate\Support\Str::slug((string) ($book['title'] ?? 'knyha'));
-                    $coverPath = parse_url((string) ($book['cover'] ?? ''), PHP_URL_PATH) ?: '';
-                    $coverExtension = strtolower(pathinfo($coverPath, PATHINFO_EXTENSION) ?: 'jpg');
-                    $coverExtension = $coverExtension === 'jpeg' ? 'jpg' : $coverExtension;
-                    $coverExtension = in_array($coverExtension, ['jpg', 'png', 'webp', 'gif'], true) ? $coverExtension : 'jpg';
                 @endphp
 
                 <li class="faith-book-row">
                     <span class="faith-book-row__number">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
 
                     <div class="faith-book-row__cover" aria-hidden="true">
-                        <img src="{{ asset('assets/books/'.$bookSlug.'/cover.'.$coverExtension) }}" alt="" loading="lazy">
+                        @include('partials.publication-image', ['visual' => $book['image'] ?? null, 'sizes' => '120px', 'imageAlt' => ''])
                     </div>
 
                     <div class="faith-book-row__content">
                         <span class="faith-book-row__category">{{ $book['category'] }}</span>
-                        <h3>{{ $book['title'] }}</h3>
-                        <p class="faith-book-row__meta">{{ $book['author'] }} · {{ $book['year'] }} · {{ $book['pages'] }} с.</p>
+                        <h3>@if(!empty($book['url']))<a href="{{ $book['url'] }}">{{ $book['title'] }}</a>@else{{ $book['title'] }}@endif</h3>
+                        <p class="faith-book-row__meta">{{ collect([$book['author'] ?? null, $book['year'] ?? null, !empty($book['pages']) ? $book['pages'].' с.' : null])->filter()->implode(' · ') }}</p>
                         <p>{{ $book['description'] }}</p>
                     </div>
 
                     <div class="faith-book-row__formats" aria-label="Формати книги">
                         @foreach (array_keys($book['formats'] ?? []) as $format)
-                            <a class="faith-book-row__format faith-book-row__format--{{ $format }}" href="{{ asset('assets/books/'.$bookSlug.'/'.$bookSlug.'.'.$format) }}" download>{{ strtoupper($format) }}</a>
+                            <a class="faith-book-row__format faith-book-row__format--{{ $format }}" href="{{ $book['formats'][$format] }}" download>{{ strtoupper($format) }}</a>
                         @endforeach
                     </div>
                 </li>
             @endforeach
         </ol>
+        <!-- /cms-live:books-catalogue -->
 
         <footer class="faith-books-footer">
             <a class="document-back-link" href="{{ route('faith') }}">← До розділу «Рідна Віра»</a>

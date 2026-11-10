@@ -29,6 +29,8 @@ final class ContentImages
                     break;
                 }
             }
+        } elseif ($section === 'books') {
+            $source = BookLibrary::nativeCover($slug)['src'] ?? null;
         } elseif (in_array($section, ['news', 'creativity', 'articles'], true)) {
             $catalogue = json_decode(file_get_contents(resource_path('content/publications/catalogue.json')), true);
             $source = $catalogue[$section][$slug]['image']['src'] ?? null;

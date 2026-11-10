@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Str;
+use App\Support\BookLibrary;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 final class BookFileController extends Controller
@@ -13,7 +13,9 @@ final class BookFileController extends Controller
     {
         $this->resolveBook($book);
 
-        $path = $this->findFirstFile($this->bookDirectory($book), [
+        $path = $this->findFirstFile(public_path('assets/books/'.$book), [
+            'cover.jpg', 'cover.jpeg', 'cover.png', 'cover.webp', 'cover.gif',
+        ]) ?? $this->findFirstFile($this->bookDirectory($book), [
             'cover.jpg',
             'cover.jpeg',
             'cover.png',
@@ -22,7 +24,7 @@ final class BookFileController extends Controller
         ]);
 
         if ($path === null) {
-            $path = public_path('assets/figma/faith/books.png');
+            $path = public_path('assets/brand/image-placeholder.svg');
         }
 
         abort_unless(is_file($path), 404, 'Обкладинку книги ще не імпортовано.');
@@ -39,8 +41,8 @@ final class BookFileController extends Controller
         $entry = $this->resolveBook($book);
         abort_unless(in_array($format, ['pdf', 'docx'], true), 404);
 
-        $path = $this->bookDirectory($book).DIRECTORY_SEPARATOR.$book.'.'.$format;
-        abort_unless(is_file($path), 404, 'Файл книги ще не імпортовано.');
+        $path = BookLibrary::file($entry, $format);
+        abort_unless($path && is_file($path), 404, 'Файл книги ще не імпортовано.');
 
         $title = (string) ($entry['title'] ?? $book);
         $fileName = $this->downloadFileName($title, $book, $format);
@@ -55,16 +57,7 @@ final class BookFileController extends Controller
     {
         abort_unless(preg_match('/^[a-z0-9\-]+$/', $slug) === 1, 404);
 
-        foreach (config('faith_books.books', []) as $book) {
-            $title = (string) ($book['title'] ?? '');
-            $bookSlug = (string) ($book['slug'] ?? Str::slug($title));
-
-            if ($bookSlug === $slug) {
-                return $book;
-            }
-        }
-
-        abort(404, 'Книгу не знайдено.');
+        return BookLibrary::find($slug);
     }
 
     private function bookDirectory(string $slug): string
@@ -93,6 +86,7 @@ final class BookFileController extends Controller
             'png' => 'image/png',
             'webp' => 'image/webp',
             'gif' => 'image/gif',
+            'svg' => 'image/svg+xml',
             default => 'application/octet-stream',
         };
     }
