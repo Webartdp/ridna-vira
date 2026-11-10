@@ -44,7 +44,7 @@ class SeoTest extends TestCase
             ->assertSee('og:type" content="article', false)->assertDontSee('<script>alert(1)</script>', false);
         preg_match('~<script type="application/ld\+json">(.*?)</script>~s', $response->getContent(), $json);
         $graph = json_decode($json[1], true, 512, JSON_THROW_ON_ERROR)['@graph'];
-        $this->assertSame('Article', $graph[2]['@type']);
+        $this->assertSame('NewsArticle', $graph[2]['@type']);
         $this->assertSame($page->seo_description, $graph[2]['description']);
     }
 

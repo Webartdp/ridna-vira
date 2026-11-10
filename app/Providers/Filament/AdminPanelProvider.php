@@ -29,6 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->profile()
             ->brandName('Рідна Віра · Керування сайтом')
+            ->favicon(asset('favicon.svg'))
             ->databaseNotifications(false)
             ->navigationGroups(['Публікації', 'Сайт', 'Рідна Віра', 'Крамниця'])
             ->colors([

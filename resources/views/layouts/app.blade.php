@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="uk">
+<html lang="uk" prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#1c0803">
+    @include('partials.site-icons')
     <title>@yield('title', 'Рідна Віра — Духовний центр')</title>
     <meta name="description" content="@yield('description', 'Офіційний портал Духовного центру Рідна Віра')">
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])

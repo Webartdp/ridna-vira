@@ -42,6 +42,13 @@ class SitemapController extends Controller
             $data = is_file($file) ? json_decode(file_get_contents($file), true) : [];
             foreach ($data[$section] ?? [] as $slug => $entry) {
                 $slug = $entry['slug'] ?? $slug;
+                if ($section === 'articles') {
+                    $base = realpath(! empty($entry['bundled']) ? resource_path('content/publications') : storage_path('app/content/articles'));
+                    $file = $base ? realpath($base.DIRECTORY_SEPARATOR.($entry['path'] ?? '')) : false;
+                    if (! $file || ! is_file($file) || ! str_starts_with($file, $base.DIRECTORY_SEPARATOR)) {
+                        continue;
+                    }
+                }
                 if (preg_match('/^[a-z0-9-]+$/D', (string) $slug)) {
                     $paths[$prefix.$slug] = null;
                 }
@@ -52,13 +59,15 @@ class SitemapController extends Controller
             $paths['/dokumenti/'.$slug] = null;
         }
         if (Cms::ready()) {
-            foreach (ContentPage::withTrashed()->get() as $page) {
+            foreach (ContentPage::withTrashed()->get(['id', 'path', 'is_override', 'is_published', 'published_at', 'deleted_at', 'updated_at']) as $page) {
                 if (! $page->visible()) {
                     unset($paths[$page->path]);
 
                     continue;
                 }
-                $paths[$page->path] = $page->is_override ? $page->updated_at->toAtomString() : null;
+                if ($page->is_override || array_key_exists($page->path, $paths)) {
+                    $paths[$page->path] = $page->is_override ? $page->updated_at->toAtomString() : ($paths[$page->path] ?? null);
+                }
             }
         }
         if (Schema::hasTable('products')) {
@@ -81,6 +90,7 @@ class SitemapController extends Controller
             }
         }
 
-        return response($xml->saveXML(), 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+        // No scheduled export or stale CDN copy: every request reflects current publication state.
+        return response($xml->saveXML(), 200)->header('Content-Type', 'application/xml; charset=UTF-8')->header('Cache-Control', 'public, max-age=0, must-revalidate');
     }
 }

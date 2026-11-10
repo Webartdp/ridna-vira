@@ -1,0 +1,15 @@
+{
+  "id": "/",
+  "name": "Духовний центр «Рідна Віра»",
+  "short_name": "Рідна Віра",
+  "lang": "uk",
+  "start_url": "/",
+  "scope": "/",
+  "display": "browser",
+  "theme_color": "#1c0803",
+  "background_color": "#1c0803",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
