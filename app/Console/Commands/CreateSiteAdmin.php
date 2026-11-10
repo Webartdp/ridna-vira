@@ -36,7 +36,7 @@ class CreateSiteAdmin extends Command
             return self::FAILURE;
         }
         $user = User::create($data);
-        $user->forceFill(['is_admin' => true])->save();
+        $user->forceFill(['is_admin' => true, 'role' => 'admin', 'is_active' => true])->save();
         $this->info('Адміністратора створено. Вхід: '.url('/admin'));
 
         return self::SUCCESS;

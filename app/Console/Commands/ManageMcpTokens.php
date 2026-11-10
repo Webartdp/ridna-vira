@@ -40,7 +40,7 @@ class ManageMcpTokens extends Command
         $user = User::whereRaw('LOWER(email) = ?', [mb_strtolower(trim((string) $this->argument('email')))])->first();
         $days = filter_var($this->option('days'), FILTER_VALIDATE_INT);
         $name = trim((string) $this->option('name'));
-        if (! $user?->is_admin || ! $days || $days < 1 || $days > 365 || $name === '' || mb_strlen($name) > 100) {
+        if (! $user?->canManage('admin') || ! $days || $days < 1 || $days > 365 || $name === '' || mb_strlen($name) > 100) {
             $this->error('Вкажіть email чинного адміністратора, назву до 100 символів і --days від 1 до 365.');
 
             return self::FAILURE;

@@ -65,7 +65,10 @@ class ShopController extends Controller
         abort_unless(hash_equals((string) session('checkout_token'), $data['checkout_token']), 419);
         $token = $data['checkout_token'];
         unset($data['checkout_token'], $data['consent']);
-        $order = $checkout->create($data, session('cart', []), $token);
+        if ($request->user()) {
+            $data['email'] = $request->user()->email;
+        }
+        $order = $checkout->create($data, session('cart', []), $token, $request->user()?->id);
         session()->forget('cart');
 
         return redirect($order->publicUrl());

@@ -17,6 +17,11 @@ use Illuminate\Support\Facades\DB;
 
 class SiteSettings extends Page
 {
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->canManage('admin') ?? false;
+    }
+
     protected static ?string $title = 'Налаштування сайту й оплати';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Сайт';
@@ -29,6 +34,7 @@ class SiteSettings extends Page
 
     public function mount(): void
     {
+        abort_unless(static::canAccess(), 403);
         $this->form->fill([
             'announcement' => SiteSetting::read('announcement', 'Духовний центр «Рідна Віра» — жива традиція українців'),
             'footer_text' => SiteSetting::read('footer_text', 'РІДНА ВІРА — Всі права захищені'),
@@ -79,6 +85,7 @@ class SiteSettings extends Page
 
     public function save(): void
     {
+        abort_unless(static::canAccess(), 403);
         $data = $this->form->getState();
         DB::transaction(function () use ($data) {
             foreach ($data as $key => $value) {

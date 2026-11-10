@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+require __DIR__.'/account.php';
 
 Route::view('/pro-tsentr', 'pages.about')->name('about');
 Route::view('/pro-tsentr/upravlinnia', 'pages.management')->name('about.management');

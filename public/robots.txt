@@ -1,6 +1,11 @@
 User-agent: *
 Allow: /
 Disallow: /admin
+Disallow: /kabinet
+Disallow: /uviyty
+Disallow: /vyity
+Disallow: /reiestratsiia
+Disallow: /parol
 Disallow: /mcp
 Disallow: /livewire
 Disallow: /koshyk

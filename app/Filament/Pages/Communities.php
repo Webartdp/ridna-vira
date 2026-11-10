@@ -13,6 +13,11 @@ use Filament\Schemas\Schema;
 
 class Communities extends Page
 {
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->canManage('content') ?? false;
+    }
+
     protected static ?string $title = 'Громади та мапа';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Сайт';
@@ -25,6 +30,7 @@ class Communities extends Page
 
     public function mount(): void
     {
+        abort_unless(static::canAccess(), 403);
         $this->form->fill(['locations' => json_decode(SiteSetting::read('communities', json_encode(config('communities'), JSON_UNESCAPED_UNICODE)), true)]);
     }
 
@@ -54,6 +60,7 @@ class Communities extends Page
 
     public function save(): void
     {
+        abort_unless(static::canAccess(), 403);
         $state = $this->form->getState();
         SiteSetting::write('communities', json_encode($state['locations'], JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
         Notification::make()->title('Громади та мапу оновлено')->success()->send();

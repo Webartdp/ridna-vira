@@ -10,5 +10,13 @@
     @elseif(!$order->paid_at && $order->reserved_until->isPast())<p>Термін резервування завершився. Ви можете створити нове замовлення.</p><a class="shop-btn" href="{{ route('shop.index') }}">До крамниці</a>@endif
     <h2 style="margin-top:36px">Доставка</h2><p>{{ $order->customer_name }}<br>{{ $order->delivery_address }}</p>@if($order->tracking_number)<p>Номер відправлення: {{ $order->tracking_number }}</p>@endif
     <p><a href="{{ route('contact') }}">Зв’язатися з нами</a></p>
+    @auth
+        @if(!$order->user_id && auth()->user()->hasVerifiedEmail() && mb_strtolower($order->email) === mb_strtolower(auth()->user()->email))
+            <form method="post" action="{{ route('account.claim') }}">@csrf<input type="hidden" name="token" value="{{ $order->access_token }}"><button class="shop-btn shop-secondary" type="submit">Додати до кабінету</button></form>
+        @endif
+        <p style="margin-top:20px"><a href="{{ route('account.index') }}">Мої замовлення →</a></p>
+    @else
+        <p><a href="{{ route('login') }}">Увійти до особистого кабінету</a></p>
+    @endauth
 </section>
 @endsection

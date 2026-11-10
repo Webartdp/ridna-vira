@@ -21,7 +21,7 @@ final class Seo
 
     public static function privatePath(string $path): bool
     {
-        return (bool) preg_match('~^/(?:mcp|admin|livewire|koshyk|zamovlennia|oplata|up)(?:/|$)~', $path);
+        return (bool) preg_match('~^/(?:kabinet|uviyty|vyity|reiestratsiia|parol|mcp|admin|livewire|koshyk|zamovlennia|oplata|up)(?:/|$)~', $path);
     }
 
     public static function imageInfo(string $url): array

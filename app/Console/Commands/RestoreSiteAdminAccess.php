@@ -42,7 +42,7 @@ class RestoreSiteAdminAccess extends Command
             return self::FAILURE;
         }
         $user ??= new User(['name' => 'Admin', 'email' => $email]);
-        $user->forceFill(['password' => $password, 'is_admin' => true, 'remember_token' => Str::random(60)])->save();
+        $user->forceFill(['password' => $password, 'is_admin' => true, 'role' => 'admin', 'is_active' => true, 'remember_token' => Str::random(60)])->save();
         $this->info('Доступ адміністратора відновлено. Пошта для входу: '.$user->email);
         $this->info('Вхід: '.url('/admin'));
 

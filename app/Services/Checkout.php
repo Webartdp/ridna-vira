@@ -15,9 +15,9 @@ use Illuminate\Validation\ValidationException;
 
 class Checkout
 {
-    public function create(array $customer, array $cart, string $token): Order
+    public function create(array $customer, array $cart, string $token, ?int $userId = null): Order
     {
-        return DB::transaction(function () use ($customer, $cart, $token) {
+        return DB::transaction(function () use ($customer, $cart, $token, $userId) {
             if ($existing = Order::where('checkout_token', $token)->first()) {
                 return $existing;
             }
@@ -43,7 +43,7 @@ class Checkout
                 $product->decrement('stock', $quantity);
             }
             $order = Order::create([
-                ...$customer, 'reference' => (string) Str::uuid(), 'access_token' => Str::random(64),
+                ...$customer, 'user_id' => $userId, 'reference' => (string) Str::uuid(), 'access_token' => Str::random(64),
                 'checkout_token' => $token, 'total_minor' => $total, 'reserved_until' => now()->addMinutes(config('shop.reservation_minutes')),
             ]);
             $order->items()->createMany($items);

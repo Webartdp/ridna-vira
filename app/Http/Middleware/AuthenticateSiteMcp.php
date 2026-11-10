@@ -25,7 +25,7 @@ class AuthenticateSiteMcp
         $plain = $request->bearerToken();
         $token = is_string($plain) && preg_match('/^rv_mcp_[a-f0-9]{64}$/D', $plain) ? SiteMcpToken::where('token_hash', hash('sha256', $plain))->first() : null;
         $user = $token ? User::find($token->user_id) : null;
-        if (! $token || $token->revoked_at || $token->expires_at->isPast() || ! $user?->is_admin) {
+        if (! $token || $token->revoked_at || $token->expires_at->isPast() || ! $user?->canManage('admin')) {
             return response()->json(['error' => 'Valid MCP bearer token required'], 401)->header('WWW-Authenticate', 'Bearer realm="ridnavira-mcp"');
         }
         $request->attributes->set('site.mcp.token', $token);

@@ -47,6 +47,9 @@
                 </ul>
 
                 <div class="header-actions">
+                    <a href="{{ auth()->check() ? route('account.index') : route('login') }}" aria-label="{{ auth()->check() ? 'Особистий кабінет' : 'Увійти до кабінету' }}" title="Особистий кабінет" style="display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;flex-shrink:0">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 22v-3a8 8 0 0 1 16 0v3"/></svg>
+                    </a>
                     <div class="dropdown language-menu">
                         <button class="language-switch dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Змінити мову">UA</button>
                         <ul class="dropdown-menu dropdown-menu-end language-menu__list">

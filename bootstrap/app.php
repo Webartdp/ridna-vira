@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureActiveAccount;
 use App\Http\Middleware\RenderContentPage;
 use App\Http\Middleware\SearchMetadata;
 use Illuminate\Foundation\Application;
@@ -16,7 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SearchMetadata::class);
         $middleware->validateCsrfTokens(except: ['oplata/wayforpay', 'oplata/povernennia/*']);
-        $middleware->web(append: [RenderContentPage::class]);
+        $middleware->web(append: [EnsureActiveAccount::class, RenderContentPage::class]);
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(fn () => route('account.index'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

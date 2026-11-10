@@ -14,7 +14,7 @@ class RenderContentPage
     public function handle(Request $request, Closure $next)
     {
         $path = '/'.trim($request->path(), '/');
-        if (! $request->isMethod('GET') || $request->is('admin*', 'livewire*', 'kramnychka*', 'koshyk*', 'zamovlennia*', 'oplata*') || app()->bound('cms.importing') || ! Cms::ready()) {
+        if (! $request->isMethod('GET') || $request->is('kabinet*', 'uviyty', 'vyity', 'reiestratsiia', 'parol*', 'admin*', 'livewire*', 'kramnychka*', 'koshyk*', 'zamovlennia*', 'oplata*') || app()->bound('cms.importing') || ! Cms::ready()) {
             return $next($request);
         }
         $page = ContentPage::withTrashed()->select(['id', 'path', 'published_at', 'is_published', 'is_override', 'deleted_at'])->where('path', $path)->first();

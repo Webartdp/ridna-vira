@@ -120,7 +120,7 @@ class ContentPageResource extends Resource
                     TextInput::make('path')->label('Адреса на сайті')->placeholder('/novyny/nazva-novyny')->required()->unique(ignoreRecord: true)
                         ->maxLength(255)->regex('~^/(?:[a-z0-9-]+(?:/[a-z0-9-]+)*)?$~D')->disabled(fn (?ContentPage $record) => (bool) $record?->is_imported)
                         ->rules([fn (Get $get) => function (string $attribute, $value, \Closure $fail) use ($get) {
-                            if (preg_match('~^/(?:mcp|admin|livewire|assets|storage|build|up|kramnychka|koshyk|zamovlennia|oplata)(?:/|$)~', $value)) {
+                            if (preg_match('~^/(?:kabinet|uviyty|vyity|reiestratsiia|parol|mcp|admin|livewire|assets|storage|build|up|kramnychka|koshyk|zamovlennia|oplata)(?:/|$)~', $value)) {
                                 $fail('Цю адресу зарезервовано для системи та крамниці.');
                             }
                             $prefix = ['news' => '/novyny/', 'articles' => '/statti/', 'creativity' => '/tvorchist/', 'gods' => '/ridna-vira/bohy/', 'holidays' => '/ridna-vira/kalendar/', 'shrines' => '/ridna-vira/sviatyni/', 'rituals' => '/ridna-vira/obriady/', 'prayers' => '/ridna-vira/molytvy/', 'documents' => '/dokumenti/'][$get('section')] ?? null;
@@ -149,14 +149,14 @@ class ContentPageResource extends Resource
             ->recordActions([
                 EditAction::make()->modalWidth('6xl')->mutateRecordDataUsing(fn (array $data) => ContentEditor::prepare($data)),
                 Action::make('preview')->label('На сайт')->icon('heroicon-o-arrow-top-right-on-square')->url(fn (ContentPage $record) => url($record->path))->openUrlInNewTab(),
-                Action::make('revision')->label('Попередня версія')->schema([
+                Action::make('revision')->label('Попередня версія')->authorize(fn () => auth()->user()?->canManage('content'))->schema([
                     Select::make('revision')->label('Версія')->options(fn (ContentPage $record) => $record->revisions()->latest('id')->limit(30)->get()->mapWithKeys(fn ($revision) => [$revision->id => $revision->created_at->format('d.m.Y H:i:s').' · #'.$revision->id]))->required(),
                 ])->action(function (ContentPage $record, array $data) {
                     $revision = $record->revisions()->findOrFail($data['revision']);
                     $snapshot = json_decode($revision->snapshot, true, 512, JSON_THROW_ON_ERROR);
                     $record->fill(Arr::only($snapshot, ['title', 'body', 'excerpt', 'image', 'image_origin', 'video_url', 'editor_mode', 'is_published', 'published_at', 'seo_title', 'seo_description']))->save();
                 })->visible(fn (ContentPage $record) => $record->revisions()->exists()),
-                Action::make('original')->label('Початковий вигляд')->requiresConfirmation()->visible(fn (ContentPage $record) => $record->is_imported && $record->is_override)->action(fn (ContentPage $record) => $record->forceFill(['is_override' => false])->saveQuietly()),
+                Action::make('original')->label('Початковий вигляд')->authorize(fn () => auth()->user()?->canManage('content'))->requiresConfirmation()->visible(fn (ContentPage $record) => $record->is_imported && $record->is_override)->action(fn (ContentPage $record) => $record->forceFill(['is_override' => false])->saveQuietly()),
                 DeleteAction::make(), RestoreAction::make(),
             ]);
     }

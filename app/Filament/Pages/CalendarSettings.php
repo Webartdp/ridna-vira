@@ -14,6 +14,11 @@ use Illuminate\Validation\Rule;
 
 class CalendarSettings extends Page
 {
+    public static function canAccess(): bool
+    {
+        return auth()->user()?->canManage('content') ?? false;
+    }
+
     protected static ?string $title = 'Календар свят';
 
     protected static string|\UnitEnum|null $navigationGroup = 'Сайт';
@@ -38,6 +43,7 @@ class CalendarSettings extends Page
 
     private function loadMonth(): void
     {
+        abort_unless(static::canAccess(), 403);
         $this->validate(['month' => [Rule::in(array_keys(config('faith_calendar.months')))]]);
         $calendar = json_decode(SiteSetting::read('calendar', json_encode(config('faith_calendar'), JSON_UNESCAPED_UNICODE)), true);
         $entries = [];
@@ -62,6 +68,7 @@ class CalendarSettings extends Page
 
     public function save(): void
     {
+        abort_unless(static::canAccess(), 403);
         $this->validate(['month' => [Rule::in(array_keys(config('faith_calendar.months')))]]);
         $data = $this->form->getState();
         $calendar = json_decode(SiteSetting::read('calendar', json_encode(config('faith_calendar'), JSON_UNESCAPED_UNICODE)), true);

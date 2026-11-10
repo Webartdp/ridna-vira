@@ -77,7 +77,7 @@ class OrderResource extends Resource
         ])->filters([SelectFilter::make('payment_status')->label('Оплата')->options(Order::paymentLabels())])
             ->recordActions([
                 EditAction::make()->label('Відкрити')->modalWidth('6xl'),
-                Action::make('cancel')->label('Скасувати резерв')->requiresConfirmation()->visible(fn (Order $record) => ! $record->paid_at && ! $record->stock_released_at)->action(function (Order $record) {
+                Action::make('cancel')->label('Скасувати резерв')->authorize(fn () => auth()->user()?->canManage('shop'))->requiresConfirmation()->visible(fn (Order $record) => ! $record->paid_at && ! $record->stock_released_at)->action(function (Order $record) {
                     app(Checkout::class)->release($record, 'expired');
                     if (! $record->fresh()->paid_at) {
                         $record->update(['fulfilment_status' => 'cancelled']);
