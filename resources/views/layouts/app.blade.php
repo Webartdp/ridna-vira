@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#1c0803">
+    @if(request()->routeIs('home'))
+    <meta name="google-site-verification" content="HIs_jY0tZTaQfyGkUDXj6tzR4mqu9J9SgQommjWZcio" />
+    @endif
     @include('partials.site-icons')
     <title>@yield('title', 'Рідна Віра — Духовний центр')</title>
     <meta name="description" content="@yield('description', 'Офіційний портал Духовного центру Рідна Віра')">
