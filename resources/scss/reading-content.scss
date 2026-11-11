@@ -1,0 +1,103 @@
+:is(
+    .article-prose,
+    .god-reading-content,
+    .shrine-reading-content,
+    .holiday-sheet__content,
+    .document-sheet__content,
+    .community-profile__body,
+    .prose
+) {
+    font-family: var(--rv-font-body);
+    font-synthesis: weight style;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+    min-width: 0;
+
+    :where(p, ul, ol, dl, blockquote, figure, pre, table, hr) {
+        margin-block: 0 1.2em;
+    }
+
+    > :where(:first-child) { margin-block-start: 0; }
+    > :where(:last-child) { margin-block-end: 0; }
+
+    :where(h1, h2, h3, h4, h5, h6) {
+        margin-block: 1.5em .6em;
+        color: var(--rv-brown);
+        font-family: var(--rv-font-display);
+        font-weight: 700;
+        line-height: 1.35;
+        scroll-margin-top: 7rem;
+    }
+
+    :where(h1) { font-size: clamp(1.65rem, 4vw, 2.25rem); }
+    :where(h2) { font-size: clamp(1.4rem, 3vw, 1.8rem); }
+    :where(h3) { font-size: 1.35rem; }
+    :where(h4) { font-size: 1.18rem; }
+    :where(h5, h6) { font-size: 1rem; }
+
+    :where(strong, b, dt, th) { font-weight: 700; }
+    :where(em, i, cite) { font-style: italic; }
+    :where(u, ins) { text-decoration: underline; }
+    :where(s, del, strike) { text-decoration: line-through; }
+    :where(small) { font-size: .875em; }
+    :where(sub, sup) { font-size: .75em; line-height: 0; }
+    :where(sub) { vertical-align: sub; }
+    :where(sup) { vertical-align: super; }
+    :where(mark) { padding-inline: .12em; color: inherit; background: #f5df9f; }
+
+    :where(a) {
+        color: #79501c;
+        text-decoration: underline;
+        text-underline-offset: .18em;
+    }
+
+    :where(a:hover) { color: var(--rv-brown); }
+    :where(a:focus-visible) { outline: 2px solid var(--rv-gold); outline-offset: 3px; }
+
+    :where(ul, ol) { padding-inline-start: 1.6em; }
+    :where(ul) { list-style-type: disc; }
+    :where(ul ul) { list-style-type: circle; }
+    :where(ol:not([type])) { list-style-type: decimal; }
+    :where(li + li) { margin-block-start: .35em; }
+    :where(li > :is(ul, ol)) { margin-block: .35em 0; }
+    :where(li > p:last-child) { margin-block-end: 0; }
+    :where(dd) { margin-inline-start: 1.25em; }
+
+    :where(blockquote) {
+        padding: .75em 1em;
+        border-inline-start: 3px solid #b88a4b;
+        background: #f5eee2;
+        color: #584533;
+    }
+
+    :where(blockquote > :last-child) { margin-block-end: 0; }
+    :where(hr) { border: 0; border-block-start: 1px solid #cbbca6; opacity: 1; }
+
+    :where(img, video, iframe, audio) { max-width: 100%; }
+    :where(img, video) { height: auto; }
+    :where(figure > img) { margin-inline: auto; }
+    :where(figcaption, caption) { color: #665548; font-size: .875em; }
+    :where(figcaption) { margin-block-start: .5em; text-align: center; }
+
+    :where(code, pre, kbd, samp) {
+        font-family: ui-monospace, Consolas, monospace;
+        font-size: .9em;
+    }
+
+    :where(code, kbd) { padding: .1em .3em; border-radius: .2em; background: #f1ece2; color: inherit; }
+    :where(pre) { padding: 1em; overflow-x: auto; background: #f1ece2; white-space: pre; }
+    :where(pre code) { padding: 0; background: transparent; font-size: inherit; }
+
+    :where(.article-table, .tableWrapper) { max-width: 100%; overflow-x: auto; }
+    :where(table) { width: 100%; border-collapse: collapse; }
+    :where(th, td) { padding: .55em .7em; border: 1px solid #d8cebf; vertical-align: top; text-align: start; }
+    :where(th) { background: #f1ece2; }
+
+    @media (max-width: 640px) {
+        table:not(.article-table table, .tableWrapper table) {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+    }
+}

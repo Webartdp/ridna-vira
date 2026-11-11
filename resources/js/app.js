@@ -13,6 +13,7 @@ import '../scss/faith.scss';
 import '../scss/faith-calendar.scss';
 import '../scss/faith-books.scss';
 import '../scss/holiday.scss';
+import '../scss/reading-content.scss';
 import './navigation.js';
 import './contact-map.js';
 import './contact-form.js';
