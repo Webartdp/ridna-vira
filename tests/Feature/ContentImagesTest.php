@@ -91,20 +91,5 @@ class ContentImagesTest extends TestCase
         $this->assertSame(1, substr_count($html, 'src="/storage/content/main-800.webp"'));
         $this->assertStringContainsString('srcset=', $html);
         $this->assertStringContainsString('width="800"', $html);
-        $this->assertStringContainsString('/storage/content/main.jpg 1000w', $html);
-    }
-
-    public function test_small_photos_are_kept_at_native_size_when_no_larger_source_exists(): void
-    {
-        Storage::fake('public');
-        foreach (['small' => 260, 'large' => 900] as $name => $width) {
-            $file = UploadedFile::fake()->image($name.'.jpg', $width, $width);
-            Storage::disk('public')->put('content/'.$name.'.jpg', file_get_contents($file->getRealPath()));
-        }
-
-        $small = '<img src="/storage/content/small.jpg">';
-        $responsive = '<img src="/storage/content/small.jpg" srcset="/storage/content/small.jpg 260w, /storage/content/large.jpg 900w">';
-        $this->assertStringContainsString('object-fit: scale-down', ContentImages::limitUpscaling($small));
-        $this->assertSame($responsive, ContentImages::limitUpscaling($responsive));
     }
 }

@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Support\ArticleContent;
-use App\Support\ContentImages;
 use App\Support\Publications;
 use Illuminate\Filesystem\Filesystem;
 use Tests\TestCase;
@@ -42,7 +41,7 @@ class PublicationTest extends TestCase
         $this->assertCount(44, $library->entries('creativity'));
         $this->get('/novyny')->assertOk()->assertSee('На Харківщині прославили Сварога')->assertDontSee('Showing');
         foreach ($library->entries('news') as $entry) {
-            if (! empty($entry['videos'])) {
+            if (!empty($entry['videos'])) {
                 $this->assertNotEmpty($entry['image']);
                 $this->assertFileExists(public_path(ltrim($entry['image']['src'], '/')));
             }
@@ -63,7 +62,7 @@ class PublicationTest extends TestCase
                         }
                     }
                     $content = file_get_contents(resource_path('content/publications/'.$entry['path']));
-                    $response->assertSee(ContentImages::limitUpscaling($content), false);
+                    $response->assertSee($content, false);
                     $this->assertDoesNotMatchRegularExpression('/<(?:script|iframe|font|form)\b|\s(?:style|bgcolor|onclick)=/i', $content);
                     preg_match_all('/<img[^>]+src="([^"]+)"/', $content, $matches);
                     foreach ($matches[1] as $path) {

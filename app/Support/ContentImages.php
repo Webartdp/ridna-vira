@@ -168,15 +168,8 @@ final class ContentImages
                 $srcset[$info[0]] = ['src' => $disk->url($variant), 'width' => $info[0]];
             }
         }
-        if ($disk->exists($file) && $original = @getimagesize($disk->path($file))) {
-            $srcset[$original[0]] = ['src' => $disk->url($file), 'width' => $original[0]];
-            ksort($srcset);
-        }
         $source = ProductImages::variant($file, 800);
         if (! $disk->exists($source)) {
-            $source = $file;
-        }
-        if (isset($original) && $original && $original[0] <= 800 && $original[1] <= 800) {
             $source = $file;
         }
         if ($disk->exists($source) && $info = @getimagesize($disk->path($source))) {
@@ -184,38 +177,6 @@ final class ContentImages
         }
 
         return ['src' => $disk->url($source), 'width' => $width, 'height' => $height, 'variants' => array_values($srcset)];
-    }
-
-    public static function limitUpscaling(string $html): string
-    {
-        $dimensions = [];
-
-        return preg_replace_callback('~<img\b[^>]*>~i', function ($match) use (&$dimensions) {
-            if (! preg_match('~/(?:storage/|assets/(?:publications|gods|shrines|books|rituals|prayers|documents|communities|people)/)~', $match[0])) {
-                return $match[0];
-            }
-            $document = Cms::document($match[0]);
-            $image = $document->getElementsByTagName('img')->item(0);
-            if (! $image) {
-                return $match[0];
-            }
-            $source = $image->getAttribute('src');
-            $info = $dimensions[$source] ??= Seo::imageInfo($source);
-            if (! $info || min($info['width'], $info['height']) >= 400) {
-                return $match[0];
-            }
-            preg_match_all('~(?:^|,\s*)(\S+)\s+\d+w(?=\s*(?:,|$))~', $image->getAttribute('srcset'), $candidates);
-            foreach ($candidates[1] as $candidate) {
-                $size = $dimensions[$candidate] ??= Seo::imageInfo($candidate);
-                if ($size && min($size['width'], $size['height']) >= 400) {
-                    return $match[0];
-                }
-            }
-            $style = rtrim(rtrim($image->getAttribute('style')), ';');
-            $image->setAttribute('style', ($style === '' ? '' : $style.'; ').'object-fit: scale-down');
-
-            return $document->saveHTML($image);
-        }, $html);
     }
 
     public static function render(string $html, ContentPage $page): string
