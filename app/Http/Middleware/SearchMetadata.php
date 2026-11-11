@@ -18,7 +18,7 @@ class SearchMetadata
         if (($private || $response->getStatusCode() >= 400) && ! $response->headers->has('X-Robots-Tag')) {
             $response->headers->set('X-Robots-Tag', 'noindex, nofollow');
         }
-        if (! $request->isMethod('GET') || $response->getStatusCode() !== 200 || $private || ! str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
+        if (! $request->isMethod('GET') || $response->getStatusCode() !== 200 || $private || $request->routeIs('landing.obriadove-vbrannia') || ! str_contains((string) $response->headers->get('Content-Type'), 'text/html')) {
             return $response;
         }
         $html = HomeImages::optimize($response->getContent(), $request->routeIs('home'));

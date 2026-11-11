@@ -14,12 +14,18 @@ use App\Http\Controllers\RitualController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\ShrineController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Middleware\RenderContentPage;
 use App\Models\ContentPage;
 use App\Support\Cms;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/obriadove-vbrannia', fn () => response()->file(
+    resource_path('landings/obriadove-vbrannia/index.html'),
+    ['Content-Type' => 'text/html; charset=UTF-8'],
+))->withoutMiddleware(RenderContentPage::class)->name('landing.obriadove-vbrannia');
+
 require __DIR__.'/account.php';
 
 Route::view('/pro-tsentr', 'pages.about')->name('about');
