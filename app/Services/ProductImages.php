@@ -42,7 +42,7 @@ class ProductImages
             imagesavealpha($target, true);
             imagecopyresampled($target, $source, 0, 0, 0, 0, imagesx($target), imagesy($target), $dimensions[0], $dimensions[1]);
             ob_start();
-            imagewebp($target, null, 84);
+            imagewebp($target, null, 90);
             $disk->put(self::variant($path, $width), ob_get_clean());
             unset($target);
         }

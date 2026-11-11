@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\ContentImages;
 use App\Support\HomeImages;
 use App\Support\Seo;
 use Closure;
@@ -21,6 +22,7 @@ class SearchMetadata
             return $response;
         }
         $html = HomeImages::optimize($response->getContent(), $request->routeIs('home'));
+        $html = ContentImages::limitUpscaling($html);
         if (! str_contains($html, '</head>')) {
             return $response;
         }

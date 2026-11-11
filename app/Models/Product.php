@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Services\ProductImages;
+use App\Support\ContentImages;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -35,19 +36,10 @@ class Product extends Model
 
     public function imageSrcset(string $path): string
     {
-        $disk = Storage::disk('public');
-        $items = [];
-        foreach ([400, 800, 1200] as $width) {
-            $variant = ProductImages::variant($path, $width);
-            if ($disk->exists($variant)) {
-                $actual = @getimagesize($disk->path($variant));
-                if ($actual) {
-                    $items[$actual[0]] = $disk->url($variant).' '.$actual[0].'w';
-                }
-            }
-        }
-
-        return implode(', ', $items);
+        return implode(', ', array_map(
+            fn (array $image) => $image['src'].' '.$image['width'].'w',
+            ContentImages::visual($path)['variants'],
+        ));
     }
 
     protected function casts(): array

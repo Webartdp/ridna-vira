@@ -89,7 +89,7 @@ def image(url):
             resized.thumbnail((width, 2200))
             filename = f'{name}-{resized.width}.webp'
             if not (directory / filename).exists():
-                resized.save(directory / filename, 'WEBP', quality=85, method=6)
+                resized.save(directory / filename, 'WEBP', quality=93, method=6)
             variants.append({'src': '/assets/publications/images/' + filename, 'width': resized.width, 'height': resized.height})
         result = {**variants[-1], 'variants': variants}
     images[url] = result
