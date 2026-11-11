@@ -16,7 +16,7 @@ $shadow: 0 6px 11px rgba(28, 8, 3, .41);
     --rv-shadow: #{$shadow};
     --rv-font-display: 'Holos Text', sans-serif;
     --rv-font-ui: 'Kyiv Region', 'Montserrat', sans-serif;
-    --rv-font-body: 'Futura PT', 'Montserrat', sans-serif;
+    --rv-font-body: Arial, sans-serif;
 }
 
 * {
@@ -400,7 +400,7 @@ p {
 
 .communities-copy p {
     margin: 0;
-    font-family: var(--rv-font-ui);
+    font-family: var(--rv-font-body);
     font-size: 16px;
     line-height: 1.28;
 }

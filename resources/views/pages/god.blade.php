@@ -36,7 +36,7 @@
 
     .god-reading-content {
         color: #1c0803;
-        font-family: var(--rv-font-ui);
+        font-family: var(--rv-font-body);
         font-size: 18px;
         line-height: 1.72;
         overflow-wrap: anywhere;

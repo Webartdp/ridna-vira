@@ -19,9 +19,9 @@
 :root {
     --rv-font-display: 'Holos', sans-serif;
     --rv-font-ui: 'Kyiv Region', sans-serif;
-    --rv-font-body: 'Kyiv Region', sans-serif;
+    --rv-font-body: Arial, sans-serif;
 }
 
 body {
-    font-synthesis: none;
+    font-synthesis: weight style;
 }
