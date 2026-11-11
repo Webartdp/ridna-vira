@@ -43,7 +43,7 @@
                         </ul>@endif
                     </li>
                     @endforeach
-                    @foreach(json_decode(\App\Models\SiteSetting::read('extra_links', '[]'), true) as $item)<li class="nav-item"><a class="nav-link" href="{{ url($item['url']) }}">{{ $item['label'] }}</a></li>@endforeach
+                    @foreach(\App\Support\Site::links('extra_links') as $item)<li class="nav-item"><a class="nav-link" href="{{ url($item['url']) }}">{{ $item['label'] }}</a></li>@endforeach
                 </ul>
 
                 <div class="header-actions">
@@ -73,11 +73,11 @@
 
     <nav class="footer-nav" aria-label="Меню в підвалі">
         @foreach(\App\Support\Site::navigation() as $item)<a href="{{ url($item['url']) }}">{{ $item['label'] }}</a>@endforeach
-        @foreach(json_decode(\App\Models\SiteSetting::read('extra_links', '[]'), true) as $item)<a href="{{ url($item['url']) }}">{{ $item['label'] }}</a>@endforeach
+        @foreach(\App\Support\Site::links('extra_links') as $item)<a href="{{ url($item['url']) }}">{{ $item['label'] }}</a>@endforeach
     </nav>
 
     <div class="footer-partners" aria-label="Ресурси Рідної Віри">
-        @foreach(json_decode(\App\Models\SiteSetting::read('partners', json_encode(config('site_partners'), JSON_UNESCAPED_UNICODE)), true) as $partner)
+        @foreach(\App\Support\Site::links('partners', config('site_partners')) as $partner)
         <a class="footer-partner footer-partner--{{ $partner['style'] }}" href="{{ url($partner['url']) }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $partner['name'] }}">
             <img src="{{ asset($partner['image']) }}" alt="{{ $partner['name'] }}" loading="lazy" decoding="async">
         </a>

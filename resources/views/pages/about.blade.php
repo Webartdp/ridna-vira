@@ -24,7 +24,6 @@
             <a class="about-link-card" href="{{ route('about.management') }}">Управління</a>
             <a class="about-link-card" href="{{ route('contact') }}">Зв’язок</a>
             <a class="about-link-card" href="https://ridnovir.in.ua/" target="_blank" rel="noopener noreferrer">Академія</a>
-            <a class="about-link-card" href="https://wiki.svit.in.ua/" target="_blank" rel="noopener noreferrer">Енциклопедія</a>
         </nav>
 
         <div class="about-copy" id="about-center">

@@ -39,11 +39,11 @@ class SiteSettings extends Page
         $this->form->fill([
             'announcement' => SiteSetting::read('announcement', 'Духовний центр «Рідна Віра» — жива традиція українців'),
             'footer_text' => SiteSetting::read('footer_text', 'РІДНА ВІРА — Всі права захищені'),
-            'extra_links' => json_decode(SiteSetting::read('extra_links', '[]'), true),
+            'extra_links' => Site::links('extra_links'),
             'navigation' => Site::navigation(),
             'social_links' => json_decode(SiteSetting::read('social_links', '{}'), true),
             'logo' => SiteSetting::read('logo'),
-            'partners' => json_decode(SiteSetting::read('partners', json_encode(config('site_partners'), JSON_UNESCAPED_UNICODE)), true),
+            'partners' => Site::links('partners', config('site_partners')),
             'contact_email' => SiteSetting::read('contact_email', 'help@jaromir.com.ua'),
             'order_email' => SiteSetting::read('order_email'),
             'shop_enabled' => filter_var(SiteSetting::read('shop_enabled', '1'), FILTER_VALIDATE_BOOLEAN),

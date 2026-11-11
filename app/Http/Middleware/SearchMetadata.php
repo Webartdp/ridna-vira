@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Support\HomeImages;
 use App\Support\Seo;
+use App\Support\Site;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -21,6 +22,7 @@ class SearchMetadata
             return $response;
         }
         $html = HomeImages::optimize($response->getContent(), $request->routeIs('home'));
+        $html = Site::removeEncyclopediaLinksFromHtml($html);
         if (! str_contains($html, '</head>')) {
             return $response;
         }

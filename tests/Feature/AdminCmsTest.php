@@ -105,6 +105,24 @@ class AdminCmsTest extends TestCase
         $this->get('/bezpeka')->assertOk()->assertSee('ritual-passage--prayer', false)->assertSee('Звичайний текст');
     }
 
+    public function test_encyclopedia_links_are_hidden_in_saved_navigation_and_content(): void
+    {
+        SiteSetting::write('navigation', json_encode([
+            ['label' => 'Про центр', 'url' => '/pro-tsentr', 'children' => [
+                ['label' => 'Енциклопедія', 'url' => 'https://wiki.svit.in.ua/'],
+                ['label' => 'Громади', 'url' => '/hromady'],
+            ]],
+        ]));
+        ContentPage::create([
+            'title' => 'Перевірка посилань', 'path' => '/test-encyclopedia-links', 'section' => 'pages',
+            'body' => '<p>Опис <a href="https://wiki.svit.in.ua/Молитва">молитви</a>.</p>',
+        ]);
+
+        $this->get('/test-encyclopedia-links')->assertOk()
+            ->assertSee('Опис молитви.')->assertSee('Громади')
+            ->assertDontSee('wiki.svit.in.ua', false)->assertDontSee('Енциклопедія');
+    }
+
     public function test_community_settings_are_used_by_live_map(): void
     {
         $locations = config('communities');

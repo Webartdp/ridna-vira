@@ -24,7 +24,6 @@ require __DIR__.'/account.php';
 
 Route::view('/pro-tsentr', 'pages.about')->name('about');
 Route::view('/pro-tsentr/upravlinnia', 'pages.management')->name('about.management');
-Route::redirect('/pro-tsentr/entsyklopediia', 'https://wiki.svit.in.ua/', 302)->name('about.encyclopedia');
 
 Route::view('/ridna-vira', 'pages.faith')->name('faith');
 Route::view('/ridna-vira/kalendar', 'pages.calendar')->name('faith.calendar');

@@ -42,9 +42,6 @@
                         </article>
                     @endforeach
                 </div>
-                @if ($group['id'] === 'research')
-                    <p class="ritual-source">В енциклопедії: @foreach ($encyclopedia as $definition)<a href="{{ $definition['url'] }}" target="_blank" rel="noopener noreferrer">{{ $definition['title'] }} ↗</a>{{ !$loop->last ? ' · ' : '' }}@endforeach</p>
-                @endif
             </section>
         @endforeach
         <!-- /cms-live:catalogue -->
