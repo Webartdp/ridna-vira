@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\SiteSettings;
+use App\Filament\Resources\ArticleResource\Pages\EditArticleEntry;
 use App\Filament\Resources\ArticleResource\Pages\ManageArticleEntries;
 use App\Filament\Resources\UserResource\Pages\ManageUsers;
 use App\Models\ContentPage;
@@ -238,7 +239,12 @@ class AccountsAndRolesTest extends TestCase
     {
         $this->actingAs($this->user('editor'));
         $article = ContentPage::create(['path' => '/statti/role-test', 'section' => 'articles', 'title' => 'Стаття для редактора', 'excerpt' => 'Короткий зміст матеріалу.', 'body' => '<p>Текст.</p>']);
-        Livewire::test(ManageArticleEntries::class)->assertCanSeeTableRecords([$article])->mountTableAction('edit', $article)->set('mountedActions.0.data.title', 'Оновлена стаття')->callMountedTableAction()->assertHasNoTableActionErrors();
+        Livewire::test(ManageArticleEntries::class)->assertCanSeeTableRecords([$article]);
+        $editPath = '/admin/articles/'.$article->getKey().'/edit';
+        $this->get('/admin/articles')->assertOk()->assertSee($editPath, false);
+        $this->get($editPath)->assertOk()->assertSee('wire:submit="save"', false);
+        $this->get('/admin/news/'.$article->getKey().'/edit')->assertNotFound();
+        Livewire::test(EditArticleEntry::class, ['record' => $article->getKey()])->set('data.title', 'Оновлена стаття')->call('save')->assertHasNoErrors();
         $this->assertSame('Оновлена стаття', $article->fresh()->title);
     }
 

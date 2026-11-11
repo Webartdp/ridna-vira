@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Filament\Resources\GodResource\Pages\ManageGodEntries;
+use App\Filament\Resources\GodResource\Pages\EditGodEntry;
 use App\Models\ContentPage;
 use App\Models\User;
 use App\Support\Cms;
@@ -27,20 +27,20 @@ class ContentImagesTest extends TestCase
         $this->actingAs($user);
         $page = ContentPage::create(['path' => '/ridna-vira/bohy/perun', 'section' => 'gods', 'title' => 'Перун', 'editor_mode' => 'fragment', 'body' => '<p>Зміст матеріалу.</p>']);
         $page->forceFill(['is_override' => false])->saveQuietly();
-        $component = Livewire::test(ManageGodEntries::class)->mountTableAction('edit', $page);
-        $data = $component->get('mountedActions.0.data');
+        $component = Livewire::test(EditGodEntry::class, ['record' => $page->getKey()]);
+        $data = $component->get('data');
         $this->assertNotEmpty($data['image']);
-        $component->callMountedTableAction()->assertHasNoTableActionErrors();
+        $component->call('save')->assertHasNoErrors();
         $page->refresh();
         $this->assertNotNull($page->image_origin);
-        $component = Livewire::test(ManageGodEntries::class)->mountTableAction('edit', $page)
-            ->set('mountedActions.0.data.image', [UploadedFile::fake()->image('new.jpg', 800, 1000)])
-            ->callMountedTableAction()->assertHasNoTableActionErrors();
+        $component = Livewire::test(EditGodEntry::class, ['record' => $page->getKey()])
+            ->set('data.image', [UploadedFile::fake()->image('new.jpg', 800, 1000)])
+            ->call('save')->assertHasNoErrors();
         $page->refresh();
         $replacement = ContentImages::visual($page->image)['src'];
         $this->get('/ridna-vira/bohy')->assertOk()->assertSee($replacement, false);
         $this->get($page->path)->assertOk()->assertSee($replacement, false);
-        Livewire::test(ManageGodEntries::class)->mountTableAction('edit', $page)->set('mountedActions.0.data.image', [])->callMountedTableAction()->assertHasNoTableActionErrors();
+        Livewire::test(EditGodEntry::class, ['record' => $page->getKey()])->set('data.image', [])->call('save')->assertHasNoErrors();
         $this->assertNull($page->fresh()->image);
         $this->assertNull(Cms::merge('gods', [['slug' => 'perun', 'image' => ['src' => '/old.jpg']]], '/ridna-vira/bohy')[0]['image']);
         $this->get($page->path)->assertOk()->assertDontSee($replacement, false);

@@ -24,6 +24,9 @@ class RitualResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => RitualResource\Pages\ManageRitualEntries::route('/')];
+        return [
+            'index' => RitualResource\Pages\ManageRitualEntries::route('/'),
+            'edit' => RitualResource\Pages\EditRitualEntry::route('/{record}/edit'),
+        ];
     }
 }

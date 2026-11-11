@@ -24,6 +24,9 @@ class ShrineResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => ShrineResource\Pages\ManageShrineEntries::route('/')];
+        return [
+            'index' => ShrineResource\Pages\ManageShrineEntries::route('/'),
+            'edit' => ShrineResource\Pages\EditShrineEntry::route('/{record}/edit'),
+        ];
     }
 }

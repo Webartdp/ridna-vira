@@ -24,6 +24,9 @@ class PrayerResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => PrayerResource\Pages\ManagePrayerEntries::route('/')];
+        return [
+            'index' => PrayerResource\Pages\ManagePrayerEntries::route('/'),
+            'edit' => PrayerResource\Pages\EditPrayerEntry::route('/{record}/edit'),
+        ];
     }
 }

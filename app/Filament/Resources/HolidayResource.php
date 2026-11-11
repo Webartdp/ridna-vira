@@ -24,6 +24,9 @@ class HolidayResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => HolidayResource\Pages\ManageHolidayEntries::route('/')];
+        return [
+            'index' => HolidayResource\Pages\ManageHolidayEntries::route('/'),
+            'edit' => HolidayResource\Pages\EditHolidayEntry::route('/{record}/edit'),
+        ];
     }
 }

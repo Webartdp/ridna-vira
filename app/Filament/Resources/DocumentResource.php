@@ -24,6 +24,9 @@ class DocumentResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => DocumentResource\Pages\ManageDocumentEntries::route('/')];
+        return [
+            'index' => DocumentResource\Pages\ManageDocumentEntries::route('/'),
+            'edit' => DocumentResource\Pages\EditDocumentEntry::route('/{record}/edit'),
+        ];
     }
 }

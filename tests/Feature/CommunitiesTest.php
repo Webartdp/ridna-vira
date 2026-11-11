@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\CommunityResource\Pages\EditCommunityEntry;
 use App\Filament\Resources\CommunityResource\Pages\ManageCommunities;
 use App\Models\ContentPage;
 use App\Models\User;
@@ -63,9 +64,7 @@ class CommunitiesTest extends TestCase
         $editor = User::factory()->create();
         $editor->forceFill(['role' => 'editor', 'is_active' => true])->save();
         $this->actingAs($editor);
-        Livewire::test(ManageCommunities::class)->mountTableAction('edit', $page)->setTableActionData([
-            'community.featured' => false, 'community.position' => 7,
-        ])->callMountedTableAction()->assertHasNoTableActionErrors();
+        Livewire::test(EditCommunityEntry::class, ['record' => $page->getKey()])->set('data.community.featured', false)->set('data.community.position', 7)->call('save')->assertHasNoErrors();
         $this->assertFalse($page->fresh()->community['featured']);
         $this->assertSame(7, $page->fresh()->community['position']);
         $this->get('/admin/community-pages')->assertOk();

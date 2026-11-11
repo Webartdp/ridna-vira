@@ -28,7 +28,7 @@ class ArticleResource extends ContentPageResource
             TextColumn::make('updated_at')->label('Змінено')->date('d.m.Y')->tooltip(fn (ContentPage $record) => $record->updated_at?->format('d.m.Y H:i'))->sortable()->toggleable(),
             TextColumn::make('path')->label('Адреса')->searchable()->wrap()->toggleable(isToggledHiddenByDefault: true),
         ])->recordActions([
-            $edit->label('Редагувати')->button()->color('gray')->modalHeading('Редагувати статтю'),
+            $edit->label('Редагувати')->button()->color('gray'),
             ActionGroup::make($actions->reject(fn ($action) => $action->getName() === 'edit')->all())->label('Інші дії')->icon('heroicon-m-ellipsis-horizontal'),
         ])->paginated([10, 25, 50])->defaultPaginationPageOption(25)->emptyStateHeading('Статей поки немає')->emptyStateDescription('Додайте матеріал і підготуйте його до публікації.');
     }
@@ -66,6 +66,9 @@ class ArticleResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => ArticleResource\Pages\ManageArticleEntries::route('/')];
+        return [
+            'index' => ArticleResource\Pages\ManageArticleEntries::route('/'),
+            'edit' => ArticleResource\Pages\EditArticleEntry::route('/{record}/edit'),
+        ];
     }
 }

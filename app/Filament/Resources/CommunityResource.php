@@ -57,6 +57,9 @@ class CommunityResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => CommunityResource\Pages\ManageCommunities::route('/')];
+        return [
+            'index' => CommunityResource\Pages\ManageCommunities::route('/'),
+            'edit' => CommunityResource\Pages\EditCommunityEntry::route('/{record}/edit'),
+        ];
     }
 }

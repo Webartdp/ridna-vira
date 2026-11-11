@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Blocks\ReadingPassage;
 use App\Models\ContentPage;
 use App\Support\CmsHtml;
-use App\Support\ContentEditor;
 use App\Support\ContentImages;
 use App\Support\PageBlocks;
 use Filament\Actions\Action;
@@ -153,7 +152,7 @@ class ContentPageResource extends Resource
             TextColumn::make('updated_at')->label('Оновлено')->dateTime('d.m.Y H:i')->sortable(),
         ])->filters([TrashedFilter::make()->label('Кошик')])
             ->recordActions([
-                EditAction::make()->modalWidth('6xl')->mutateRecordDataUsing(fn (array $data) => ContentEditor::prepare($data)),
+                EditAction::make()->label('Редагувати')->url(fn (ContentPage $record) => static::getUrl('edit', ['record' => $record])),
                 Action::make('preview')->label('На сайт')->icon('heroicon-o-arrow-top-right-on-square')->url(fn (ContentPage $record) => url($record->path))->openUrlInNewTab(),
                 Action::make('revision')->label('Попередня версія')->authorize(fn () => auth()->user()?->canManage('content'))->schema([
                     Select::make('revision')->label('Версія')->options(fn (ContentPage $record) => $record->revisions()->latest('id')->limit(30)->get()->mapWithKeys(fn ($revision) => [$revision->id => $revision->created_at->format('d.m.Y H:i:s').' · #'.$revision->id]))->required(),
@@ -174,6 +173,9 @@ class ContentPageResource extends Resource
 
     public static function getPages(): array
     {
-        return ['index' => ContentPageResource\Pages\ManageContentPages::route('/')];
+        return [
+            'index' => ContentPageResource\Pages\ManageContentPages::route('/'),
+            'edit' => ContentPageResource\Pages\EditContentPage::route('/{record}/edit'),
+        ];
     }
 }

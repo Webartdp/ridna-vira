@@ -24,6 +24,9 @@ class CreativityResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => CreativityResource\Pages\ManageCreativityEntries::route('/')];
+        return [
+            'index' => CreativityResource\Pages\ManageCreativityEntries::route('/'),
+            'edit' => CreativityResource\Pages\EditCreativityEntry::route('/{record}/edit'),
+        ];
     }
 }

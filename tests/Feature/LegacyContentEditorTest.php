@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Filament\Resources\HolidayResource\Pages\ManageHolidayEntries;
-use App\Filament\Resources\PrayerResource\Pages\ManagePrayerEntries;
+use App\Filament\Resources\HolidayResource\Pages\EditHolidayEntry;
+use App\Filament\Resources\PrayerResource\Pages\EditPrayerEntry;
 use App\Models\ContentPage;
 use App\Models\User;
 use App\Support\Cms;
@@ -47,16 +47,16 @@ class LegacyContentEditorTest extends TestCase
         $slug = Str::slug($holiday['name']);
         $page = ContentPage::create(['section' => 'holidays', 'path' => '/ridna-vira/kalendar/'.$slug, 'title' => $holiday['name'], 'editor_mode' => 'layout', 'body' => '<nav>Головна / Календар</nav><article><header>Дата</header><div class="holiday-sheet__content"><p>Старий повний текст</p></div><footer>До календаря</footer></article>']);
         $page->forceFill(['is_imported' => true, 'is_override' => false])->saveQuietly();
-        $component = Livewire::test(ManageHolidayEntries::class)->mountTableAction('edit', $page)
-            ->assertSet('mountedActions.0.data.editor_mode', 'fragment');
-        $body = $component->get('mountedActions.0.data.body');
+        $component = Livewire::test(EditHolidayEntry::class, ['record' => $page->getKey()])
+            ->assertSet('data.editor_mode', 'fragment');
+        $body = $component->get('data.body');
         if (is_array($body)) {
             $body = RichContentRenderer::make($body)->toHtml();
         }
         $this->assertStringContainsString('Старий повний текст', $body);
         $this->assertStringNotContainsString('Календар', $body);
         $this->assertSame('layout', $page->fresh()->editor_mode);
-        $component->set('mountedActions.0.data.body', '<p>Новий текст свята</p>')->callMountedTableAction()->assertHasNoTableActionErrors();
+        $component->set('data.body', '<p>Новий текст свята</p>')->call('save')->assertHasNoErrors();
         $this->assertSame('fragment', $page->fresh()->editor_mode);
         $this->get($page->path)->assertOk()->assertSee('Новий текст свята')->assertSee('holiday-date-card')->assertSee('До календаря свят');
     }
@@ -99,8 +99,7 @@ class LegacyContentEditorTest extends TestCase
         $this->assertNotNull($body);
         $page = ContentPage::create(['section' => 'prayers', 'path' => '/ridna-vira/molytvy/'.$slug, 'title' => $entry['title'], 'editor_mode' => 'fragment', 'body' => $body]);
         $page->forceFill(['is_imported' => true, 'is_override' => false])->saveQuietly();
-        Livewire::test(ManagePrayerEntries::class)
-            ->mountTableAction('edit', $page)->callMountedTableAction()->assertHasNoTableActionErrors();
+        Livewire::test(EditPrayerEntry::class, ['record' => $page->getKey()])->call('save')->assertHasNoErrors();
         $this->assertTrue($page->fresh()->is_override);
         $reading = CmsHtml::render($page->fresh()->body);
         $text = fn ($value) => trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags(preg_replace('~</(?:p|h[1-6]|li|div|section|blockquote)>|<br\s*/?>~i', ' ', $value)), ENT_QUOTES | ENT_HTML5, 'UTF-8')));

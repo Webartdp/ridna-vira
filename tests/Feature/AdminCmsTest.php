@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Filament\Pages\CalendarSettings;
 use App\Filament\Pages\SiteSettings;
+use App\Filament\Resources\ContentPageResource\Pages\EditContentPage;
 use App\Filament\Resources\ContentPageResource\Pages\ManageContentPages;
 use App\Filament\Resources\NewsResource\Pages\ManageNewsEntries;
 use App\Filament\Resources\ProductResource\Pages\ManageProducts;
@@ -152,7 +153,7 @@ class AdminCmsTest extends TestCase
             }
         }
         unset($field);
-        Livewire::test(ManageContentPages::class)->callTableAction('edit', $page, data: ['page_blocks' => $fields])->assertHasNoTableActionErrors();
+        Livewire::test(EditContentPage::class, ['record' => $page->getKey()])->set('data.page_blocks', $fields)->call('save')->assertHasNoErrors();
         $this->get('/pro-tsentr')->assertOk()->assertSee('Текст після редагування')->assertSee('preserved-layout');
     }
 

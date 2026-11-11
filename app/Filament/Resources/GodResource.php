@@ -24,6 +24,9 @@ class GodResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => GodResource\Pages\ManageGodEntries::route('/')];
+        return [
+            'index' => GodResource\Pages\ManageGodEntries::route('/'),
+            'edit' => GodResource\Pages\EditGodEntry::route('/{record}/edit'),
+        ];
     }
 }

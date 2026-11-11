@@ -24,6 +24,9 @@ class NewsResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => NewsResource\Pages\ManageNewsEntries::route('/')];
+        return [
+            'index' => NewsResource\Pages\ManageNewsEntries::route('/'),
+            'edit' => NewsResource\Pages\EditNewsEntry::route('/{record}/edit'),
+        ];
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Filament\Resources\BookResource\Pages\ManageBookEntries;
+use App\Filament\Resources\BookResource\Pages\EditBookEntry;
 use App\Models\ContentPage;
 use App\Models\User;
 use App\Support\BookLibrary;
@@ -39,9 +39,7 @@ class BookLibraryTest extends TestCase
         $page = ContentPage::where('section', 'books')->firstOrFail();
         ContentPage::updateOrCreate(['path' => '/ridna-vira/knyhy'], ['section' => 'pages', 'title' => 'Бібліотека', 'is_published' => true, 'editor_mode' => 'layout',
             'body' => '<h1>Бібліотека</h1><p>Вступ власника</p><dl class="faith-books-summary"><dt>0</dt></dl><ol class="faith-books-list"><li>ЗАСТАРІЛА КНИГА</li></ol>']);
-        Livewire::test(ManageBookEntries::class)->mountTableAction('edit', $page)->setTableActionData([
-            'title' => 'Книга після редагування', 'excerpt' => 'Новий опис видання.', 'book.author' => 'Автор після редагування', 'book.pages' => 123,
-        ])->callMountedTableAction()->assertHasNoTableActionErrors();
+        Livewire::test(EditBookEntry::class, ['record' => $page->getKey()])->set('data.title', 'Книга після редагування')->set('data.excerpt', 'Новий опис видання.')->set('data.book.author', 'Автор після редагування')->set('data.book.pages', 123)->call('save')->assertHasNoErrors();
         $this->get('/ridna-vira/knyhy')->assertOk()->assertSee('Книга після редагування')->assertSee('Автор після редагування')->assertSee('Вступ власника')->assertDontSee('ЗАСТАРІЛА КНИГА');
         $this->get($page->path)->assertOk()->assertSee('Автор після редагування');
         $page->refresh()->update(['is_published' => false]);

@@ -47,6 +47,9 @@ class BookResource extends ContentPageResource
 
     public static function getPages(): array
     {
-        return ['index' => BookResource\Pages\ManageBookEntries::route('/')];
+        return [
+            'index' => BookResource\Pages\ManageBookEntries::route('/'),
+            'edit' => BookResource\Pages\EditBookEntry::route('/{record}/edit'),
+        ];
     }
 }
