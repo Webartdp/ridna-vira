@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Про центр — Рідна Віра')
-@section('description', 'Духовний центр Рідна Віра: управління, зв’язок, Академія та світлини громади.')
+@section('description', 'Духовний центр Рідна Віра: управління, зв’язок, Академія, Енциклопедія та світлини громади.')
 
 @section('content')
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/fancybox/fancybox.css">
