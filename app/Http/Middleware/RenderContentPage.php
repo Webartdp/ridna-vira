@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\ContentPage;
+use App\Support\AboutGallery;
 use App\Support\BookLibrary;
 use App\Support\Cms;
 use App\Support\CmsHtml;
@@ -45,6 +46,9 @@ class RenderContentPage
                 }
                 if ($path === '/ridna-vira/knyhy') {
                     $saved = BookLibrary::refreshLayout($saved);
+                }
+                if ($path === '/pro-tsentr' && $page->editor_mode === 'layout') {
+                    $saved = AboutGallery::refreshLayout($saved);
                 }
                 $body = strtr($saved, $islands);
                 if ($page->editor_mode === 'fragment') {

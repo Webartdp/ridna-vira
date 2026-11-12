@@ -6,6 +6,9 @@ final class ContentEditor
 {
     public static function prepare(array $data): array
     {
+        if (($data['path'] ?? '') === '/pro-tsentr' && ($data['editor_mode'] ?? '') === 'layout') {
+            $data['body'] = AboutGallery::refreshLayout($data['body'] ?? '');
+        }
         $data = ContentImages::prepare($data);
         if (($data['section'] ?? 'pages') === 'pages' || ($data['editor_mode'] ?? 'reading') !== 'layout') {
             return $data;
