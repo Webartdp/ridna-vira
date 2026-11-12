@@ -189,6 +189,11 @@ if (mapRoot) {
 
                 if (locationElement) {
                     locationElement.hidden = !visible;
+                    locationElement.querySelectorAll('[data-map-entry]').forEach((row) => {
+                        row.hidden = !matchingEntries.includes(location.entries[Number(row.dataset.mapEntry)]);
+                    });
+                    const count = locationElement.querySelector('.community-location__count');
+                    if (count) count.textContent = String(matchingEntries.length);
                 }
 
                 if (!marker) return;
@@ -203,6 +208,9 @@ if (mapRoot) {
                 }
             });
 
+            mapRoot.querySelectorAll('[data-map-circle-group]').forEach((group) => {
+                group.hidden = !group.querySelector('[data-map-location]:not([hidden])');
+            });
             if (countElement) countElement.textContent = String(visibleEntryCount);
             if (emptyElement) emptyElement.hidden = visibleEntryCount !== 0;
             if (fitMap && visibleMarkers.length > 0) fitVisibleMarkers(visibleMarkers);

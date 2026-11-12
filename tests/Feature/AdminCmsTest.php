@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Filament\Pages\CalendarSettings;
+use App\Filament\Pages\Communities;
 use App\Filament\Pages\SiteSettings;
 use App\Filament\Resources\ContentPageResource\Pages\EditContentPage;
 use App\Filament\Resources\ContentPageResource\Pages\ManageContentPages;
@@ -121,6 +122,26 @@ class AdminCmsTest extends TestCase
         $this->get('/test-encyclopedia-links')->assertOk()
             ->assertSee('Опис молитви.')->assertSee('Громади')
             ->assertDontSee('wiki.svit.in.ua', false)->assertDontSee('Енциклопедія');
+    }
+
+    public function test_editor_can_add_a_circle_and_assign_it_to_a_map_location(): void
+    {
+        $this->actingAs($this->admin());
+        $component = Livewire::test(Communities::class);
+        $circles = $component->get('data.circles');
+        $circles[] = ['id' => 'test-circle', 'label' => 'Нове тестове коло'];
+        $locations = $component->get('data.locations');
+        $key = array_key_first($locations);
+        $component->set('data.circles', $circles)
+            ->set('data.locations.'.$key.'.circle', 'test-circle')
+            ->call('save')->assertHasNoErrors();
+
+        $saved = json_decode(SiteSetting::read('communities'), true);
+        $this->assertSame('test-circle', $saved[0]['entries'][0]['circle']);
+
+        $this->get('/zviazok')->assertOk()
+            ->assertSee('value="test-circle"', false)
+            ->assertSee('data-map-circle-group aria-label="Нове тестове коло"', false);
     }
 
     public function test_community_settings_are_used_by_live_map(): void

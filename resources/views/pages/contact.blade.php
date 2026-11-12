@@ -8,7 +8,9 @@
 @endpush
 
 @php
-    $communityLocations = json_decode(\App\Models\SiteSetting::read('communities', json_encode(config('communities'), JSON_UNESCAPED_UNICODE)), true);
+    $communityLocations = \App\Support\CommunityMap::locations();
+    $communityCircles = array_column(\App\Support\CommunityMap::circles(), 'label', 'id');
+    $locationsByCircle = collect($communityLocations)->groupBy('circle');
 
     $communityEntryCount = collect($communityLocations)->sum(fn ($location) => count($location['entries']));
 @endphp
@@ -88,9 +90,9 @@
                     <span>Крайове Коло</span>
                     <select data-community-map-circle>
                         <option value="all">Усі Кола</option>
-                        <option value="zaporizke">Запорозьке Коло</option>
-                        <option value="sicheslavske">Січеславське Коло</option>
-                        <option value="zahidne">Західне Коло</option>
+                        @foreach ($communityCircles as $id => $label)
+                            <option value="{{ $id }}">{{ $label }}</option>
+                        @endforeach
                     </select>
                 </label>
 
@@ -116,25 +118,32 @@
                     </div>
 
                     <div class="community-map-locations">
-                        @foreach ($communityLocations as $location)
-                            <article class="community-location" data-map-location="{{ $location['id'] }}">
-                                <button class="community-location__button" type="button" data-map-location-button>
-                                    <span>
-                                        <span class="community-location__city">{{ $location['city'] }}</span>
-                                        <span class="community-location__meta">{{ $location['region'] }} · {{ $location['circleLabel'] }}</span>
-                                    </span>
-                                    <span class="community-location__count">{{ count($location['entries']) }}</span>
-                                </button>
+                        @foreach ($communityCircles as $id => $label)
+                            @if ($locationsByCircle->has($id))
+                                <section data-map-circle-group aria-label="{{ $label }}">
+                                    <h3 class="community-map-circle-heading">{{ $label }}</h3>
+                                    @foreach ($locationsByCircle->get($id, []) as $location)
+                                        <article class="community-location" data-map-location="{{ $location['id'] }}">
+                                            <button class="community-location__button" type="button" data-map-location-button>
+                                                <span>
+                                                    <span class="community-location__city">{{ $location['city'] }}</span>
+                                                    <span class="community-location__meta">{{ $location['region'] }} · {{ $location['circleLabel'] }}</span>
+                                                </span>
+                                                <span class="community-location__count">{{ count($location['entries']) }}</span>
+                                            </button>
 
-                                <div class="community-location__entries">
-                                    @foreach ($location['entries'] as $entry)
-                                        <div class="community-location__entry">
-                                            <b>{{ $entry['title'] }}</b>
-                                            <small>{{ collect([$entry['role'], $entry['person']])->filter()->implode(' — ') }}</small>
-                                        </div>
+                                            <div class="community-location__entries">
+                                                @foreach ($location['entries'] as $entryIndex => $entry)
+                                                    <div class="community-location__entry" data-map-entry="{{ $entryIndex }}">
+                                                        <b>{{ $entry['title'] }}</b>
+                                                        <small>{{ collect([$entry['role'], $entry['person']])->filter()->implode(' — ') }}</small>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </article>
                                     @endforeach
-                                </div>
-                            </article>
+                                </section>
+                            @endif
                         @endforeach
 
                         <p class="community-map-empty" data-community-map-empty hidden>За вибраними умовами нічого не знайдено.</p>
@@ -162,7 +171,7 @@
     </div>
 </section>
 
-<script type="application/json" id="community-map-data">@json($communityLocations, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)</script>
+<script type="application/json" id="community-map-data">@json($communityLocations, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG)</script>
 @endsection
 
 @push('scripts')
