@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Support\ArticleContent;
+use App\Support\Cms;
 use App\Support\Publications;
 use Illuminate\Filesystem\Filesystem;
 use Tests\TestCase;
@@ -24,6 +25,10 @@ class PublicationTest extends TestCase
             }
         }
         $this->assertCount(12, array_unique($links));
+        $xpath = new \DOMXPath(Cms::document($response->getContent()));
+        $this->assertCount(4, $xpath->query('//ul[@class="home-article-list"]/li/a/h3'));
+        $this->assertCount(0, $xpath->query('//ul[@class="home-article-list"]//img'));
+        $response->assertSee('Башлакова В.');
         $this->assertSame('2026-11-08', $sections[0]['items'][0]['date']);
         $this->assertArrayNotHasKey('date', $sections[1]['items'][0]);
         $this->assertArrayNotHasKey('date', $sections[2]['items'][0]);

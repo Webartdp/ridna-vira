@@ -18,10 +18,9 @@ final class ArticleController extends Controller
 {
     public function __construct(private readonly ArticleContent $articleContent) {}
 
-    public function index(Request $request): View
+    public function index(Request $request, Publications $publications): View
     {
         $manifest = $this->manifest();
-        $authors = json_decode(file_get_contents(resource_path('content/publications/article-authors.json')), true, flags: JSON_THROW_ON_ERROR);
         $articles = [];
         foreach ($manifest['articles'] ?? [] as $key => $entry) {
             $slug = (string) ($entry['slug'] ?? $key);
@@ -30,9 +29,8 @@ final class ArticleController extends Controller
                 continue;
             }
             $presented = $this->present($entry, $path);
-            $sourcePath = rawurldecode((string) parse_url($entry['source_url'] ?? '', PHP_URL_PATH));
             $articles[] = [...$entry, 'slug' => $slug, 'title' => $presented['title'], 'excerpt' => $presented['excerpt'],
-                'author' => $entry['author'] ?? $authors[$sourcePath] ?? ''];
+                'author' => $publications->articleAuthor($entry)];
         }
 
         $articles = Cms::merge('articles', $articles, '/statti');

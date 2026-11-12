@@ -116,7 +116,24 @@
             <a href="{{ $section['url'] }}">{{ $section['title'] === 'Новини' ? 'Усі новини' : ($section['title'] === 'Статті' ? 'Усі статті' : 'Уся творчість') }} →</a>
         </div>
 
-        @if (!empty($section['items']))
+        @if (!empty($section['items']) && !empty($section['text_only']))
+            <ul class="home-article-list">
+                @foreach ($section['items'] as $item)
+                    <li>
+                        <a class="home-article-card" href="{{ $item['url'] }}">
+                            @if (!empty($item['author']))
+                                <span class="home-article-card__author">{{ $item['author'] }}</span>
+                            @endif
+                            <h3>{{ $item['title'] }}</h3>
+                            @if (!empty($item['excerpt']))
+                                <p>{{ $item['excerpt'] }}</p>
+                            @endif
+                            <span class="home-article-card__arrow" aria-hidden="true">→</span>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        @elseif (!empty($section['items']))
         @php($featured = $section['items'][0])
         <div class="materials-grid">
             <a class="feature-material" href="{{ $featured['url'] }}">

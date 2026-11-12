@@ -8,6 +8,8 @@ final class Publications
 {
     private ?array $catalogue = null;
 
+    private ?array $articleAuthors = null;
+
     public function catalogue(): array
     {
         return $this->catalogue ??= json_decode(file_get_contents(resource_path('content/publications/catalogue.json')), true, 512, JSON_THROW_ON_ERROR);
@@ -32,6 +34,14 @@ final class Publications
         return null;
     }
 
+    public function articleAuthor(array $article): string
+    {
+        $this->articleAuthors ??= json_decode(file_get_contents(resource_path('content/publications/article-authors.json')), true, flags: JSON_THROW_ON_ERROR);
+        $source = rawurldecode((string) parse_url($article['source_url'] ?? '', PHP_URL_PATH));
+
+        return $article['author'] ?? $this->articleAuthors[$source] ?? '';
+    }
+
     public function articleHighlights(): array
     {
         $path = storage_path('app/content/articles/manifest.json');
@@ -49,7 +59,7 @@ final class Publications
                     }
                 }
             }
-            $items[] = [...$article, 'url' => route('articles.show', $slug)];
+            $items[] = [...$article, 'author' => $this->articleAuthor($article), 'url' => route('articles.show', $slug)];
         }
 
         return array_slice($items, 0, 4);

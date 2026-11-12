@@ -71,7 +71,7 @@ class AdminCmsTest extends TestCase
         $this->assertStringContainsString('[[live:materials]]', $body);
         ContentPage::create(['path' => '/', 'section' => 'pages', 'title' => 'Рідна Віра', 'body' => $body.'<p>Редакторський текст</p>', 'editor_mode' => 'layout']);
         ContentPage::create(['path' => '/novyny/live-news', 'section' => 'news', 'title' => 'Нова жива стрічка', 'body' => '<p>Текст</p>', 'published_at' => now()]);
-        $this->get('/')->assertOk()->assertSee('Редакторський текст')->assertSee('Нова жива стрічка')->assertDontSee('[[live:', false);
+        $this->get('/')->assertOk()->assertSee('Редакторський текст')->assertSee('Нова жива стрічка')->assertSee('class="home-article-list"', false)->assertDontSee('[[live:', false);
         [$template, $islands] = Cms::islands('<p>Вступ</p><form method="post"><input name="_token" value="fresh-token"></form>');
         $this->assertStringNotContainsString('fresh-token', $template);
         $this->assertStringContainsString('fresh-token', strtr($template, $islands));

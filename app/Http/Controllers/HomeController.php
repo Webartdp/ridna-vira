@@ -19,7 +19,7 @@ final class HomeController extends Controller
 
         return view('home', ['materialSections' => [
             ['title' => 'Новини', 'url' => route('news.index'), 'items' => $news],
-            ['title' => 'Статті', 'url' => route('articles.index'), 'items' => $publications->articleHighlights()],
+            ['title' => 'Статті', 'text_only' => true, 'url' => route('articles.index'), 'items' => $publications->articleHighlights()],
             ['title' => 'Творчість', 'url' => route('creativity.index'), 'items' => $creative],
         ]]);
     }
