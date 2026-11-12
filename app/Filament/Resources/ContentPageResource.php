@@ -77,6 +77,9 @@ class ContentPageResource extends Resource
                             $set('path', $prefix.Str::slug($state));
                         }
                     }),
+                    TextInput::make('author')->label('Автор')->maxLength(255)->columnSpanFull()
+                        ->helperText('Якщо поле порожнє, показується автор із джерела, якщо він відомий.')
+                        ->visible(fn () => static::$contentSection === 'articles'),
                     Textarea::make('excerpt')->label('Короткий опис')->rows(3)->maxLength(1000)->columnSpanFull(),
                     FileUpload::make('image')->label('Зображення')->disk('public')->directory('content')->visibility('public')->image()->imageResizeMode('contain')->imageResizeTargetWidth('1600')->imageResizeTargetHeight('1600')->imageResizeUpscale(false)->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->maxSize(4096)
                         ->preventFilePathTampering(true, fn (string $file, ?ContentPage $record) => $record && $file === (ContentImages::prepare($record->attributesToArray())['image'] ?? null))

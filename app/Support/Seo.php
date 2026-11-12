@@ -147,7 +147,9 @@ final class Seo
         }
         $imageInfo = self::imageInfo($image);
         $type = $product ? 'product' : (preg_match('~^/(?:novyny|statti|tvorchist)/[^/]+$~D', $path) ? 'article' : 'website');
-        $noindex = self::privatePath($path) || $request->hasAny(['q', 'search', 'category']);
+        $noindex = self::privatePath($path) || ($path === '/statti'
+            ? $request->anyFilled(['q', 'author', 'search', 'category'])
+            : $request->hasAny(['q', 'search', 'category']));
         $published = $page?->published_at?->toIso8601String();
         if (! $published && $type === 'article') {
             $date = $document->getElementsByTagName('time')->item(0)?->getAttribute('datetime');

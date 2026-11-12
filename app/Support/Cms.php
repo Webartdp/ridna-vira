@@ -95,7 +95,11 @@ final class Cms
         if (! self::ready()) {
             return array_values($bySlug);
         }
-        foreach (ContentPage::publicOverrides()->where('section', $section)->get() as $page) {
+        $overrides = ContentPage::publicOverrides()->where('section', $section);
+        if ($section === 'articles') {
+            $overrides->addSelect('author');
+        }
+        foreach ($overrides->get() as $page) {
             $slug = basename($page->path);
             if (! $page->visible()) {
                 unset($bySlug[$slug]);
@@ -112,6 +116,9 @@ final class Cms
             $bySlug[$slug] = [...($bySlug[$slug] ?? []), 'slug' => $slug, 'title' => $page->title, 'excerpt' => $page->excerpt ?? '', 'summary' => $page->excerpt ?? '', 'date' => ($page->published_at ?? $page->created_at)->format('Y-m-d'), 'image' => $image, '_cms_image_managed' => (bool) ($page->image || $page->image_origin), 'url' => url($page->path), 'category' => $page->category ?? $bySlug[$slug]['category'] ?? match ($section) {
                 'prayers' => 'themes', 'rituals' => 'life', default => 'Матеріали'
             }, 'cms' => true];
+            if ($section === 'articles' && filled($page->author)) {
+                $bySlug[$slug]['author'] = trim($page->author);
+            }
         }
 
         return array_values($bySlug);

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\ArticleResource\Pages\EditArticleEntry;
 use App\Filament\Resources\ArticleResource\Pages\ManageArticleEntries;
 use App\Filament\Resources\ContentPageResource\Pages\ManageContentPages;
 use App\Filament\Resources\NewsResource\Pages\ManageNewsEntries;
@@ -44,6 +45,21 @@ class AdminContentSectionsTest extends TestCase
         $this->assertDatabaseHas('content_pages', ['path' => '/novyny/new-entry', 'section' => 'news']);
         $this->get('/novyny')->assertOk()->assertSee('Новина з окремого розділу');
         $this->get('/novyny/new-entry')->assertOk()->assertSee('Новий текст');
+    }
+
+    public function test_article_author_can_be_changed_in_admin_and_searched_on_the_site(): void
+    {
+        $article = ContentPage::create([
+            'section' => 'articles', 'title' => 'Редагована стаття', 'path' => '/statti/edit-author',
+            'body' => '<p>Текст</p>', 'editor_mode' => 'reading', 'is_published' => true,
+        ]);
+        Livewire::test(EditArticleEntry::class, ['record' => $article->getRouteKey()])
+            ->fillForm(['author' => 'Оксана Ткачук'])->call('save')->assertHasNoFormErrors();
+
+        $this->assertSame('Оксана Ткачук', $article->refresh()->author);
+        $this->withoutVite()->get('/statti?author='.urlencode('оксана ткачук'))->assertOk()
+            ->assertSeeInOrder(['Оксана Ткачук', 'Редагована стаття'])
+            ->assertSee('name="robots" content="noindex, follow"', false);
     }
 
     public function test_news_editor_cannot_accidentally_create_an_article(): void

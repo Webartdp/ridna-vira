@@ -63,7 +63,7 @@ class ContentImagesTest extends TestCase
         $this->assertNull(ContentImages::import('/assets/../.env'));
     }
 
-    public function test_managed_cover_is_shared_by_news_blog_creativity_shrine_cards_and_details(): void
+    public function test_managed_cover_is_shown_in_details_and_in_catalogues_with_images(): void
     {
         Storage::fake('public');
         $this->withoutVite();
@@ -72,7 +72,12 @@ class ContentImagesTest extends TestCase
         foreach (['news' => '/novyny', 'articles' => '/statti', 'creativity' => '/tvorchist', 'shrines' => '/ridna-vira/sviatyni'] as $section => $prefix) {
             $page = ContentPage::create(['path' => $prefix.'/image-test', 'section' => $section, 'title' => 'ААА Зображення', 'editor_mode' => 'reading', 'body' => '<p>Текст матеріалу.</p>', 'image' => 'content/cover.jpg']);
             $src = ContentImages::visual($page->image)['src'];
-            $this->get($prefix)->assertOk()->assertSee($src, false);
+            $catalogue = $this->get($prefix)->assertOk();
+            if ($section === 'articles') {
+                $catalogue->assertSee('ААА Зображення')->assertDontSee($src, false);
+            } else {
+                $catalogue->assertSee($src, false);
+            }
             $response = $this->get($page->path)->assertOk()->assertSee($src, false)->assertSee('property="og:image"', false);
             $images = iterator_to_array(Cms::document($response->getContent())->getElementsByTagName('img'));
             $this->assertCount(1, array_filter($images, fn ($image) => ContentImages::same($image->getAttribute('src'), $src)), $section);

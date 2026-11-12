@@ -52,6 +52,33 @@ class ArticleTest extends TestCase
         $this->assertSame($manifest, file_get_contents($root.'manifest.json'));
     }
 
+    public function test_catalogue_groups_by_source_author_and_filters_by_title_and_author(): void
+    {
+        $root = $this->fixtureStorage.'/app/content/articles/';
+        file_put_contents($root.'study.pdf', '%PDF-1.4');
+        $base = ['extension' => 'pdf', 'path' => 'study.pdf'];
+        $entries = [
+            'traditions' => $base + ['title' => 'Традиції слов’ян', 'source_url' => 'https://svit.in.ua/stat/st60.htm'],
+            'another' => $base + ['title' => 'Інша стаття', 'source_url' => 'https://www.svit.in.ua/stat/st60.htm'],
+            'anonymous' => $base + ['title' => 'Анонімна стаття'],
+        ];
+        file_put_contents($root.'manifest.json', json_encode(['articles' => $entries]));
+
+        $this->get('/statti')->assertOk()
+            ->assertSeeInOrder(['Башлакова В.', 'Інша стаття', 'Традиції слов’ян', 'Автор не вказаний', 'Анонімна стаття'])
+            ->assertDontSee('article-preview__cover');
+
+        $query = http_build_query(['q' => "СЛОВ'ЯН", 'author' => 'бАШЛАК']);
+        $this->get('/statti?'.$query)->assertOk()
+            ->assertSee('Традиції слов’ян')
+            ->assertDontSee('Інша стаття')
+            ->assertDontSee('Анонімна стаття');
+
+        $this->get('/statti?author='.urlencode('Невідомий автор'))->assertOk()
+            ->assertSee('За цим запитом статей не знайдено.')
+            ->assertSee('Скинути пошук');
+    }
+
     public function test_articles_are_paginated_and_non_html_materials_still_download(): void
     {
         $root = $this->fixtureStorage.'/app/content/articles/';

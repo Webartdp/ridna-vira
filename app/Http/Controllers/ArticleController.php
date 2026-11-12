@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Support\ArticleContent;
 use App\Support\Cms;
 use App\Support\Publications;
+use Collator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -20,6 +21,7 @@ final class ArticleController extends Controller
     public function index(Request $request): View
     {
         $manifest = $this->manifest();
+        $authors = json_decode(file_get_contents(resource_path('content/publications/article-authors.json')), true, flags: JSON_THROW_ON_ERROR);
         $articles = [];
         foreach ($manifest['articles'] ?? [] as $key => $entry) {
             $slug = (string) ($entry['slug'] ?? $key);
@@ -28,18 +30,53 @@ final class ArticleController extends Controller
                 continue;
             }
             $presented = $this->present($entry, $path);
-            $articles[] = [...$entry, 'slug' => $slug, 'title' => $presented['title'], 'excerpt' => $presented['excerpt']];
+            $sourcePath = rawurldecode((string) parse_url($entry['source_url'] ?? '', PHP_URL_PATH));
+            $articles[] = [...$entry, 'slug' => $slug, 'title' => $presented['title'], 'excerpt' => $presented['excerpt'],
+                'author' => $entry['author'] ?? $authors[$sourcePath] ?? ''];
         }
 
         $articles = Cms::merge('articles', $articles, '/statti');
-        usort($articles, static fn (array $left, array $right): int => strcmp($left['title'] ?? '', $right['title'] ?? ''));
+        $filters = [];
+        foreach (['q', 'author'] as $field) {
+            $value = $request->query($field);
+            $filters[$field] = is_string($value) ? trim(mb_substr($value, 0, 255)) : '';
+        }
+        $query = array_filter($filters, static fn (string $value): bool => $value !== '');
+        $titleSearch = $this->searchText($filters['q']);
+        $authorSearch = $this->searchText($filters['author']);
+        $articles = array_values(array_filter($articles, fn (array $article): bool => str_contains($this->searchText($article['title']), $titleSearch)
+            && str_contains($this->searchText($article['author'] ?? ''), $authorSearch)));
 
-        $page = max(1, (int) $request->query('page', 1));
+        $collator = class_exists(Collator::class) ? new Collator('uk_UA') : null;
+        $compare = static fn (string $left, string $right): int => $collator?->compare($left, $right) ?? strnatcasecmp($left, $right);
+        usort($articles, static function (array $left, array $right) use ($compare): int {
+            $leftAuthor = $left['author'] ?? '';
+            $rightAuthor = $right['author'] ?? '';
 
-        return view('pages.articles', ['articles' => new LengthAwarePaginator(
-            array_slice($articles, ($page - 1) * 18, 18), count($articles), 18, $page,
-            ['path' => $request->url(), 'query' => $request->query()],
-        )]);
+            return (($leftAuthor === '') <=> ($rightAuthor === ''))
+                ?: $compare($leftAuthor, $rightAuthor)
+                ?: strcmp($leftAuthor, $rightAuthor)
+                ?: $compare($left['title'], $right['title'])
+                ?: strcmp($left['slug'], $right['slug']);
+        });
+
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $articles = new LengthAwarePaginator(
+            $page <= (int) ceil(count($articles) / 18) ? array_slice($articles, ($page - 1) * 18, 18) : [], count($articles), 18, $page,
+            ['path' => $request->url(), 'query' => $query, 'fragment' => 'articles-catalogue'],
+        );
+
+        return view('pages.articles', [
+            'articles' => $articles,
+            'groups' => $articles->getCollection()->groupBy(fn (array $article): string => $article['author'] ?? ''),
+            'filters' => $filters,
+            'isFiltered' => $query !== [],
+        ]);
+    }
+
+    private function searchText(string $value): string
+    {
+        return mb_strtolower(trim(preg_replace('/\s+/u', ' ', str_replace(['’', 'ʼ', '‘'], "'", $value)) ?? ''));
     }
 
     public function show(string $article): View
