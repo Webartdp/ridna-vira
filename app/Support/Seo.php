@@ -127,6 +127,9 @@ final class Seo
         if (! $image && $path === '/' && ! $page?->image_origin) {
             $image = '/assets/figma/home/hero.png';
         }
+        if (! $image && $path === '/novyny') {
+            $image = '/assets/social/news.jpg';
+        }
         if (! $image && $product && ! empty($product->images)) {
             $image = $product->imageUrl($product->images[0], 1200);
         }

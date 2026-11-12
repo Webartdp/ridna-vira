@@ -49,6 +49,19 @@ class SocialMetadataTest extends TestCase
         $this->assertSame(1200, $graph->firstWhere('@type', 'ImageObject')['width']);
     }
 
+    public function test_news_index_uses_a_dedicated_social_cover(): void
+    {
+        $response = $this->get('/novyny')->assertOk()
+            ->assertSee('property="og:image" content="https://ridnavira.com.ua/assets/social/news.jpg"', false)
+            ->assertSee('property="og:image:width" content="1200"', false)
+            ->assertSee('property="og:image:height" content="630"', false)
+            ->assertSee('property="og:image:type" content="image/jpeg"', false)
+            ->assertSee('name="twitter:image" content="https://ridnavira.com.ua/assets/social/news.jpg"', false);
+
+        $image = collect($this->graph($response->getContent()))->firstWhere('@type', 'ImageObject');
+        $this->assertSame('https://ridnavira.com.ua/assets/social/news.jpg', $image['url']);
+    }
+
     public function test_native_news_dates_and_youtube_video_metadata_work_without_cms_override(): void
     {
         $entry = collect((new Publications)->catalogue()['news'])->first(fn ($entry) => ! empty($entry['videos']) && empty($entry['redirect']));
