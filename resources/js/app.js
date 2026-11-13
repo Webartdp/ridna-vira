@@ -160,3 +160,20 @@ const header = document.querySelector('[data-site-header]');
 if (header) {
     window.addEventListener('scroll', () => header.classList.toggle('is-scrolled', window.scrollY > 24), { passive: true });
 }
+
+const backToTop = document.querySelector('[data-back-to-top]');
+if (backToTop) {
+    const updateBackToTop = () => {
+        backToTop.hidden = window.scrollY < window.innerHeight;
+    };
+
+    window.addEventListener('scroll', updateBackToTop, { passive: true });
+    window.addEventListener('resize', updateBackToTop);
+    window.addEventListener('pageshow', updateBackToTop);
+    updateBackToTop();
+
+    backToTop.addEventListener('click', () => {
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        window.scrollTo({ top: 0, behavior: reduceMotion ? 'instant' : 'smooth' });
+    });
+}

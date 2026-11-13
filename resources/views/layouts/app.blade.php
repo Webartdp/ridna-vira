@@ -111,6 +111,10 @@
     <div class="footer-rule"><img src="{{ asset('assets/figma/home/footer-line.svg') }}" alt=""></div>
     <p class="footer-copy">© 2006–{{ date('Y') }} {{ \App\Models\SiteSetting::read('footer_text', 'РІДНА ВІРА — Всі права захищені') }} — <a href="{{ url('/umovy-kramnytsi') }}">Умови та конфіденційність</a></p>
 </footer>
+<button class="back-to-top" type="button" data-back-to-top hidden>
+    <span aria-hidden="true">↑</span>
+    <span>Вгору</span>
+</button>
 @stack('scripts')
 </body>
 </html>

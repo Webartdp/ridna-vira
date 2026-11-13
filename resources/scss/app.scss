@@ -1270,3 +1270,36 @@ p {
         font-size: 13px;
     }
 }
+
+.back-to-top:not([hidden]) {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+    z-index: 20;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 44px;
+    padding: 8px 14px;
+    border: 1px solid #b98f55;
+    border-radius: 24px;
+    background: #4d2c17;
+    color: #fffaf0;
+    box-shadow: 0 3px 12px #28130433;
+    font: 600 14px/1.2 var(--rv-font-ui);
+    cursor: pointer;
+}
+
+.back-to-top span[aria-hidden] {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.back-to-top:hover {
+    background: #694221;
+}
+
+.back-to-top:focus-visible {
+    outline: 2px solid #b98f55;
+    outline-offset: 3px;
+}
