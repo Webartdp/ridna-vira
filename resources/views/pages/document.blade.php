@@ -27,12 +27,14 @@
                     <h2>{{ $documentTitle }}</h2>
                 </div>
 
-                <div class="document-sheet__meta">
-                    <span>{{ $extension }}</span>
-                    @if ($size > 0)
-                        <small>{{ number_format($size / 1024, 0, ',', ' ') }} КБ</small>
-                    @endif
-                </div>
+                @if ($hasFile && $extension !== 'HTML')
+                    <div class="document-sheet__meta">
+                        <span>{{ $extension }}</span>
+                        @if ($size > 0)
+                            <small>{{ number_format($size / 1024, 0, ',', ' ') }} КБ</small>
+                        @endif
+                    </div>
+                @endif
             </header>
 
             @if ($content !== null && trim($content) !== '')
@@ -42,7 +44,7 @@
             @else
                 <div class="document-sheet__empty">
                     <h3>Документ доступний для завантаження</h3>
-                    <p>Цей матеріал збережено у форматі {{ $extension }}. Текстову версію можна підготувати окремо для публічного перегляду.</p>
+                    <p>Цей матеріал збережено у форматі {{ $extension }}.</p>
                 </div>
             @endif
 
@@ -50,7 +52,7 @@
                 <a class="document-back-link" href="{{ route('about.management') }}#documents-center">← До каталогу документів</a>
 
                 @if ($hasFile)
-                    <a class="figma-button" href="{{ route('documents.download.file', $documentKey) }}">Завантажити {{ $extension }}</a>
+                    <a class="figma-button" href="{{ route('documents.download.file', $documentKey) }}">Завантажити {{ $extension === 'HTML' ? 'документ' : $extension }}</a>
                 @endif
             </footer>
         </article>

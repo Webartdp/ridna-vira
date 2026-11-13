@@ -34,7 +34,7 @@ final class ContentEditor
                 $body = implode('', array_map(fn ($node) => $document->saveHTML($node), iterator_to_array($document->getElementById('cms-root')->childNodes)));
             }
         }
-        $data['body'] = CmsHtml::clean($body);
+        $data['body'] = ($data['section'] ?? '') === 'documents' ? CmsHtml::clean(DocumentContent::clean($body, legacyOnly: true)) : CmsHtml::clean($body);
         $data['editor_mode'] = 'fragment';
         if (! ($data['is_override'] ?? false)) {
             $data['excerpt'] = (new ArticleContent)->excerpt($data['body']);

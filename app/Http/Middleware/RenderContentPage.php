@@ -9,6 +9,7 @@ use App\Support\Cms;
 use App\Support\CmsHtml;
 use App\Support\CommunityDirectory;
 use App\Support\ContentImages;
+use App\Support\DocumentContent;
 use Closure;
 use Illuminate\Http\Request;
 
@@ -52,6 +53,9 @@ class RenderContentPage
                 }
                 $body = strtr($saved, $islands);
                 if ($page->editor_mode === 'fragment') {
+                    if ($page->section === 'documents') {
+                        $body = DocumentContent::clean($body, legacyOnly: true);
+                    }
                     $body = CmsHtml::render($body);
                     $extra = '';
                     if ($page->video_url && preg_match('~(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|shorts/))([A-Za-z0-9_-]{11})(?:[?&#/]|$)~', $page->video_url, $video)) {
@@ -59,6 +63,12 @@ class RenderContentPage
                     }
                     $body = Cms::fragment($match[1], $extra.$body, $page->title) ?? $body;
                 } else {
+                    if ($page->section === 'documents' && ($fragment = Cms::fragment($body)) !== null) {
+                        $clean = DocumentContent::clean($fragment, legacyOnly: true);
+                        if ($clean !== $fragment) {
+                            $body = Cms::fragment($body, $clean) ?? $body;
+                        }
+                    }
                     $body = preg_replace_callback('~(<h1\b[^>]*>).*?(</h1>)~s', fn ($parts) => $parts[1].e($page->title).$parts[2], $body, 1);
                 }
                 $body = ContentImages::render($body, $page);

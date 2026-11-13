@@ -66,6 +66,9 @@
 }
 
 .document-sheet__content {
+    width: 100%;
+    max-width: 860px;
+    margin-inline: auto;
     overflow-wrap: anywhere;
     padding: 42px;
     color: var(--rv-dark);
@@ -108,7 +111,7 @@
 }
 
 .document-sheet__content p {
-    text-align: justify;
+    text-align: left;
 }
 
 .document-sheet__content a {
@@ -225,10 +228,6 @@
         padding: 30px 24px;
         font-size: 15px;
         line-height: 1.6;
-    }
-
-    .document-sheet__content p {
-        text-align: left;
     }
 
     .document-sheet__content .document-data-table {
