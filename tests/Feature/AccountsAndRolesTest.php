@@ -30,6 +30,23 @@ class AccountsAndRolesTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_administrator_can_filter_users_by_role_including_makers(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $maker = User::factory()->create(['role' => 'maker']);
+        $customer = User::factory()->create(['role' => 'user']);
+        $roles = [$admin, $maker, $customer];
+
+        $this->actingAs($admin)->get('/admin/users')->assertOk()->assertSee('Усі ролі');
+        Livewire::test(ManageUsers::class)
+            ->assertCanSeeTableRecords($roles)
+            ->filterTable('role', 'maker')
+            ->assertCanSeeTableRecords([$maker])
+            ->assertCanNotSeeTableRecords([$admin, $customer])
+            ->resetTableFilters()
+            ->assertCanSeeTableRecords($roles);
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
