@@ -46,8 +46,12 @@ class ProductResource extends Resource
             TextInput::make('slug')->label('Адреса товару')->required()->regex('/^[a-z0-9-]+$/D')->maxLength(190)->unique(ignoreRecord: true)->helperText('Наприклад: knyha-ridna-vira'),
             TextInput::make('sku')->label('Артикул')->maxLength(100)->unique(ignoreRecord: true),
             Select::make('product_category_id')->label('Категорія')->relationship('category', 'name')->searchable()->preload(),
-            TextInput::make('price_minor')->label('Ціна, грн')->required()->numeric()->minValue(0.01)->maxValue(9999999.99)->step('0.01')
+            TextInput::make('price_minor')->label('Ціна, грн')->disabled(fn (?Product $record) => $record?->maker_price_minor !== null)->required()->numeric()->minValue(0.01)->maxValue(9999999.99)->step('0.01')
                 ->formatStateUsing(fn ($state) => $state === null ? null : Money::decimal((int) $state))->dehydrateStateUsing(fn ($state) => Money::minor((string) $state)),
+            TextInput::make('maker_price_minor')->label('Ціна майстра, грн')->disabled()
+                ->visible(fn (?Product $record) => $record?->maker_price_minor !== null)
+                ->formatStateUsing(fn ($state) => $state === null ? null : Money::decimal((int) $state)),
+            Toggle::make('made_to_order')->label('Під замовлення')->disabled()->visible(fn (?Product $record) => (bool) $record?->made_to_order),
             TextInput::make('stock')->label('Залишок, шт.')->integer()->required()->minValue(0)->maxValue(1000000)->default(0)->helperText('Показано вільний залишок, без зарезервованих замовлень.'),
             Hidden::make('stock_before')->afterStateHydrated(fn ($component, ?Product $record) => $component->state($record?->stock))->dehydrated(fn (?Product $record) => $record !== null),
             Toggle::make('is_active')->label('Показувати в крамниці')->default(false),
@@ -62,9 +66,10 @@ class ProductResource extends Resource
     {
         return $table->columns([
             TextColumn::make('name')->label('Товар')->searchable()->sortable(),
+            TextColumn::make('maker.name')->label('Майстер')->searchable(),
             TextColumn::make('sku')->label('Артикул')->searchable(),
             TextColumn::make('price_minor')->label('Ціна')->formatStateUsing(fn ($state) => Money::display((int) $state))->sortable(),
-            TextColumn::make('stock')->label('У наявності')->sortable(),
+            TextColumn::make('stock')->label('Залишок')->formatStateUsing(fn ($state, Product $record) => $record->made_to_order ? 'Під замовлення' : $state)->sortable(),
             IconColumn::make('is_active')->label('Активний')->boolean(),
         ])->filters([TrashedFilter::make()])->recordActions([EditAction::make()->modalWidth('6xl')->using(function (Product $record, array $data): Product {
             return DB::transaction(function () use ($record, $data) {

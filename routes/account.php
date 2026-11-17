@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AccountController;
+use App\Http\Controllers\MakerController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -8,12 +9,17 @@ Route::middleware('guest')->group(function () {
     Route::post('/uviyty', [AccountController::class, 'login'])->middleware('throttle:6,1');
     Route::view('/reiestratsiia', 'account.register')->name('register');
     Route::post('/reiestratsiia', [AccountController::class, 'register'])->middleware('throttle:4,1');
+    Route::view('/reiestratsiia/maister', 'account.register', ['maker' => true])->name('maker.register');
+    Route::post('/reiestratsiia/maister', [AccountController::class, 'register'])->middleware('throttle:4,1')->name('maker.register.submit');
     Route::view('/parol/vidnovyty', 'account.forgot')->name('password.request');
     Route::post('/parol/vidnovyty', [AccountController::class, 'forgot'])->middleware('throttle:4,1')->name('password.email');
     Route::get('/parol/skynuty/{token}', fn (string $token) => view('account.reset', ['token' => $token]))->name('password.reset');
     Route::post('/parol/skynuty', [AccountController::class, 'reset'])->middleware('throttle:6,1')->name('password.update');
 });
 Route::middleware(['auth', 'auth.session'])->group(function () {
+    Route::get('/kabinet/maisternia', [MakerController::class, 'index'])->name('maker.index');
+    Route::post('/kabinet/maisternia', [MakerController::class, 'activate'])->middleware(['verified', 'throttle:4,1'])->name('maker.activate');
+    Route::post('/kabinet/maisternia/vyroby', [MakerController::class, 'store'])->middleware(['verified', 'throttle:10,1'])->name('maker.products.store');
     Route::post('/vyity', [AccountController::class, 'logout'])->name('logout');
     Route::get('/kabinet', [AccountController::class, 'index'])->name('account.index');
     Route::view('/kabinet/profil', 'account.profile')->name('account.profile');

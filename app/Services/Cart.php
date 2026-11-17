@@ -34,7 +34,7 @@ class Cart
             if (! isset($cart[$product->id]) && count($cart) >= 50) {
                 throw ValidationException::withMessages(['cart' => 'У кошику може бути до 50 різних товарів.']);
             }
-            if (! $product->is_active || $quantity > $product->stock || $quantity > 99) {
+            if ($quantity > $product->purchaseLimit()) {
                 throw ValidationException::withMessages(['cart' => 'Цієї кількості товару немає в наявності.']);
             }
             $cart[$product->id] = $quantity;

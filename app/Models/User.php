@@ -28,7 +28,7 @@ class User extends Authenticatable implements FilamentUser, MustVerifyEmail
 
     public static function roles(): array
     {
-        return ['admin' => 'Адміністратор', 'editor' => 'Редактор', 'shop_manager' => 'Менеджер крамниці', 'user' => 'Користувач'];
+        return ['admin' => 'Адміністратор', 'editor' => 'Редактор', 'shop_manager' => 'Менеджер крамниці', 'maker' => 'Майстер', 'user' => 'Користувач'];
     }
 
     public function roleName(): string

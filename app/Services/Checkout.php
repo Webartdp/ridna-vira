@@ -32,15 +32,17 @@ class Checkout
             $items = [];
             foreach ($cart as $id => $quantity) {
                 $product = $products->get($id);
-                if (! $product || ! $product->is_active || $quantity < 1 || $quantity > 99 || $quantity > $product->stock) {
+                if (! $product || $quantity < 1 || $quantity > $product->purchaseLimit()) {
                     throw ValidationException::withMessages(['cart' => 'Наявність товарів змінилася. Перевірте кошик.']);
                 }
                 $total += $product->price_minor * $quantity;
                 if ($total > 999999999) {
                     throw ValidationException::withMessages(['cart' => 'Сума замовлення перевищує допустиму. Зменште кількість товарів.']);
                 }
-                $items[] = ['product_id' => $product->id, 'name' => $product->name, 'sku' => $product->sku, 'quantity' => $quantity, 'price_minor' => $product->price_minor];
-                $product->decrement('stock', $quantity);
+                $items[] = ['product_id' => $product->id, 'name' => $product->name, 'sku' => $product->sku, 'quantity' => $quantity, 'price_minor' => $product->price_minor, 'made_to_order' => $product->made_to_order ?? false];
+                if (! $product->made_to_order) {
+                    $product->decrement('stock', $quantity);
+                }
             }
             $order = Order::create([
                 ...$customer, 'user_id' => $userId, 'reference' => (string) Str::uuid(), 'access_token' => Str::random(64),
@@ -60,7 +62,9 @@ class Checkout
                 return;
             }
             foreach ($locked->items()->orderBy('product_id')->get() as $item) {
-                Product::withTrashed()->whereKey($item->product_id)->increment('stock', $item->quantity);
+                if (! $item->made_to_order) {
+                    Product::withTrashed()->whereKey($item->product_id)->increment('stock', $item->quantity);
+                }
             }
             $locked->update(['stock_released_at' => now(), 'payment_status' => $status]);
         }, 3);

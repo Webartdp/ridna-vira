@@ -218,7 +218,7 @@ final class Seo
         if ($product) {
             $graph[2]['mainEntity'] = ['@id' => $canonical.'#product'];
             $graph[] = ['@type' => 'Product', '@id' => $canonical.'#product', 'url' => $canonical, 'name' => $product->name, 'description' => $description, 'image' => [$image], 'sku' => $product->sku ?: (string) $product->id,
-                'offers' => ['@type' => 'Offer', 'url' => $canonical, 'priceCurrency' => 'UAH', 'price' => number_format($product->price_minor / 100, 2, '.', ''), 'availability' => 'https://schema.org/'.($product->stock > 0 ? 'InStock' : 'OutOfStock')]];
+                'offers' => ['@type' => 'Offer', 'url' => $canonical, 'priceCurrency' => 'UAH', 'price' => number_format($product->price_minor / 100, 2, '.', ''), 'availability' => 'https://schema.org/'.($product->made_to_order ? 'MadeToOrder' : ($product->stock > 0 ? 'InStock' : 'OutOfStock'))]];
         }
 
         return compact('seoTitle', 'description', 'canonical', 'image', 'imageInfo', 'type', 'noindex', 'graph', 'published', 'modified', 'sectionLabel', 'video');

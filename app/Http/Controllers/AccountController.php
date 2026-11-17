@@ -39,13 +39,14 @@ class AccountController extends Controller
     {
         $this->normalize($request);
         $data = $request->validate(['name' => 'required|string|max:150', 'email' => ['required', 'email', 'max:190', $this->uniqueEmail()], 'password' => ['required', 'confirmed', 'string', 'max:128', PasswordRule::min(12)->letters()->numbers()]]);
+        $maker = $request->routeIs('maker.register.submit');
         $user = new User($data);
-        $user->forceFill(['role' => 'user', 'is_admin' => false, 'is_active' => true])->save();
+        $user->forceFill(['role' => $maker ? 'maker' : 'user', 'is_admin' => false, 'is_active' => true])->save();
         Auth::login($user);
         $request->session()->regenerate();
         $sent = $this->notifyVerification($user, true);
 
-        return redirect()->route('account.index')->with('status', $sent ? 'Обліковий запис створено. Підтвердьте пошту за посиланням у листі.' : 'Обліковий запис створено. Лист підтвердження поки не вдалося надіслати. Спробуйте повторити запит із кабінету пізніше.');
+        return redirect()->route($maker ? 'maker.index' : 'account.index')->with('status', $sent ? 'Обліковий запис створено. Підтвердьте пошту за посиланням у листі.' : 'Обліковий запис створено. Лист підтвердження поки не вдалося надіслати. Спробуйте повторити запит із кабінету пізніше.');
     }
 
     public function login(Request $request)
@@ -59,7 +60,7 @@ class AccountController extends Controller
         }
         $request->session()->regenerate();
 
-        return redirect()->intended(route('account.index'));
+        return redirect()->intended(route(Auth::user()->roleName() === 'maker' ? 'maker.index' : 'account.index'));
     }
 
     public function logout(Request $request)
@@ -137,7 +138,7 @@ class AccountController extends Controller
     {
         $request->fulfill();
 
-        return redirect()->route('account.index')->with('status', 'Електронну пошту підтверджено.');
+        return redirect()->route($request->user()->roleName() === 'maker' ? 'maker.index' : 'account.index')->with('status', 'Електронну пошту підтверджено.');
     }
 
     public function resend(Request $request)

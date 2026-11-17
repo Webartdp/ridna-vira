@@ -17,12 +17,35 @@ class Product extends Model
     protected static function booted(): void
     {
         static::saving(function (self $product) {
+            if ($product->maker_price_minor !== null) {
+                $product->price_minor = self::makerRetailPrice($product->maker_price_minor);
+            }
             if ($product->isDirty('images')) {
                 foreach ($product->images ?? [] as $image) {
                     app(ProductImages::class)->generate($image);
                 }
             }
         });
+    }
+
+    public static function makerRetailPrice(int $minor): int
+    {
+        return intdiv($minor * 130 + 50, 100);
+    }
+
+    public function purchaseLimit(): int
+    {
+        return $this->is_active ? ($this->made_to_order ? 99 : min(99, $this->stock)) : 0;
+    }
+
+    public function availabilityLabel(): string
+    {
+        return $this->made_to_order ? 'Під замовлення' : ($this->stock > 0 ? 'Є в наявності' : 'Немає в наявності');
+    }
+
+    public function maker(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function imageUrl(string $path, int $width = 800): string
@@ -52,7 +75,7 @@ class Product extends Model
 
     protected function casts(): array
     {
-        return ['images' => 'array', 'price_minor' => 'integer', 'stock' => 'integer', 'is_active' => 'boolean'];
+        return ['images' => 'array', 'price_minor' => 'integer', 'stock' => 'integer', 'maker_price_minor' => 'integer', 'made_to_order' => 'boolean', 'is_active' => 'boolean'];
     }
 
     public function category(): BelongsTo
