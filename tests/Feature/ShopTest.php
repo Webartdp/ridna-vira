@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\OrderResource\Pages\ManageOrders;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\SiteSetting;
+use App\Models\User;
 use App\Services\Checkout;
 use App\Services\ProductImages;
 use App\Services\WayForPay;
@@ -15,6 +17,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class ShopTest extends TestCase
@@ -96,8 +99,51 @@ class ShopTest extends TestCase
     {
         config(['shop.wayforpay_secret' => null]);
         $this->get('/koshyk')->assertOk();
-        $this->post('/zamovlennia', [])->assertStatus(503);
+        $this->post('/zamovlennia', [...$this->customer(), 'checkout_token' => session('checkout_token'),
+            'consent' => '1', 'payment_method' => 'wayforpay'])->assertStatus(503);
         $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_nova_poshta_cash_on_delivery_can_be_confirmed_without_online_payment(): void
+    {
+        config(['shop.wayforpay_secret' => null]);
+        $product = $this->product();
+        $this->withSession(['cart' => [$product->id => 2]])->get('/koshyk')->assertOk()
+            ->assertSee('При отриманні')->assertSee('Онлайн карткою через WayForPay')
+            ->assertDontSee('Укрпошта')->assertDontSee('Самовивіз');
+        $payload = [...$this->customer(), 'checkout_token' => session('checkout_token'), 'consent' => '1', 'payment_method' => 'cod'];
+        $this->post('/zamovlennia', [...$payload, 'delivery_method' => 'pickup'])->assertSessionHasErrors('delivery_method');
+        $this->post('/zamovlennia', $payload)->assertRedirect();
+        $order = Order::firstOrFail();
+        $this->assertTrue($order->isCashOnDelivery());
+        $this->assertSame(3, $product->refresh()->stock);
+        $this->get($order->publicUrl())->assertOk()
+            ->assertSee('Оплата за вироби — при отриманні')->assertDontSee('Оплатити карткою через WayForPay');
+        $this->post(route('shop.pay', $order->access_token))->assertConflict();
+
+        $this->travel(31)->minutes();
+        $this->artisan('shop:expire-reservations')->assertSuccessful();
+        $this->assertSame('pending', $order->refresh()->payment_status);
+        $this->assertSame(3, $product->refresh()->stock);
+
+        $order->update(['fulfilment_status' => 'shipped']);
+        $admin = User::factory()->create(['role' => 'admin']);
+        $this->actingAs($admin);
+        Livewire::test(ManageOrders::class)
+            ->callTableAction('confirmCashOnDelivery', $order)->assertHasNoTableActionErrors();
+        $this->assertSame('paid', $order->refresh()->payment_status);
+        $this->assertSame('completed', $order->fulfilment_status);
+    }
+
+    public function test_cancelling_cash_on_delivery_releases_stock_only_once(): void
+    {
+        $product = $this->product();
+        $checkout = app(Checkout::class);
+        $order = $checkout->create([...$this->customer(), 'payment_method' => 'cod'], [$product->id => 2], (string) Str::uuid());
+        $checkout->release($order, cancel: true);
+        $checkout->release($order, cancel: true);
+        $this->assertSame('cancelled', $order->refresh()->fulfilment_status);
+        $this->assertSame(5, $product->refresh()->stock);
     }
 
     public function test_purchase_is_signed_and_contains_snapshots_and_local_urls(): void

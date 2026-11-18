@@ -7,7 +7,8 @@
         .checkout-fields{display:grid;gap:16px;min-width:0}
         .checkout-layout h2{font-size:1.5rem;margin:0 0 14px}
         .checkout-payment-method{padding:12px 14px;background:#f4ecdc;border:1px solid #e2d4bb;border-radius:8px}
-        .checkout-payment-method small{margin-top:2px}
+        .checkout-payment-method small{margin:2px 0 8px}.checkout-payment-method label{margin:0}
+        .shop .checkout-payment-method input[type=radio]{width:auto;margin-right:6px;accent-color:#493a23}
         .checkout-totals{margin:18px 0 0}
         .checkout-totals>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0}
         .checkout-totals dd{margin:0;text-align:right}
@@ -44,32 +45,39 @@
 
             <section class="shop-panel" aria-labelledby="checkout-delivery">
                 <h2 id="checkout-delivery">Доставка</h2>
-                <label for="delivery-method">Доставка</label><select id="delivery-method" name="delivery_method"><option value="nova_poshta" @selected(old('delivery_method') === 'nova_poshta')>Нова пошта</option><option value="ukrposhta" @selected(old('delivery_method') === 'ukrposhta')>Укрпошта</option><option value="pickup" @selected(old('delivery_method') === 'pickup')>Самовивіз за узгодженням</option></select>
+                <input type="hidden" name="delivery_method" value="nova_poshta">
+                <p><strong>Нова пошта</strong> · відділення або поштомат</p>
                 @if ($novaPoshtaReady)
                     @include('shop.nova-poshta')
                 @endif
-                <label for="delivery-address">Місто, відділення / поштомат або адреса</label><textarea id="delivery-address" name="delivery_address" required maxlength="1000" rows="3">{{ old('delivery_address', auth()->user()?->delivery_address) }}</textarea>
-                <small>Доставку оплачує покупець за тарифами перевізника при отриманні. Самовивіз — за узгодженням.</small>
+                <label for="delivery-address">Місто та відділення або поштомат</label><textarea id="delivery-address" name="delivery_address" required maxlength="1000" rows="3">{{ old('delivery_address', auth()->user()?->delivery_address) }}</textarea>
+                <small>Доставку оплачує покупець за тарифами перевізника при отриманні. </small>
                 <label for="order-comment">Коментар (необов’язково)</label><textarea id="order-comment" name="comment" maxlength="2000" rows="2">{{ old('comment') }}</textarea>
             </section>
         </div>
 
         <section class="shop-panel checkout-summary" aria-labelledby="checkout-payment">
             <h2 id="checkout-payment">Оплата</h2>
-            <div class="checkout-payment-method">
-                <strong>Банківська картка</strong>
-                <small>Онлайн-оплата через WayForPay</small>
-            </div>
+            @php($selectedPayment = $paymentsReady ? old('payment_method', 'wayforpay') : 'cod')
+            <fieldset class="checkout-payment-method">
+                <legend class="visually-hidden">Спосіб оплати</legend>
+                <label><input type="radio" name="payment_method" value="cod" required @checked($selectedPayment === 'cod')> При отриманні</label>
+                <small>Післяплата Нової пошти за тарифами перевізника.</small>
+                <label><input type="radio" name="payment_method" value="wayforpay" required @checked($selectedPayment === 'wayforpay') @disabled(!$paymentsReady)> Онлайн карткою через WayForPay</label>
+                @if (!$paymentsReady)
+                    <small>Онлайн-оплата тимчасово недоступна.</small>
+                @endif
+            </fieldset>
             <dl class="checkout-totals">
                 <div><dt>Товари</dt><dd>{{ \App\Support\Money::display($total) }}</dd></div>
                 <div><dt>Доставка</dt><dd>Окремо</dd></div>
                 <div class="checkout-total"><dt>До оплати за товари</dt><dd>{{ \App\Support\Money::display($total) }}</dd></div>
             </dl>
             <label><input type="checkbox" name="consent" value="1" required @checked(old('consent'))> Погоджуюся з <a href="{{ url('/umovy-kramnytsi') }}" target="_blank" rel="noopener">умовами замовлення та обробкою даних</a>.</label>
-            @if (!$paymentsReady)
-                <div class="shop-alert" role="status">Онлайн-оплата тимчасово недоступна.</div>
+            @if (!$ordersEnabled)
+                <div class="shop-alert" role="status">Оформлення замовлень тимчасово недоступне.</div>
             @endif
-            <button class="shop-btn checkout-submit" type="submit" @disabled(!$paymentsReady)>Оформити й перейти до оплати</button>
+            <button class="shop-btn checkout-submit" type="submit" @disabled(!$ordersEnabled)>Оформити замовлення</button>
         </section>
     </form>
     @endif

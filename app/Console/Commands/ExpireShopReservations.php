@@ -14,7 +14,7 @@ class ExpireShopReservations extends Command
 
     public function handle(Checkout $checkout): int
     {
-        Order::whereNull('paid_at')->whereNull('stock_released_at')->where('reserved_until', '<', now())
+        Order::where('payment_method', 'wayforpay')->whereNull('paid_at')->whereNull('stock_released_at')->where('reserved_until', '<', now())
             ->chunkById(100, function ($orders) use ($checkout) {
                 foreach ($orders as $order) {
                     $checkout->release($order);

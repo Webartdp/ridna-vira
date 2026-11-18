@@ -2,7 +2,6 @@
     <legend>Довідник Нової пошти</legend>
     <label for="np-city-search">Назва міста або селища</label>
     <input id="np-city-search" type="search" maxlength="100" autocomplete="off">
-    <button class="shop-btn shop-secondary" type="button" id="np-find-city">Знайти населений пункт</button>
     <div id="np-city-results" hidden>
         <label for="np-city">Населений пункт</label>
         <select id="np-city"></select>
@@ -10,7 +9,6 @@
     <div id="np-warehouse-results" hidden>
         <label for="np-warehouse-search">Пошук за номером або адресою</label>
         <input id="np-warehouse-search" type="search" maxlength="100" autocomplete="off">
-        <button class="shop-btn shop-secondary" type="button" id="np-find-warehouse">Знайти відділення або поштомат</button>
         <label for="np-warehouse">Відділення або поштомат</label>
         <select id="np-warehouse"></select>
         <button class="shop-btn shop-secondary" type="button" id="np-more" hidden>Показати ще</button>
@@ -22,7 +20,6 @@
 <script type="module">
     const byId = id => document.getElementById(id);
     const fieldset = byId('nova-poshta-lookup');
-    const method = byId('delivery-method');
     const cityQuery = byId('np-city-search');
     const city = byId('np-city');
     const warehouseQuery = byId('np-warehouse-search');
@@ -31,6 +28,7 @@
     const address = byId('delivery-address');
     const more = byId('np-more');
     let currentRequest;
+    let searchTimer;
     let page = 1;
     let warehouseSearch = '';
     let selectedAddress = '';
@@ -38,15 +36,6 @@
     const clearSelectedAddress = () => {
         if (selectedAddress && address.value === selectedAddress) address.value = '';
         selectedAddress = '';
-    };
-
-    const syncMethod = () => {
-        fieldset.hidden = method.value !== 'nova_poshta';
-        if (fieldset.hidden) {
-            currentRequest?.abort();
-            warehouse.value = '';
-            clearSelectedAddress();
-        }
     };
 
     const request = async (url, params, apply) => {
@@ -84,7 +73,7 @@
         byId('np-city-results').hidden = true;
         byId('np-warehouse-results').hidden = true;
         const query = cityQuery.value.trim();
-        if (query.length < 2) {
+        if (query.length === 1) {
             status.textContent = 'Введіть щонайменше дві літери.';
             return;
         }
@@ -98,6 +87,7 @@
     const findWarehouses = (nextPage = 1) => {
         if (!city.value) return;
         if (nextPage === 1) {
+            clearSelectedAddress();
             warehouseSearch = warehouseQuery.value.trim();
             warehouse.replaceChildren(new Option('Виберіть відділення або поштомат', ''));
         }
@@ -109,9 +99,8 @@
         });
     };
 
-    method.addEventListener('change', syncMethod);
-    byId('np-find-city').addEventListener('click', findCities);
     city.addEventListener('change', () => {
+        clearTimeout(searchTimer);
         currentRequest?.abort();
         clearSelectedAddress();
         byId('np-warehouse-results').hidden = !city.value;
@@ -119,7 +108,6 @@
         if (city.value) findWarehouses();
         else status.textContent = '';
     });
-    byId('np-find-warehouse').addEventListener('click', () => findWarehouses());
     more.addEventListener('click', () => findWarehouses(page + 1));
     warehouse.addEventListener('change', () => {
         if (!warehouse.value) {
@@ -130,12 +118,19 @@
         address.value = selectedAddress;
     });
     for (const [input, search] of [[cityQuery, findCities], [warehouseQuery, findWarehouses]]) {
+        input.addEventListener('input', () => {
+            currentRequest?.abort();
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => search(), 350);
+        });
         input.addEventListener('keydown', event => {
             if (event.key !== 'Enter') return;
             event.preventDefault();
+            clearTimeout(searchTimer);
             search();
         });
     }
-    syncMethod();
+    fieldset.hidden = false;
+    findCities();
 </script>
 @endpush

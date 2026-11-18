@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductCategory;
+use App\Models\SiteSetting;
 use App\Services\Cart;
 use App\Services\Checkout;
 use App\Services\NovaPoshta;
@@ -40,7 +41,7 @@ class ShopController extends Controller
             session()->put('checkout_token', (string) Str::uuid());
         }
 
-        return view('shop.cart', ['items' => $cart->items(), 'total' => $cart->total(), 'paymentsReady' => $gateway->ready(), 'novaPoshtaReady' => $carrier->configured()]);
+        return view('shop.cart', ['items' => $cart->items(), 'total' => $cart->total(), 'paymentsReady' => $gateway->ready(), 'ordersEnabled' => $this->ordersEnabled(), 'novaPoshtaReady' => $carrier->configured()]);
     }
 
     public function updateCart(Request $request, Product $product, Cart $cart)
@@ -57,15 +58,18 @@ class ShopController extends Controller
 
     public function checkout(Request $request, Checkout $checkout, WayForPay $gateway)
     {
-        abort_unless($gateway->ready(), 503, 'Оплата тимчасово недоступна.');
+        abort_unless($this->ordersEnabled(), 503, 'Оформлення замовлень тимчасово недоступне.');
         $data = $request->validate([
             'customer_name' => 'required|string|max:150', 'email' => 'required|email|max:190',
             'phone' => ['required', 'string', 'max:30', 'regex:/^\+?[\d ()-]{9,30}$/'],
-            'delivery_method' => 'required|in:nova_poshta,ukrposhta,pickup',
+            'delivery_method' => 'required|in:nova_poshta',
+            'payment_method' => 'sometimes|required|in:wayforpay,cod',
             'delivery_address' => 'required|string|max:1000', 'comment' => 'nullable|string|max:2000',
             'checkout_token' => 'required|uuid', 'consent' => 'accepted',
         ]);
         abort_unless(hash_equals((string) session('checkout_token'), $data['checkout_token']), 419);
+        $data['payment_method'] ??= 'wayforpay';
+        abort_if($data['payment_method'] === 'wayforpay' && ! $gateway->ready(), 503, 'Онлайн-оплата тимчасово недоступна.');
         $token = $data['checkout_token'];
         unset($data['checkout_token'], $data['consent']);
         if ($request->user()) {
@@ -87,6 +91,7 @@ class ShopController extends Controller
     public function pay(string $token, WayForPay $gateway, Checkout $checkout)
     {
         $order = Order::where('access_token', $token)->firstOrFail();
+        abort_if($order->isCashOnDelivery(), 409, 'Для цього замовлення обрано оплату при отриманні.');
         if ($order->reserved_until->isPast() && ! $order->paid_at) {
             $checkout->release($order);
         }
@@ -102,6 +107,11 @@ class ShopController extends Controller
         $order = $checkout->payment($data);
 
         return response()->json($gateway->acknowledgement($order->reference));
+    }
+
+    private function ordersEnabled(): bool
+    {
+        return filter_var(SiteSetting::read('shop_enabled', '1'), FILTER_VALIDATE_BOOLEAN);
     }
 
     public function returned(string $token)

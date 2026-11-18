@@ -10,9 +10,9 @@ class NovaPoshtaController extends Controller
 {
     public function cities(Request $request, NovaPoshta $carrier): JsonResponse
     {
-        $data = $request->validate(['q' => 'required|string|min:2|max:100']);
+        $data = $request->validate(['q' => 'nullable|string|min:2|max:100']);
 
-        return response()->json($carrier->cities($data['q']));
+        return response()->json($carrier->cities($data['q'] ?? ''));
     }
 
     public function warehouses(Request $request, NovaPoshta $carrier): JsonResponse

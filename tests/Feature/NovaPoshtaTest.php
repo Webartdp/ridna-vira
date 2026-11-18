@@ -27,6 +27,7 @@ class NovaPoshtaTest extends TestCase
                 : [['Ref' => $warehouse, 'Description' => 'Відділення №1']],
         ])]);
 
+        $this->getJson(route('shop.nova-poshta.cities'))->assertOk()->assertJsonCount(1);
         $this->getJson(route('shop.nova-poshta.cities', ['q' => 'Київ']))->assertExactJson([['id' => $city, 'name' => 'Київ, Київська']]);
         $this->getJson(route('shop.nova-poshta.warehouses', ['city' => $city, 'q' => '1']))
             ->assertExactJson([['id' => $warehouse, 'name' => 'Відділення №1']]);

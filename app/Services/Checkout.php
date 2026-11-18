@@ -58,11 +58,11 @@ class Checkout
         }, 3);
     }
 
-    public function release(Order $order, string $status = 'expired'): void
+    public function release(Order $order, string $status = 'expired', bool $cancel = false): void
     {
-        DB::transaction(function () use ($order, $status) {
+        DB::transaction(function () use ($order, $status, $cancel) {
             $locked = Order::lockForUpdate()->findOrFail($order->id);
-            if ($locked->stock_released_at || $locked->paid_at) {
+            if ($locked->stock_released_at || $locked->paid_at || ($locked->isCashOnDelivery() && ! $cancel)) {
                 return;
             }
             foreach ($locked->items()->orderBy('product_id')->get() as $item) {
@@ -70,7 +70,22 @@ class Checkout
                     Product::withTrashed()->whereKey($item->product_id)->increment('stock', $item->quantity);
                 }
             }
-            $locked->update(['stock_released_at' => now(), 'payment_status' => $status]);
+            $locked->update([
+                'stock_released_at' => now(), 'payment_status' => $status,
+                'fulfilment_status' => $cancel ? 'cancelled' : $locked->fulfilment_status,
+            ]);
+        }, 3);
+    }
+
+    public function confirmCashOnDelivery(Order $order): void
+    {
+        DB::transaction(function () use ($order) {
+            $locked = Order::lockForUpdate()->findOrFail($order->id);
+            if (! $locked->isCashOnDelivery() || $locked->payment_status !== 'pending' || $locked->fulfilment_status !== 'shipped' || $locked->stock_released_at || $locked->paid_at) {
+                throw ValidationException::withMessages(['order' => 'Замовлення має бути відправлене й очікувати оплату при отриманні.']);
+            }
+
+            $locked->update(['payment_status' => 'paid', 'paid_at' => now(), 'fulfilment_status' => 'completed']);
         }, 3);
     }
 
@@ -78,6 +93,7 @@ class Checkout
     {
         return DB::transaction(function () use ($data) {
             $order = Order::where('reference', $data['orderReference'])->lockForUpdate()->firstOrFail();
+            abort_if($order->isCashOnDelivery(), 409);
             try {
                 $amount = Money::minor((string) $data['amount']);
             } catch (\InvalidArgumentException) {

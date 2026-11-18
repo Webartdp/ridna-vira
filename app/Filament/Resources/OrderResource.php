@@ -48,16 +48,21 @@ class OrderResource extends Resource
             TextInput::make('reference')->label('Номер замовлення')->disabled()->columnSpanFull(),
             TextInput::make('customer_name')->label('Покупець')->disabled(), TextInput::make('phone')->label('Телефон')->disabled(),
             TextInput::make('email')->label('Пошта')->disabled(),
+            TextInput::make('payment_method')->label('Спосіб оплати')->formatStateUsing(fn ($state) => Order::paymentMethods()[$state] ?? $state)->disabled(),
             TextInput::make('payment_status')->label('Оплата')->formatStateUsing(fn ($state) => Order::paymentLabels()[$state] ?? $state)->disabled(),
             TextInput::make('delivery_method')->label('Спосіб доставки')->disabled(), Textarea::make('delivery_address')->label('Адреса доставки')->disabled(),
             Textarea::make('comment')->label('Коментар покупця')->disabled()->columnSpanFull(),
             View::make('filament.order-items')->columnSpanFull(),
             Select::make('fulfilment_status')->label('Виконання')->required()->options(['new' => 'Нове', 'processing' => 'Готується', 'shipped' => 'Відправлено', 'completed' => 'Виконано', 'cancelled' => 'Скасовано'])
                 ->rules([fn ($record) => function (string $attribute, $value, \Closure $fail) use ($record) {
-                    if (in_array($value, ['shipped', 'completed'], true) && $record->payment_status !== 'paid') {
+                    if ($value === 'cancelled' && $record->isCashOnDelivery() && $record->payment_status === 'pending') {
+                        $fail('Скористайтеся дією «Скасувати й повернути залишок».');
+                    }
+                    $canShipCashOnDelivery = $value === 'shipped' && $record->isCashOnDelivery() && $record->payment_status === 'pending' && ! $record->stock_released_at;
+                    if (in_array($value, ['shipped', 'completed'], true) && $record->payment_status !== 'paid' && ! $canShipCashOnDelivery) {
                         $fail('Відправляти можна лише замовлення з підтвердженою оплатою.');
                     }
-                }])->helperText('Статус оплати встановлюється за підтвердженням WayForPay. Повернення коштів виконується в кабінеті WayForPay.'),
+                }])->helperText('Оплату WayForPay підтверджує сервіс. Післяплату підтвердіть після фактичного надходження коштів.'),
             TextInput::make('tracking_number')->label('Номер відправлення')->maxLength(190),
             Textarea::make('admin_notes')->label('Внутрішні нотатки')->maxLength(10000)->columnSpanFull(),
         ]);
@@ -69,7 +74,8 @@ class OrderResource extends Resource
             TextColumn::make('reference')->label('Номер')->limit(12)->searchable()->copyable(),
             TextColumn::make('customer_name')->label('Покупець')->searchable(), TextColumn::make('phone')->label('Телефон')->searchable(),
             TextColumn::make('total_minor')->label('Сума')->formatStateUsing(fn ($state) => Money::display((int) $state))->sortable(),
-            TextColumn::make('payment_status')->label('Оплата')->formatStateUsing(fn ($state) => Order::paymentLabels()[$state] ?? $state)->badge()->color(fn ($state) => match ($state) {
+            TextColumn::make('payment_method')->label('Спосіб оплати')->formatStateUsing(fn ($state) => Order::paymentMethods()[$state] ?? $state),
+            TextColumn::make('payment_status')->label('Оплата')->formatStateUsing(fn (Order $record) => $record->paymentStatusLabel())->badge()->color(fn ($state) => match ($state) {
                 'paid' => 'success', 'review' => 'danger', default => 'warning'
             }),
             TextColumn::make('fulfilment_status')->label('Виконання')->formatStateUsing(fn ($state) => ['new' => 'Нове', 'processing' => 'Готується', 'shipped' => 'Відправлено', 'completed' => 'Виконано', 'cancelled' => 'Скасовано'][$state] ?? $state)->badge(),
@@ -77,18 +83,24 @@ class OrderResource extends Resource
         ])->filters([SelectFilter::make('payment_status')->label('Оплата')->options(Order::paymentLabels())])
             ->recordActions([
                 EditAction::make()->label('Відкрити')->modalWidth('6xl'),
-                Action::make('cancel')->label('Скасувати резерв')->authorize(fn () => auth()->user()?->canManage('shop'))->requiresConfirmation()->visible(fn (Order $record) => ! $record->paid_at && ! $record->stock_released_at)->action(function (Order $record) {
-                    app(Checkout::class)->release($record, 'expired');
-                    if (! $record->fresh()->paid_at) {
-                        $record->update(['fulfilment_status' => 'cancelled']);
-                    }
+                Action::make('confirmCashOnDelivery')->label('Підтвердити отримання й оплату')
+                    ->authorize(fn () => auth()->user()?->canManage('shop'))
+                    ->visible(fn (Order $record) => $record->isCashOnDelivery() && $record->payment_status === 'pending'
+                        && $record->fulfilment_status === 'shipped' && ! $record->stock_released_at)
+                    ->requiresConfirmation()
+                    ->modalDescription('Підтвердіть лише після вручення посилки та фактичного надходження післяплати.')
+                    ->action(fn (Order $record) => app(Checkout::class)->confirmCashOnDelivery($record)),
+                Action::make('cancel')->label('Скасувати й повернути залишок')->authorize(fn () => auth()->user()?->canManage('shop'))->requiresConfirmation()->visible(fn (Order $record) => ! $record->paid_at && ! $record->stock_released_at)->action(function (Order $record) {
+                    app(Checkout::class)->release($record, 'expired', cancel: true);
                 }),
             ]);
     }
 
     public static function getNavigationBadge(): ?string
     {
-        return (string) Order::whereIn('payment_status', ['paid', 'review'])->where('fulfilment_status', 'new')->count();
+        return (string) Order::where('fulfilment_status', 'new')->where(fn ($query) => $query
+            ->whereIn('payment_status', ['paid', 'review'])
+            ->orWhere(fn ($cash) => $cash->where('payment_method', 'cod')->where('payment_status', 'pending')))->count();
     }
 
     public static function getPages(): array

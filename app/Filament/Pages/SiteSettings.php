@@ -70,7 +70,7 @@ class SiteSettings extends Page
             )->columns(2),
             TextInput::make('contact_email')->label('Пошта для звернень із контактної форми')->email()->required()->maxLength(190),
             TextInput::make('order_email')->label('Пошта для сповіщень про оплачені замовлення')->email()->maxLength(190),
-            Toggle::make('shop_enabled')->label('Дозволити оформлення замовлень')->helperText('Для оплати також потрібні налаштовані реквізити WayForPay.'),
+            Toggle::make('shop_enabled')->label('Дозволити оформлення замовлень')->helperText('Для онлайн-оплати потрібні реквізити WayForPay. Оплата при отриманні доступна без них.'),
             Repeater::make('partners')->label('Ресурси в підвалі')->collapsed()->itemLabel(fn (array $state) => $state['name'] ?? 'Ресурс')->maxItems(12)->schema([
                 TextInput::make('name')->label('Назва')->required()->maxLength(190), TextInput::make('url')->label('Посилання')->required()->regex('~^(https://|/(?!/))~')->maxLength(255),
                 TextInput::make('image')->label('Адреса зображення')->required()->regex('~^(https://|/(?!/))~')->maxLength(500),

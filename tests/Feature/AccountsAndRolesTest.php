@@ -247,7 +247,7 @@ class AccountsAndRolesTest extends TestCase
         $this->actingAs($user);
         $product = Product::create(['name' => 'Товар', 'slug' => 'owned-order', 'price_minor' => 10000, 'stock' => 3, 'is_active' => true]);
         $token = (string) Str::uuid();
-        $this->withSession(['checkout_token' => $token, 'cart' => [$product->id => 1]])->post('/zamovlennia', ['checkout_token' => $token, 'customer_name' => 'Покупець', 'email' => $other->email, 'user_id' => $other->id, 'phone' => '+380991234567', 'delivery_method' => 'pickup', 'delivery_address' => 'Самовивіз', 'consent' => 1])->assertRedirect();
+        $this->withSession(['checkout_token' => $token, 'cart' => [$product->id => 1]])->post('/zamovlennia', ['checkout_token' => $token, 'customer_name' => 'Покупець', 'email' => $other->email, 'user_id' => $other->id, 'phone' => '+380991234567', 'delivery_method' => 'nova_poshta', 'delivery_address' => 'Відділення №1', 'consent' => 1])->assertRedirect();
         $order = Order::firstOrFail();
         $this->assertSame($user->id, $order->user_id);
         $this->assertSame($user->email, $order->email);

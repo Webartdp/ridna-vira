@@ -26,6 +26,23 @@ class Order extends Model
         return route('shop.order', $this->access_token);
     }
 
+    public function isCashOnDelivery(): bool
+    {
+        return $this->payment_method === 'cod';
+    }
+
+    public function paymentStatusLabel(): string
+    {
+        return $this->isCashOnDelivery() && $this->payment_status === 'pending'
+            ? 'Оплата при отриманні'
+            : (self::paymentLabels()[$this->payment_status] ?? 'Очікує перевірки');
+    }
+
+    public static function paymentMethods(): array
+    {
+        return ['wayforpay' => 'Онлайн через WayForPay', 'cod' => 'При отриманні'];
+    }
+
     public static function paymentLabels(): array
     {
         return ['pending' => 'Очікує оплати', 'paid' => 'Оплачено', 'expired' => 'Термін оплати минув', 'failed' => 'Оплату відхилено', 'refunded' => 'Кошти повернено', 'review' => 'Потребує перевірки'];
