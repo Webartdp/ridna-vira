@@ -97,6 +97,21 @@ class AdminCmsTest extends TestCase
         $this->assertSame('private-test-secret', SiteSetting::read('wayforpay_secret'));
     }
 
+    public function test_admin_can_reopen_and_replace_saved_nova_poshta_key(): void
+    {
+        SiteSetting::write('nova_poshta_api_key', 'old-nova-key');
+        $this->actingAs($this->admin());
+
+        Livewire::test(SiteSettings::class)->assertSet('data.nova_poshta_api_key', 'old-nova-key')
+            ->set('data.nova_poshta_api_key', 'new-nova-key')->call('save')->assertHasNoErrors()
+            ->assertSet('data.nova_poshta_api_key', 'new-nova-key')
+            ->set('data.nova_poshta_api_key', '')->call('save')->assertHasNoErrors()
+            ->assertSet('data.nova_poshta_api_key', 'new-nova-key');
+
+        $this->assertSame('new-nova-key', SiteSetting::read('nova_poshta_api_key'));
+        $this->assertNotSame('new-nova-key', SiteSetting::where('key', 'nova_poshta_api_key')->value('value'));
+    }
+
     public function test_editor_sanitizes_active_html_but_preserves_prayer_formatting(): void
     {
         $page = ContentPage::create(['path' => '/bezpeka', 'title' => 'Перевірка', 'body' => '<script>alert(1)</script><p onclick="x()">Звичайний текст</p><a href="javascript:alert(1)">Посилання</a><div class="ritual-passage ritual-passage--prayer"><p>Молитва</p></div>']);

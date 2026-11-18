@@ -15,6 +15,7 @@ use Filament\Pages\Page;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Locked;
 
 class SiteSettings extends Page
 {
@@ -33,9 +34,14 @@ class SiteSettings extends Page
 
     public ?array $data = [];
 
+    #[Locked]
+    public string $novaPoshtaKeyHash = '';
+
     public function mount(): void
     {
         abort_unless(static::canAccess(), 403);
+        $novaPoshtaKey = $this->readNovaPoshtaKey();
+        $this->novaPoshtaKeyHash = hash('sha256', $novaPoshtaKey);
         $this->form->fill([
             'announcement' => SiteSetting::read('announcement', 'Духовний центр «Рідна Віра» — жива традиція українців'),
             'footer_text' => SiteSetting::read('footer_text', 'РІДНА ВІРА — Всі права захищені'),
@@ -50,7 +56,7 @@ class SiteSettings extends Page
             'wayforpay_account' => SiteSetting::read('wayforpay_account', config('shop.wayforpay_account')),
             'wayforpay_domain' => SiteSetting::read('wayforpay_domain', config('shop.wayforpay_domain')),
             'wayforpay_secret' => '',
-            'nova_poshta_api_key' => '',
+            'nova_poshta_api_key' => $novaPoshtaKey,
         ]);
     }
 
@@ -82,8 +88,8 @@ class SiteSettings extends Page
                 TextInput::make('label')->label('Назва')->required()->maxLength(100),
                 TextInput::make('url')->label('Адреса')->required()->maxLength(255)->regex('~^(https://|/(?!/))~'),
             ])->columns(2)->defaultItems(0)->maxItems(12),
-            TextInput::make('nova_poshta_api_key')->label('Нова пошта · API-ключ')->password()->autocomplete('new-password')->maxLength(200)
-                ->helperText('Підключає пошук міст, відділень і поштоматів у кошику. Порожнє поле зберігає поточний ключ.'),
+            TextInput::make('nova_poshta_api_key')->label('Нова пошта · API-ключ')->password()->revealable()->autocomplete('new-password')->maxLength(200)
+                ->helperText('Підключає пошук міст, відділень і поштоматів у кошику. Натисніть іконку ока, щоб показати ключ. Порожнє поле зберігає поточний ключ.'),
             TextInput::make('wayforpay_account')->label('WayForPay · Merchant Account')->maxLength(190)->regex('/^[a-zA-Z0-9_-]*$/D'),
             TextInput::make('wayforpay_domain')->label('WayForPay · домен магазину')->required()->maxLength(190)->regex('/^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/D'),
             TextInput::make('wayforpay_secret')->label('WayForPay · Secret Key')->password()->revealable()->autocomplete('new-password')->maxLength(500)
@@ -100,11 +106,20 @@ class SiteSettings extends Page
                 if (in_array($key, ['wayforpay_secret', 'nova_poshta_api_key'], true) && blank($value)) {
                     continue;
                 }
+                if ($key === 'nova_poshta_api_key' && hash_equals($this->novaPoshtaKeyHash, hash('sha256', $value))) {
+                    continue;
+                }
                 SiteSetting::write($key, is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR) : $value);
             }
         });
         $this->data['wayforpay_secret'] = '';
-        $this->data['nova_poshta_api_key'] = '';
+        $this->data['nova_poshta_api_key'] = $this->readNovaPoshtaKey();
+        $this->novaPoshtaKeyHash = hash('sha256', $this->data['nova_poshta_api_key']);
         Notification::make()->title('Налаштування збережено')->success()->send();
+    }
+
+    private function readNovaPoshtaKey(): string
+    {
+        return trim((string) SiteSetting::read('nova_poshta_api_key', config('shop.nova_poshta_api_key')));
     }
 }
