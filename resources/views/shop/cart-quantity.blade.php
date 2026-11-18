@@ -16,7 +16,6 @@
         const quantity = row.input.value;
         const body = new FormData(row.form);
         body.set('quantity', String(row.input.valueAsNumber));
-        row.status.textContent = 'Оновлення…';
         try {
             const response = await fetch(row.form.action, {
                 method: 'POST', body, headers: { Accept: 'application/json' },
