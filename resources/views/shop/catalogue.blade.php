@@ -55,9 +55,7 @@
             </div>
             <fieldset>
                 <legend>Ціна, ₴</legend>
-                @if ($priceBounds->minimum < $priceBounds->maximum)
-                    @include('shop.price-slider', ['minimum' => (int) $priceBounds->minimum, 'maximum' => (int) $priceBounds->maximum])
-                @endif
+                @include('shop.price-slider', ['minimum' => 0, 'maximum' => $sliderMaximum])
                 <div class="shop-price-range">
                     <div>
                         <label for="shop-price-from">Від</label>

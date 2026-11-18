@@ -94,6 +94,21 @@ class ShopTest extends TestCase
         }
     }
 
+    public function test_price_slider_is_available_with_one_product_and_empty_results(): void
+    {
+        $this->product(['price_minor' => 58500]);
+
+        $this->get(route('shop.index'))
+            ->assertOk()
+            ->assertSee('data-price-slider', false)
+            ->assertSee('type="range" min="0" max="58500"', false);
+
+        $this->get(route('shop.index', ['q' => 'missing', 'price_from' => '600']))
+            ->assertOk()
+            ->assertSee('Товарів не знайдено')
+            ->assertSee('type="range" min="0" max="60000"', false);
+    }
+
     public function test_cart_quantity_update_returns_totals_and_persists_only_valid_changes(): void
     {
         $product = $this->product();

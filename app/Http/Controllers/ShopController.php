@@ -35,15 +35,14 @@ class ShopController extends Controller
                 ->orWhereHas('parent', fn ($parent) => $parent->where('slug', $request->string('category')->toString())))))
             ->when($request->filled('q'), fn ($query) => $query->where('name', 'like', '%'.mb_substr($request->string('q')->toString(), 0, 100).'%'));
 
-        $priceBounds = (clone $catalogue)->toBase()
-            ->selectRaw('MIN(price_minor) as minimum, MAX(price_minor) as maximum')->first();
+        $sliderMaximum = max(10_000, (int) (clone $catalogue)->max('price_minor'), $minimum ?? 0, $maximum ?? 0);
 
         $products = $catalogue
             ->when($minimum !== null, fn ($query) => $query->where('price_minor', '>=', $minimum))
             ->when($maximum !== null, fn ($query) => $query->where('price_minor', '<=', $maximum))
             ->latest()->paginate(12)->withQueryString();
 
-        return view('shop.catalogue', ['products' => $products, 'categories' => ProductCategory::catalogue(), 'priceBounds' => $priceBounds]);
+        return view('shop.catalogue', ['products' => $products, 'categories' => ProductCategory::catalogue(), 'sliderMaximum' => $sliderMaximum]);
     }
 
     public function show(Product $product)
