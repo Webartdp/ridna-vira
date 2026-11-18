@@ -154,6 +154,14 @@ class AccountController extends Controller
     private function notifyVerification(User $user, bool $registered = false): bool
     {
         try {
+            $mailer = config('mail.default');
+            $transport = config("mail.mailers.{$mailer}.transport");
+            if (app()->environment('production') && in_array($transport, [null, 'log', 'array'], true)) {
+                Log::warning('Verification email requires a delivery transport.', ['mailer' => $mailer]);
+
+                return false;
+            }
+
             $registered ? event(new Registered($user)) : $user->sendEmailVerificationNotification();
 
             return true;

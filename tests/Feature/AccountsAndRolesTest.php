@@ -47,6 +47,20 @@ class AccountsAndRolesTest extends TestCase
             ->assertCanSeeTableRecords($roles);
     }
 
+    public function test_production_does_not_report_logged_verification_mail_as_delivered(): void
+    {
+        $this->app->instance('env', 'production');
+        config(['mail.default' => 'log']);
+        $user = User::factory()->unverified()->create();
+
+        $this->actingAs($user)->from(route('verification.notice'))->withSession(['_token' => 'verification-test-token'])
+            ->post(route('verification.send'), ['_token' => 'verification-test-token'])
+            ->assertRedirect(route('verification.notice'))
+            ->assertSessionHas('status', 'Лист поки не вдалося надіслати. Спробуйте пізніше.');
+
+        Notification::assertNothingSent();
+    }
+
     protected function setUp(): void
     {
         parent::setUp();
