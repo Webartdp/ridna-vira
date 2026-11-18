@@ -21,6 +21,7 @@ Route::middleware('guest')->group(function () {
 });
 Route::middleware(['auth', 'auth.session'])->group(function () {
     Route::get('/kabinet/maisternia', [MakerController::class, 'index'])->name('maker.index');
+    Route::get('/kabinet/maisternia/vyplaty', [MakerController::class, 'payouts'])->name('maker.payouts');
     Route::post('/kabinet/maisternia', [MakerController::class, 'activate'])->middleware(['verified', 'throttle:4,1'])->name('maker.activate');
     Route::post('/kabinet/maisternia/vyroby', [MakerController::class, 'store'])->middleware(['verified', 'throttle:10,1'])->name('maker.products.store');
     Route::middleware(['verified', 'throttle:20,1'])->prefix('/kabinet/maisternia/vyroby/{product}')->name('maker.products.')->group(function () {

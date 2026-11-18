@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Services\ProductImages;
 use App\Support\Money;
@@ -23,6 +24,18 @@ class MakerController extends Controller
         return view('maker.index', ['products' => $user->roleName() === 'maker'
             ? Product::where('maker_id', $user->id)->latest('id')->paginate(12)
             : null]);
+    }
+
+    public function payouts(Request $request)
+    {
+        abort_unless($request->user()->roleName() === 'maker', 403);
+
+        $items = OrderItem::where('maker_id', $request->user()->id)
+            ->whereNotNull('maker_price_minor')->with('order:id,reference,payment_status,fulfilment_status,created_at')
+            ->whereHas('order', fn ($query) => $query->whereNotNull('paid_at'))
+            ->latest('id')->paginate(12);
+
+        return view('maker.payouts', compact('items'));
     }
 
     public function activate(Request $request)

@@ -24,7 +24,10 @@
         <a class="shop-btn {{ request()->routeIs('account.index') ? '' : 'shop-secondary' }}" href="{{ route('account.index') }}">Мої замовлення</a>
         <a class="shop-btn {{ request()->routeIs('account.profile') ? '' : 'shop-secondary' }}" href="{{ route('account.profile') }}">Мій профіль</a>
         @if(in_array(auth()->user()->roleName(), ['user', 'maker'], true))
-            <a class="shop-btn {{ request()->routeIs('maker.*') ? '' : 'shop-secondary' }}" href="{{ route('maker.index') }}">Кабінет майстра</a>
+            <a class="shop-btn {{ request()->routeIs('maker.index', 'maker.products.*') ? '' : 'shop-secondary' }}" href="{{ route('maker.index') }}">Кабінет майстра</a>
+        @endif
+        @if(auth()->user()->roleName() === 'maker')
+            <a class="shop-btn {{ request()->routeIs('maker.payouts') ? '' : 'shop-secondary' }}" href="{{ route('maker.payouts') }}">Мої виплати</a>
         @endif
         @if(auth()->user()->canManage('admin') || auth()->user()->canManage('content') || auth()->user()->canManage('shop'))<a class="shop-btn shop-secondary" href="{{ url('/admin') }}">Керування сайтом</a>@endif
         <form method="post" action="{{ route('logout') }}">@csrf<button class="shop-btn shop-secondary" type="submit">Вийти</button></form>

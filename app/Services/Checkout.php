@@ -39,7 +39,11 @@ class Checkout
                 if ($total > 999999999) {
                     throw ValidationException::withMessages(['cart' => 'Сума замовлення перевищує допустиму. Зменште кількість товарів.']);
                 }
-                $items[] = ['product_id' => $product->id, 'name' => $product->name, 'sku' => $product->sku, 'quantity' => $quantity, 'price_minor' => $product->price_minor, 'made_to_order' => $product->made_to_order ?? false];
+                $items[] = [
+                    'product_id' => $product->id, 'name' => $product->name, 'sku' => $product->sku,
+                    'quantity' => $quantity, 'price_minor' => $product->price_minor, 'made_to_order' => $product->made_to_order ?? false,
+                    'maker_id' => $product->maker_id, 'maker_price_minor' => $product->maker_id ? $product->maker_price_minor : null,
+                ];
                 if (! $product->made_to_order) {
                     $product->decrement('stock', $quantity);
                 }
