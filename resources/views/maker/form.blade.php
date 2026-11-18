@@ -8,6 +8,7 @@
     <p>Адміністратор перевірить виріб перед публікацією в крамниці.</p>
     <label for="maker-name">Назва виробу</label>
     <input id="maker-name" name="name" required maxlength="150" value="{{ old('name', $product?->name) }}">
+    @include('maker.category-select')
     <label for="maker-description">Опис</label>
     <textarea id="maker-description" name="description" rows="5" required maxlength="5000">{{ old('description', $description ?? '') }}</textarea>
     @if ($product && $product->images)

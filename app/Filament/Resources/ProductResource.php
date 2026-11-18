@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Support\Money;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -45,7 +46,9 @@ class ProductResource extends Resource
             TextInput::make('name')->label('Назва')->required()->maxLength(255),
             TextInput::make('slug')->label('Адреса товару')->required()->regex('/^[a-z0-9-]+$/D')->maxLength(190)->unique(ignoreRecord: true)->helperText('Наприклад: knyha-ridna-vira'),
             TextInput::make('sku')->label('Артикул')->maxLength(100)->unique(ignoreRecord: true),
-            Select::make('product_category_id')->label('Категорія')->relationship('category', 'name')->searchable()->preload(),
+            Select::make('product_category_id')->label('Категорія')->relationship('category', 'name', modifyQueryUsing: fn (Builder $query) => $query->with('parent'))
+                ->getOptionLabelFromRecordUsing(fn (ProductCategory $record) => $record->parent ? $record->parent->name.' / '.$record->name : $record->name)
+                ->searchable()->preload(),
             TextInput::make('price_minor')->label('Ціна, грн')->disabled(fn (?Product $record) => $record?->maker_price_minor !== null)->required()->numeric()->minValue(0.01)->maxValue(9999999.99)->step('0.01')
                 ->formatStateUsing(fn ($state) => $state === null ? null : Money::decimal((int) $state))->dehydrateStateUsing(fn ($state) => Money::minor((string) $state)),
             TextInput::make('maker_price_minor')->label('Ціна майстра, грн')->disabled()

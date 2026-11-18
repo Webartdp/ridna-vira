@@ -54,6 +54,9 @@
                                         @else
                                             {{ $product->name }}
                                         @endif
+                                        @if ($product->category)
+                                            <small>{{ $product->category->parent ? $product->category->parent->name.' / ' : '' }}{{ $product->category->name }}</small>
+                                        @endif
                                     </span>
                                 </div>
                             </th>

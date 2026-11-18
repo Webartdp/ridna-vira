@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Filament\Resources\ProductResource\Pages\ManageProducts;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\User;
 use App\Services\Checkout;
 use Illuminate\Auth\Notifications\VerifyEmail;
@@ -96,6 +97,34 @@ class MakerTest extends TestCase
         $this->get(route('maker.products.edit', $product))->assertOk()->assertSee('Поточні фото');
         $this->delete(route('maker.products.destroy', $product))->assertRedirect(route('maker.index'));
         $this->assertSoftDeleted($product);
+    }
+
+    public function test_maker_subcategory_is_preserved_and_included_in_parent_catalogue_filter(): void
+    {
+        $this->withoutVite();
+        Storage::fake('public');
+        $maker = User::factory()->create(['role' => 'maker']);
+        $category = ProductCategory::where('slug', 'oberehy-dlia-domu-motanky')->firstOrFail();
+        $payload = ['name' => 'Мотанка ручної роботи', 'description' => 'Опис виробу', 'price' => '100',
+            'images' => [UploadedFile::fake()->image('motanka.jpg')]];
+
+        $this->actingAs($maker)->get(route('maker.index'))->assertOk()
+            ->assertSee('Для капища')->assertSee('Для красного кута')->assertSee('Ляльки-мотанки');
+        $this->post(route('maker.products.store'), [...$payload, 'product_category_id' => 9999999])
+            ->assertSessionHasErrors('product_category_id');
+        $this->post(route('maker.products.store'), [...$payload, 'product_category_id' => $category->id])
+            ->assertRedirect(route('maker.index'));
+
+        $product = Product::firstOrFail();
+        $this->assertSame($category->id, $product->product_category_id);
+        $this->get(route('maker.products.edit', $product))->assertOk()
+            ->assertSee('value="'.$category->id.'" selected', false);
+        $product->update(['is_active' => true]);
+        $this->get(route('shop.index', ['category' => $category->parent->slug]))->assertOk()->assertSee($product->name);
+        $this->get(route('shop.index', ['category' => $category->slug]))->assertOk()->assertSee($product->name);
+        $this->get(route('shop.index', ['category' => 'dlia-kapyshcha']))->assertOk()->assertDontSee($product->name);
+        $this->actingAs(User::factory()->create(['role' => 'admin']))->get('/admin/product-categories')
+            ->assertOk()->assertSee('Основна категорія');
     }
 
     public function test_invalid_creation_preserves_input_and_reopens_its_dialog(): void

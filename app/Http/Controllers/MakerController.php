@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Services\ProductImages;
 use App\Support\Money;
 use Illuminate\Http\Request;
@@ -22,8 +23,8 @@ class MakerController extends Controller
         abort_unless(in_array($user->roleName(), ['user', 'maker'], true), 403);
 
         return view('maker.index', ['products' => $user->roleName() === 'maker'
-            ? Product::where('maker_id', $user->id)->latest('id')->paginate(12)
-            : null]);
+            ? Product::where('maker_id', $user->id)->with('category.parent')->latest('id')->paginate(12)
+            : null, 'categories' => ProductCategory::catalogue()]);
     }
 
     public function payouts(Request $request)
@@ -51,7 +52,7 @@ class MakerController extends Controller
     {
         $this->authorizeOwner($request, $product);
 
-        return view('maker.edit', compact('product'));
+        return view('maker.edit', ['product' => $product, 'categories' => ProductCategory::catalogue()]);
     }
 
     public function store(Request $request)
@@ -93,6 +94,7 @@ class MakerController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:150',
             'description' => 'required|string|max:5000',
+            'product_category_id' => 'sometimes|nullable|integer|exists:product_categories,id',
             'price' => ['required', 'string', 'regex:/^\d{1,7}(?:[.,]\d{1,2})?$/D'],
             'stock' => 'nullable|integer|min:0|max:1000000',
             'stock_before' => $product ? 'required|integer|min:0' : 'nullable|integer',
@@ -135,6 +137,7 @@ class MakerController extends Controller
                 }
                 $stock = $data['stock'] ?? null;
                 $locked->fill([
+                    ...array_intersect_key($data, ['product_category_id' => true]),
                     'name' => $data['name'],
                     'description' => '<p>'.nl2br(e($data['description']), false).'</p>',
                     'images' => $photos,

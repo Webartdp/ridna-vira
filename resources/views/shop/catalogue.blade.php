@@ -12,7 +12,24 @@
     @endguest
     <form method="get" class="shop-filters">
         <div><label for="shop-search">Пошук</label><input id="shop-search" name="q" value="{{ request('q') }}" maxlength="100" placeholder="Назва товару"></div>
-        <div><label for="shop-category">Категорія</label><select id="shop-category" name="category"><option value="">Усі категорії</option>@foreach($categories as $category)<option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ $category->name }}</option>@endforeach</select></div>
+        <div>
+            <label for="shop-category">Категорія</label>
+            <select id="shop-category" name="category">
+                <option value="">Усі категорії</option>
+                @foreach ($categories as $category)
+                    @if ($category->children->isNotEmpty())
+                        <optgroup label="{{ $category->name }}">
+                            <option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>Уся категорія «{{ $category->name }}»</option>
+                            @foreach ($category->children as $child)
+                                <option value="{{ $child->slug }}" @selected(request('category') === $child->slug)>{{ $child->name }}</option>
+                            @endforeach
+                        </optgroup>
+                    @else
+                        <option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ $category->name }}</option>
+                    @endif
+                @endforeach
+            </select>
+        </div>
         <button class="shop-btn">Знайти</button>
     </form>
     <div class="shop-grid">
