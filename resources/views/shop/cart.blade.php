@@ -1,6 +1,23 @@
 @extends('layouts.app')
 @section('title', 'Кошик — Рідна Віра')
-@push('styles') @include('shop.styles') @endpush
+@push('styles')
+    @include('shop.styles')
+    <style>
+        .checkout-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:24px;margin-top:30px;align-items:start}
+        .checkout-fields{display:grid;gap:16px;min-width:0}
+        .checkout-layout h2{font-size:1.5rem;margin:0 0 14px}
+        .checkout-payment-method{padding:12px 14px;background:#f4ecdc;border:1px solid #e2d4bb;border-radius:8px}
+        .checkout-payment-method small{margin-top:2px}
+        .checkout-totals{margin:18px 0 0}
+        .checkout-totals>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0}
+        .checkout-totals dd{margin:0;text-align:right}
+        .checkout-total{border-top:1px solid #d7cab3;font-weight:700}
+        .checkout-submit{width:100%;margin-top:12px}
+        #nova-poshta-lookup:not([hidden]){margin:14px 0;padding:12px;border:1px solid #d7cab3;border-radius:8px}
+        #nova-poshta-lookup button{margin-top:8px}
+        @media(max-width:760px){.checkout-layout{grid-template-columns:minmax(0,1fr);gap:16px}}
+    </style>
+@endpush
 @section('content')
 <section class="shop"><h1>Кошик</h1>
     @if(session('status'))<div class="shop-alert" role="status">{{ session('status') }}</div>@endif
@@ -13,23 +30,48 @@
         <div class="shop-panel shop-empty"><h2>Кошик поки порожній</h2><a class="shop-btn" href="{{ route('shop.index') }}">До крамниці</a></div>
     @endforelse
     @if($items)
-    <p class="shop-price" style="text-align:right;margin:24px 0">Разом: {{ \App\Support\Money::display($total) }}</p>
-    <div class="shop-split"><div><h2>Оформлення замовлення</h2><p>Оплата карткою через WayForPay. Доставку оплачує покупець за тарифами перевізника при отриманні.</p><p>Після оформлення товари в наявності резервуються на 30 хвилин.</p>@if(!$paymentsReady)<div class="shop-alert">Онлайн-оплата ще налаштовується. Оформлення замовлень стане доступним після відкриття крамниці.</div>@endif</div>
-    <form method="post" action="{{ route('shop.checkout') }}" class="shop-panel">@csrf
-        <input type="hidden" name="checkout_token" value="{{ session('checkout_token') }}">
-        @guest<p><a href="{{ route('login') }}">Увійдіть</a>, щоб замовлення збереглося у вашому кабінеті, або оформіть покупку як гість.</p>@endguest
-        <label for="customer-name">Ім’я та прізвище</label><input id="customer-name" name="customer_name" value="{{ old('customer_name', auth()->user()?->name) }}" autocomplete="name" required maxlength="150">
-        <label for="customer-email">Електронна пошта</label><input id="customer-email" type="email" name="email" value="{{ auth()->check() ? auth()->user()->email : old('email') }}" autocomplete="email" required maxlength="190" @readonly(auth()->check())>
-        <label for="customer-phone">Телефон</label><input id="customer-phone" type="tel" name="phone" value="{{ old('phone', auth()->user()?->phone) }}" autocomplete="tel" required maxlength="30">
-        <label for="delivery-method">Доставка</label><select id="delivery-method" name="delivery_method"><option value="nova_poshta" @selected(old('delivery_method') === 'nova_poshta')>Нова пошта</option><option value="ukrposhta" @selected(old('delivery_method') === 'ukrposhta')>Укрпошта</option><option value="pickup" @selected(old('delivery_method') === 'pickup')>Самовивіз за узгодженням</option></select>
-        @if ($novaPoshtaReady)
-            @include('shop.nova-poshta')
-        @endif
-        <label for="delivery-address">Місто, відділення / поштомат або адреса</label><textarea id="delivery-address" name="delivery_address" required maxlength="1000" rows="3">{{ old('delivery_address', auth()->user()?->delivery_address) }}</textarea>
-        <label for="order-comment">Коментар (необов’язково)</label><textarea id="order-comment" name="comment" maxlength="2000" rows="2">{{ old('comment') }}</textarea>
-        <label><input type="checkbox" name="consent" value="1" required @checked(old('consent'))> Погоджуюся з <a href="{{ url('/umovy-kramnytsi') }}" target="_blank" rel="noopener">умовами замовлення та обробкою даних</a>.</label>
-        <button class="shop-btn" style="margin-top:20px" @disabled(!$paymentsReady)>Оформити й перейти до оплати</button>
-    </form></div>
+    <form method="post" action="{{ route('shop.checkout') }}" class="checkout-layout">
+        @csrf
+        <div class="checkout-fields">
+            <section class="shop-panel" aria-labelledby="checkout-contacts">
+                <h2 id="checkout-contacts">Контактні дані</h2>
+                <input type="hidden" name="checkout_token" value="{{ session('checkout_token') }}">
+                @guest<p><a href="{{ route('login') }}">Увійдіть</a>, щоб замовлення збереглося у вашому кабінеті, або оформіть покупку як гість.</p>@endguest
+                <label for="customer-name">Ім’я та прізвище</label><input id="customer-name" name="customer_name" value="{{ old('customer_name', auth()->user()?->name) }}" autocomplete="name" required maxlength="150">
+                <label for="customer-email">Електронна пошта</label><input id="customer-email" type="email" name="email" value="{{ auth()->check() ? auth()->user()->email : old('email') }}" autocomplete="email" required maxlength="190" @readonly(auth()->check())>
+                <label for="customer-phone">Телефон</label><input id="customer-phone" type="tel" name="phone" value="{{ old('phone', auth()->user()?->phone) }}" autocomplete="tel" required maxlength="30">
+            </section>
+
+            <section class="shop-panel" aria-labelledby="checkout-delivery">
+                <h2 id="checkout-delivery">Доставка</h2>
+                <label for="delivery-method">Доставка</label><select id="delivery-method" name="delivery_method"><option value="nova_poshta" @selected(old('delivery_method') === 'nova_poshta')>Нова пошта</option><option value="ukrposhta" @selected(old('delivery_method') === 'ukrposhta')>Укрпошта</option><option value="pickup" @selected(old('delivery_method') === 'pickup')>Самовивіз за узгодженням</option></select>
+                @if ($novaPoshtaReady)
+                    @include('shop.nova-poshta')
+                @endif
+                <label for="delivery-address">Місто, відділення / поштомат або адреса</label><textarea id="delivery-address" name="delivery_address" required maxlength="1000" rows="3">{{ old('delivery_address', auth()->user()?->delivery_address) }}</textarea>
+                <small>Доставку оплачує покупець за тарифами перевізника при отриманні. Самовивіз — за узгодженням.</small>
+                <label for="order-comment">Коментар (необов’язково)</label><textarea id="order-comment" name="comment" maxlength="2000" rows="2">{{ old('comment') }}</textarea>
+            </section>
+        </div>
+
+        <section class="shop-panel checkout-summary" aria-labelledby="checkout-payment">
+            <h2 id="checkout-payment">Оплата</h2>
+            <div class="checkout-payment-method">
+                <strong>Банківська картка</strong>
+                <small>Онлайн-оплата через WayForPay</small>
+            </div>
+            <dl class="checkout-totals">
+                <div><dt>Товари</dt><dd>{{ \App\Support\Money::display($total) }}</dd></div>
+                <div><dt>Доставка</dt><dd>Окремо</dd></div>
+                <div class="checkout-total"><dt>До оплати за товари</dt><dd>{{ \App\Support\Money::display($total) }}</dd></div>
+            </dl>
+            <label><input type="checkbox" name="consent" value="1" required @checked(old('consent'))> Погоджуюся з <a href="{{ url('/umovy-kramnytsi') }}" target="_blank" rel="noopener">умовами замовлення та обробкою даних</a>.</label>
+            @if (!$paymentsReady)
+                <div class="shop-alert" role="status">Онлайн-оплата тимчасово недоступна.</div>
+            @endif
+            <button class="shop-btn checkout-submit" type="submit" @disabled(!$paymentsReady)>Оформити й перейти до оплати</button>
+        </section>
+    </form>
     @endif
 </section>
 @endsection
