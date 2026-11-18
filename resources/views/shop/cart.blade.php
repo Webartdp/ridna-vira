@@ -29,8 +29,6 @@
         .checkout-totals dd{margin:0;text-align:right}
         .checkout-total{border-top:1px solid #d7cab3;font-weight:700}
         .checkout-submit{width:100%;margin-top:12px}
-        #nova-poshta-lookup:not([hidden]){margin:14px 0;padding:12px;border:1px solid #d7cab3;border-radius:8px}
-        #nova-poshta-lookup button{margin-top:8px}
         @media(max-width:760px){.checkout-layout{grid-template-columns:minmax(0,1fr);gap:16px}.checkout-summary{position:static}}
         @media(max-width:960px){.cart-product-actions{grid-column:2;justify-content:start}.cart-product-total{text-align:left}}
         @media(max-width:420px){.cart-product{grid-template-columns:60px minmax(0,1fr);gap:10px}.cart-product-photo{width:60px;height:60px}.cart-quantity .shop-btn{font-size:.85rem}}
@@ -98,7 +96,10 @@
                     @if ($novaPoshtaReady)
                         @include('shop.nova-poshta')
                     @endif
-                    <label for="delivery-address">Місто та відділення або поштомат</label><textarea id="delivery-address" name="delivery_address" required maxlength="1000" rows="3">{{ old('delivery_address', auth()->user()?->delivery_address) }}</textarea>
+                    <div id="np-manual-address" data-restore="{{ old('delivery_address') ? 'yes' : 'no' }}">
+                        <label for="delivery-address">Адреса доставки вручну</label>
+                        <textarea id="delivery-address" name="delivery_address" required maxlength="1000" rows="3">{{ old('delivery_address', auth()->user()?->delivery_address) }}</textarea>
+                    </div>
                     <small>Доставку оплачує покупець за тарифами перевізника при отриманні. </small>
                     <label for="order-comment">Коментар (необов’язково)</label><textarea id="order-comment" name="comment" maxlength="2000" rows="2">{{ old('comment') }}</textarea>
                 </section>
