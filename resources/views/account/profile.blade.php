@@ -5,8 +5,9 @@
     <form method="post" action="{{ route('account.avatar.update') }}" enctype="multipart/form-data">
         @csrf
         <label for="profile-avatar">Фото профілю</label>
-        <small id="profile-avatar-hint">JPG, PNG або WebP, до 2 МБ і 3000 × 3000 px.</small>
+        <small id="profile-avatar-hint">JPG, PNG або WebP до 25 МБ і 64 Мп. Після кадрування збережеться WebP 512 × 512 px.</small>
         <input id="profile-avatar" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" aria-describedby="profile-avatar-hint" required>
+        <noscript><small>Для кадрування та завантаження великих фото увімкніть JavaScript. Без нього можна завантажити оригінал до 2 МБ і 3000 × 3000 px.</small></noscript>
         @include('account.avatar-crop')
         <button class="shop-btn" type="submit">{{ auth()->user()->avatar_path ? 'Замінити фото' : 'Завантажити фото' }}</button>
     </form>

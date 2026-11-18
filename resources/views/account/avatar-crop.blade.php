@@ -72,8 +72,8 @@
             editor.hidden = true;
             showError('');
             if (!file) return;
-            if (file.size > 2 * 1024 * 1024) {
-                showError('Виберіть фото розміром до 2 МБ.');
+            if (file.size > 25 * 1024 * 1024) {
+                showError('Виберіть фото розміром до 25 МБ.');
                 return;
             }
 
@@ -83,8 +83,8 @@
             try {
                 await candidate.decode();
                 if (input.files[0] !== file) return;
-                if (Math.max(candidate.naturalWidth, candidate.naturalHeight) > 3000) {
-                    showError('Фото має бути не більше ніж 3000 × 3000 px.');
+                if (candidate.naturalWidth * candidate.naturalHeight > 64_000_000) {
+                    showError('Виберіть фото з роздільністю до 64 мегапікселів.');
                     return;
                 }
                 image = candidate;
@@ -133,7 +133,7 @@
             canvas.toBlob(blob => {
                 submitting = false;
                 if (input.files[0] !== original) return;
-                if (!blob) {
+                if (blob?.type !== 'image/webp') {
                     showError('Не вдалося обрізати фото. Виберіть його ще раз.');
                     return;
                 }
