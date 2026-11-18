@@ -7,6 +7,7 @@
         <label for="profile-avatar">Фото профілю</label>
         <small id="profile-avatar-hint">JPG, PNG або WebP, до 2 МБ і 3000 × 3000 px.</small>
         <input id="profile-avatar" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" aria-describedby="profile-avatar-hint" required>
+        @include('account.avatar-crop')
         <button class="shop-btn" type="submit">{{ auth()->user()->avatar_path ? 'Замінити фото' : 'Завантажити фото' }}</button>
     </form>
     @if (auth()->user()->avatar_path)
