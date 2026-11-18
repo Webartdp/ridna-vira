@@ -4,7 +4,7 @@
         @method('PUT')
         <input type="hidden" name="stock_before" value="{{ old('stock_before', $product->stock) }}">
     @endif
-    <h2>{{ $product ? 'Дані виробу' : 'Додати виріб' }}</h2>
+    <h2 @isset($titleId) id="{{ $titleId }}" @endisset>{{ $product ? 'Дані виробу' : 'Додати виріб' }}</h2>
     <p>Адміністратор перевірить виріб перед публікацією в крамниці.</p>
     <label for="maker-name">Назва виробу</label>
     <input id="maker-name" name="name" required maxlength="150" value="{{ old('name', $product?->name) }}">

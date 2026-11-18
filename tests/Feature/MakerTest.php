@@ -81,7 +81,7 @@ class MakerTest extends TestCase
         $this->patch(route('maker.products.hide', $product))->assertNotFound();
         $this->delete(route('maker.products.destroy', $product))->assertNotFound();
 
-        $this->actingAs($maker)->get(route('maker.index'))->assertOk()->assertSee('Приховати Крайка');
+        $this->actingAs($maker)->get(route('maker.index'))->assertOk()->assertSee('Приховати Крайка')->assertSee('<table class="maker-table"', false)->assertSee('aria-controls="maker-create"', false);
         $this->get(route('maker.products.edit', $product))->assertOk()->assertSee('Редагувати виріб');
         $this->patch(route('maker.products.hide', $product))->assertRedirect();
         $this->assertFalse($product->refresh()->is_active);
@@ -96,6 +96,19 @@ class MakerTest extends TestCase
         $this->get(route('maker.products.edit', $product))->assertOk()->assertSee('Поточні фото');
         $this->delete(route('maker.products.destroy', $product))->assertRedirect(route('maker.index'));
         $this->assertSoftDeleted($product);
+    }
+
+    public function test_invalid_creation_preserves_input_and_reopens_its_dialog(): void
+    {
+        $this->withoutVite();
+        $maker = User::factory()->create(['role' => 'maker']);
+
+        $this->actingAs($maker)->from(route('maker.index'))->followingRedirects()
+            ->post(route('maker.products.store'), ['name' => 'Нова миска'])
+            ->assertOk()
+            ->assertSee('data-reopen="yes"', false)
+            ->assertSee('value="Нова миска"', false);
+        $this->assertDatabaseCount('products', 0);
     }
 
     public function test_guest_can_switch_account_type_and_form(): void

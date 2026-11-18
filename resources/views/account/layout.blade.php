@@ -21,7 +21,7 @@
     </nav>
     @endauth
     @if(session('status'))<div class="shop-alert account-alert" role="status">{{ session('status') }}</div>@endif
-    @if($errors->any())<div class="shop-alert shop-error" role="alert"><ul class="errors">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+    @if($errors->any() && empty($errorsInDialog))<div class="shop-alert shop-error" role="alert"><ul class="errors">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
     @yield('account-content')
 </section>
 @endsection
