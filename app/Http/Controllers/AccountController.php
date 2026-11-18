@@ -60,7 +60,11 @@ class AccountController extends Controller
         }
         $request->session()->regenerate();
 
-        return redirect()->intended(route(Auth::user()->roleName() === 'maker' ? 'maker.index' : 'account.index'));
+        $destination = Auth::user()->roleName() === 'maker'
+            || ($request->routeIs('maker.login.submit') && Auth::user()->roleName() === 'user')
+            ? 'maker.index' : 'account.index';
+
+        return redirect()->intended(route($destination));
     }
 
     public function logout(Request $request)

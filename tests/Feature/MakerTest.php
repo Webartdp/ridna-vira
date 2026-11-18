@@ -67,6 +67,45 @@ class MakerTest extends TestCase
         $this->assertFalse(Product::latest('id')->firstOrFail()->made_to_order);
     }
 
+    public function test_maker_edits_photos_hides_and_removes_only_own_products(): void
+    {
+        $this->withoutVite();
+        Storage::fake('public');
+        $maker = User::factory()->create(['role' => 'maker']);
+        $other = User::factory()->create(['role' => 'maker']);
+        $product = Product::create([
+            'name' => 'Крайка', 'slug' => 'maker-kraika', 'description' => '<p>Опис</p>',
+            'maker_id' => $maker->id, 'maker_price_minor' => 10000, 'is_active' => true, 'stock' => 2,
+        ]);
+        $this->actingAs($other)->get(route('maker.products.edit', $product))->assertNotFound();
+        $this->patch(route('maker.products.hide', $product))->assertNotFound();
+        $this->delete(route('maker.products.destroy', $product))->assertNotFound();
+
+        $this->actingAs($maker)->get(route('maker.index'))->assertOk()->assertSee('Приховати Крайка');
+        $this->get(route('maker.products.edit', $product))->assertOk()->assertSee('Редагувати виріб');
+        $this->patch(route('maker.products.hide', $product))->assertRedirect();
+        $this->assertFalse($product->refresh()->is_active);
+        $product->update(['is_active' => true]);
+        $this->put(route('maker.products.update', $product), [
+            'name' => 'Нова крайка', 'description' => 'Новий опис', 'price' => '200',
+            'stock' => 2, 'stock_before' => 2, 'images' => [UploadedFile::fake()->image('photo.jpg')],
+        ])->assertRedirect(route('maker.index'));
+        $this->assertFalse($product->refresh()->is_active);
+        $this->assertSame(26000, $product->price_minor);
+        $this->assertCount(1, $product->images);
+        $this->get(route('maker.products.edit', $product))->assertOk()->assertSee('Поточні фото');
+        $this->delete(route('maker.products.destroy', $product))->assertRedirect(route('maker.index'));
+        $this->assertSoftDeleted($product);
+    }
+
+    public function test_guest_can_switch_account_type_and_form(): void
+    {
+        $this->withoutVite();
+        $this->get(route('login'))->assertOk()->assertSee(route('maker.login'), false);
+        $this->get(route('maker.login'))->assertOk()->assertSee(route('maker.register'), false);
+        $this->get(route('maker.register'))->assertOk()->assertSee(route('register'), false)->assertSee(route('maker.login'), false);
+    }
+
     public function test_sample_products_stay_private_until_an_administrator_approves(): void
     {
         $this->withoutVite();

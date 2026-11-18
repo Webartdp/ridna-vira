@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Services\ProductImages;
 use App\Support\Money;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules\File;
@@ -33,7 +34,47 @@ class MakerController extends Controller
         return redirect()->route('maker.index');
     }
 
+    public function edit(Request $request, Product $product)
+    {
+        $this->authorizeOwner($request, $product);
+
+        return view('maker.edit', compact('product'));
+    }
+
     public function store(Request $request)
+    {
+        return $this->saveProduct($request);
+    }
+
+    public function update(Request $request, Product $product)
+    {
+        $this->authorizeOwner($request, $product);
+
+        return $this->saveProduct($request, $product);
+    }
+
+    public function hide(Request $request, Product $product)
+    {
+        $this->authorizeOwner($request, $product);
+        Product::whereKey($product->id)->where('maker_id', $request->user()->id)->update(['is_active' => false]);
+
+        return back()->with('status', 'Виріб приховано.');
+    }
+
+    public function destroy(Request $request, Product $product)
+    {
+        $this->authorizeOwner($request, $product);
+        Product::whereKey($product->id)->where('maker_id', $request->user()->id)->delete();
+
+        return redirect()->route('maker.index')->with('status', 'Виріб видалено.');
+    }
+
+    private function authorizeOwner(Request $request, Product $product): void
+    {
+        abort_unless($request->user()->roleName() === 'maker' && $product->maker_id === $request->user()->id, 404);
+    }
+
+    private function saveProduct(Request $request, ?Product $product = null)
     {
         abort_unless($request->user()->roleName() === 'maker', 403);
         $data = $request->validate([
@@ -41,7 +82,10 @@ class MakerController extends Controller
             'description' => 'required|string|max:5000',
             'price' => ['required', 'string', 'regex:/^\d{1,7}(?:[.,]\d{1,2})?$/D'],
             'stock' => 'nullable|integer|min:0|max:1000000',
-            'images' => 'required|array|min:1|max:8',
+            'stock_before' => $product ? 'required|integer|min:0' : 'nullable|integer',
+            'remove_images' => 'nullable|array|max:8',
+            'remove_images.*' => 'string|max:255',
+            'images' => $product ? 'nullable|array|max:8' : 'required|array|min:1|max:8',
             'images.*' => ['required', File::types(['jpg', 'jpeg', 'png', 'webp'])->max('2mb'), 'dimensions:max_width=4000,max_height=4000'],
         ]);
         $price = Money::minor($data['price']);
@@ -49,13 +93,13 @@ class MakerController extends Controller
             throw ValidationException::withMessages(['price' => 'Ціна має бути більшою за 0, а роздрібна ціна — до 9 999 999,99 грн.']);
         }
 
-        if (array_sum(array_map(fn ($file) => $file->getSize(), $data['images'])) > 6 * 1024 * 1024) {
+        if (array_sum(array_map(fn ($file) => $file->getSize(), $data['images'] ?? [])) > 6 * 1024 * 1024) {
             throw ValidationException::withMessages(['images' => 'Загальний розмір фотографій має бути до 6 МБ.']);
         }
 
         $images = [];
         try {
-            foreach ($data['images'] as $file) {
+            foreach ($data['images'] ?? [] as $file) {
                 $path = $file->store('products/makers', 'public');
                 if ($path === false) {
                     throw ValidationException::withMessages(['images' => 'Фото не вдалося зберегти. Спробуйте ще раз.']);
@@ -63,18 +107,30 @@ class MakerController extends Controller
                 $images[] = $path;
             }
 
-            $stock = $data['stock'] ?? null;
-            Product::create([
-                'name' => $data['name'],
-                'slug' => (Str::slug(Str::limit($data['name'], 100, '')) ?: 'vyrob').'-'.Str::lower((string) Str::ulid()),
-                'description' => '<p>'.nl2br(e($data['description']), false).'</p>',
-                'images' => $images,
-                'maker_id' => $request->user()->id,
-                'maker_price_minor' => $price,
-                'made_to_order' => $stock === null,
-                'stock' => $stock ?? 0,
-                'is_active' => false,
-            ]);
+            DB::transaction(function () use ($request, $product, $data, $price, $images) {
+                $locked = $product
+                    ? Product::where('maker_id', $request->user()->id)->lockForUpdate()->findOrFail($product->id)
+                    : new Product(['maker_id' => $request->user()->id,
+                        'slug' => (Str::slug(Str::limit($data['name'], 100, '')) ?: 'vyrob').'-'.Str::lower((string) Str::ulid())]);
+                if ($product && (int) $data['stock_before'] !== $locked->stock) {
+                    throw ValidationException::withMessages(['stock' => 'Залишок змінився. Відкрийте виріб повторно та перевірте кількість.']);
+                }
+                $photos = array_values(array_diff($locked->images ?? [], $data['remove_images'] ?? []));
+                $photos = [...$photos, ...$images];
+                if (count($photos) < 1 || count($photos) > 8) {
+                    throw ValidationException::withMessages(['images' => 'Залиште або завантажте від 1 до 8 фотографій.']);
+                }
+                $stock = $data['stock'] ?? null;
+                $locked->fill([
+                    'name' => $data['name'],
+                    'description' => '<p>'.nl2br(e($data['description']), false).'</p>',
+                    'images' => $photos,
+                    'maker_price_minor' => $price,
+                    'made_to_order' => $stock === null,
+                    'stock' => $stock ?? 0,
+                    'is_active' => false,
+                ])->save();
+            }, 3);
         } catch (Throwable $error) {
             $disk = Storage::disk('public');
             foreach ($images as $path) {
@@ -84,6 +140,6 @@ class MakerController extends Controller
             throw $error;
         }
 
-        return redirect()->route('maker.index')->with('status', 'Виріб додано. Він з’явиться в крамниці після схвалення адміністратором.');
+        return redirect()->route('maker.index')->with('status', 'Виріб збережено. Він з’явиться в крамниці після схвалення адміністратором.');
     }
 }

@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('guest')->group(function () {
     Route::view('/uviyty', 'account.login')->name('login');
     Route::post('/uviyty', [AccountController::class, 'login'])->middleware('throttle:6,1');
+    Route::view('/uviyty/maister', 'account.login', ['maker' => true])->name('maker.login');
+    Route::post('/uviyty/maister', [AccountController::class, 'login'])->middleware('throttle:6,1')->name('maker.login.submit');
     Route::view('/reiestratsiia', 'account.register')->name('register');
     Route::post('/reiestratsiia', [AccountController::class, 'register'])->middleware('throttle:4,1');
     Route::view('/reiestratsiia/maister', 'account.register', ['maker' => true])->name('maker.register');
@@ -20,6 +22,12 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
     Route::get('/kabinet/maisternia', [MakerController::class, 'index'])->name('maker.index');
     Route::post('/kabinet/maisternia', [MakerController::class, 'activate'])->middleware(['verified', 'throttle:4,1'])->name('maker.activate');
     Route::post('/kabinet/maisternia/vyroby', [MakerController::class, 'store'])->middleware(['verified', 'throttle:10,1'])->name('maker.products.store');
+    Route::middleware(['verified', 'throttle:20,1'])->prefix('/kabinet/maisternia/vyroby/{product}')->name('maker.products.')->group(function () {
+        Route::get('/redahuvaty', [MakerController::class, 'edit'])->name('edit');
+        Route::put('/', [MakerController::class, 'update'])->name('update');
+        Route::patch('/prykhovaty', [MakerController::class, 'hide'])->name('hide');
+        Route::delete('/', [MakerController::class, 'destroy'])->name('destroy');
+    });
     Route::post('/vyity', [AccountController::class, 'logout'])->name('logout');
     Route::get('/kabinet', [AccountController::class, 'index'])->name('account.index');
     Route::view('/kabinet/profil', 'account.profile')->name('account.profile');

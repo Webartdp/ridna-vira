@@ -1,5 +1,7 @@
 @extends('account.layout', ['accountTitle' => 'Кабінет майстра'])
 
+@push('styles') @include('maker.styles') @endpush
+
 @section('account-content')
 @if ($products === null)
     <div class="shop-panel account-form">
@@ -20,34 +22,37 @@
     </div>
 @else
     <div class="shop-split">
-        <form class="shop-panel account-form" method="post" action="{{ route('maker.products.store') }}" enctype="multipart/form-data">
-            @csrf
-            <h2>Додати виріб</h2>
-            <p>Адміністратор перевірить виріб перед публікацією в крамниці.</p>
-            <label for="maker-name">Назва виробу</label>
-            <input id="maker-name" name="name" required maxlength="150" value="{{ old('name') }}">
-            <label for="maker-description">Опис</label>
-            <textarea id="maker-description" name="description" rows="5" required maxlength="5000">{{ old('description') }}</textarea>
-            <label for="maker-images">Фотографії</label>
-            <input id="maker-images" type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple required aria-describedby="maker-images-hint">
-            <small id="maker-images-hint">До 8 фотографій у форматі JPG, PNG або WebP. До 2 МБ на фото й до 6 МБ загалом.</small>
-            <label for="maker-price">Ваша ціна, грн</label>
-            <input id="maker-price" name="price" inputmode="decimal" pattern="[0-9]{1,7}([.,][0-9]{1,2})?" required maxlength="10" value="{{ old('price') }}" aria-describedby="maker-retail">
-            <small id="maker-retail">Ціна в крамниці включає націнку 30%.</small>
-            <label for="maker-stock">Кількість готових виробів</label>
-            <input id="maker-stock" name="stock" type="number" min="0" max="1000000" step="1" value="{{ old('stock') }}" aria-describedby="maker-stock-hint">
-            <small id="maker-stock-hint">Залиште порожнім для виробу під замовлення. Вкажіть 0, якщо виріб зараз недоступний.</small>
-            <button class="shop-btn" type="submit">Подати на публікацію</button>
-        </form>
+        @include('maker.form', ['product' => null])
         <section class="shop-panel" aria-labelledby="maker-products">
             <h2 id="maker-products">Мої вироби</h2>
             @forelse ($products as $product)
-                <article class="shop-row">
-                    <div>
+                <article class="maker-product">
+                    <img class="maker-thumb" src="{{ $product->images ? $product->imageUrl($product->images[0], 400) : asset('assets/brand/image-placeholder.svg') }}"
+                        width="64" height="64" loading="lazy" decoding="async" alt="">
+                    <div class="maker-product-info">
                         <h3>@if ($product->is_active)<a href="{{ route('shop.product', $product) }}">{{ $product->name }}</a>@else{{ $product->name }}@endif</h3>
-                        <small>{{ $product->is_active ? 'У крамниці' : 'Очікує публікації' }} · {{ $product->availabilityLabel() }}</small>
+                        <small>{{ $product->is_active ? 'У крамниці' : 'Не опубліковано' }} · {{ $product->availabilityLabel() }}</small>
                         <small>Ваша ціна {{ \App\Support\Money::display($product->maker_price_minor) }}</small>
                         <small>У крамниці {{ \App\Support\Money::display($product->price_minor) }}</small>
+                    </div>
+                    <div class="maker-actions">
+                        <a class="maker-action" href="{{ route('maker.products.edit', $product) }}" aria-label="Редагувати {{ $product->name }}" title="Редагувати">
+                            @svg('heroicon-o-pencil-square', 'maker-icon')
+                        </a>
+                        @if ($product->is_active)
+                            <form method="post" action="{{ route('maker.products.hide', $product) }}">
+                                @csrf @method('PATCH')
+                                <button class="maker-action" type="submit" aria-label="Приховати {{ $product->name }}" title="Приховати">
+                                    @svg('heroicon-o-eye-slash', 'maker-icon')
+                                </button>
+                            </form>
+                        @endif
+                        <form method="post" action="{{ route('maker.products.destroy', $product) }}" onsubmit="return confirm('Видалити цей виріб?')">
+                            @csrf @method('DELETE')
+                            <button class="maker-action maker-action-danger" type="submit" aria-label="Видалити {{ $product->name }}" title="Видалити">
+                                @svg('heroicon-o-trash', 'maker-icon')
+                            </button>
+                        </form>
                     </div>
                 </article>
             @empty
@@ -56,19 +61,5 @@
             {{ $products->links('partials.articles-pagination') }}
         </section>
     </div>
-    <script type="module">
-        const price = document.querySelector('#maker-price');
-        const retail = document.querySelector('#maker-retail');
-        const currency = new Intl.NumberFormat('uk-UA', { style: 'currency', currency: 'UAH' });
-        const update = () => {
-            const match = price.value.match(/^([0-9]{1,7})(?:[.,]([0-9]{1,2}))?$/);
-            const minor = match ? Number(match[1]) * 100 + Number((match[2] ?? '').padEnd(2, '0')) : 0;
-            retail.textContent = minor
-                ? 'Ціна в крамниці з націнкою 30% — ' + currency.format(Math.round(minor * 130 / 100) / 100)
-                : 'Ціна в крамниці включає націнку 30%.';
-        };
-        price.addEventListener('input', update);
-        update();
-    </script>
 @endif
 @endsection
