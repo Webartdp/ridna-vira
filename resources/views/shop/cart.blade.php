@@ -12,6 +12,8 @@
         .cart-product-copy{min-width:0;overflow-wrap:anywhere}
         .cart-product-copy small{margin-top:4px}
         .cart-product-actions{display:grid;grid-template-columns:auto auto;gap:6px;align-items:center;justify-content:end}
+        .cart-quantity-status{grid-column:1/-1;max-width:190px;color:#743d30}
+        .cart-quantity-status:empty{display:none}
         .cart-product-total{grid-column:1/-1;text-align:right;white-space:nowrap}
         .cart-quantity{display:flex;align-items:center;gap:4px}
         .shop .cart-quantity input[type=number]{width:64px;padding:6px}
@@ -52,27 +54,28 @@
                         </a>
                         <div class="cart-product-copy">
                             <strong><a href="{{ route('shop.product', $product) }}">{{ $product->name }}</a></strong>
-                            <small>{{ \App\Support\Money::display($product->price_minor) }} за одиницю</small>
+                            <small><span data-unit-price>{{ \App\Support\Money::display($product->price_minor) }}</span> за одиницю</small>
                             @if ($product->made_to_order)<small>Під замовлення</small>@endif
                             @if ($product->purchaseLimit() < $item['quantity'])
-                                <small class="shop-error">Перевірте кількість. Товар тимчасово недоступний або залишку недостатньо.</small>
+                                <small class="shop-error" data-stock-warning>Перевірте кількість. Товар тимчасово недоступний або залишку недостатньо.</small>
                             @endif
                         </div>
                         <div class="cart-product-actions">
-                            <strong class="cart-product-total">{{ \App\Support\Money::display($item['total']) }}</strong>
+                            <strong class="cart-product-total" data-line-total>{{ \App\Support\Money::display($item['total']) }}</strong>
                             <form class="cart-quantity" method="post" action="{{ route('shop.cart.update', $product) }}">
                                 @csrf
                                 <label class="visually-hidden" for="quantity-{{ $product->id }}">Кількість {{ $product->name }}</label>
                                 <input id="quantity-{{ $product->id }}" type="number" name="quantity" value="{{ $item['quantity'] }}" min="1" max="99" required>
                                 <button class="shop-btn shop-secondary" type="submit">Оновити</button>
                             </form>
-                            <form method="post" action="{{ route('shop.cart.update', $product) }}">
+                            <form data-cart-remove method="post" action="{{ route('shop.cart.update', $product) }}">
                                 @csrf
                                 <input type="hidden" name="quantity" value="0">
                                 <button class="cart-remove" type="submit" aria-label="Видалити {{ $product->name }}" title="Видалити">
                                     @svg('heroicon-o-trash', 'cart-remove-icon')
                                 </button>
                             </form>
+                            <small class="cart-quantity-status" data-quantity-status role="status"></small>
                         </div>
                     </article>
                 @endforeach
@@ -118,9 +121,9 @@
                 @endif
             </fieldset>
             <dl class="checkout-totals">
-                <div><dt>Товари</dt><dd>{{ \App\Support\Money::display($total) }}</dd></div>
+                <div><dt>Товари</dt><dd data-cart-total>{{ \App\Support\Money::display($total) }}</dd></div>
                 <div><dt>Доставка</dt><dd>Окремо, за тарифами Нової пошти</dd></div>
-                <div class="checkout-total"><dt>До оплати за товари</dt><dd>{{ \App\Support\Money::display($total) }}</dd></div>
+                <div class="checkout-total"><dt>До оплати за товари</dt><dd data-cart-total>{{ \App\Support\Money::display($total) }}</dd></div>
             </dl>
             <label><input type="checkbox" form="checkout-form" name="consent" value="1" required @checked(old('consent'))> Погоджуюся з <a href="{{ url('/umovy-kramnytsi') }}" target="_blank" rel="noopener">умовами замовлення та обробкою даних</a>.</label>
             @if (!$ordersEnabled)
@@ -129,6 +132,7 @@
             <button class="shop-btn checkout-submit" form="checkout-form" type="submit" @disabled(!$ordersEnabled || !$novaPoshtaReady)>Оформити замовлення</button>
         </section>
     </div>
+    @include('shop.cart-quantity')
     @else
         <div class="shop-panel shop-empty"><h2>Кошик поки порожній</h2><a class="shop-btn" href="{{ route('shop.index') }}">До крамниці</a></div>
     @endif

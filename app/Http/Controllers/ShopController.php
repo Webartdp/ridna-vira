@@ -10,6 +10,7 @@ use App\Services\Cart;
 use App\Services\Checkout;
 use App\Services\NovaPoshta;
 use App\Services\WayForPay;
+use App\Support\Money;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -41,7 +42,9 @@ class ShopController extends Controller
             session()->put('checkout_token', (string) Str::uuid());
         }
 
-        return view('shop.cart', ['items' => $cart->items(), 'total' => $cart->total(), 'paymentsReady' => $gateway->ready(), 'ordersEnabled' => $this->ordersEnabled(), 'novaPoshtaReady' => $carrier->configured()]);
+        $items = $cart->items();
+
+        return view('shop.cart', ['items' => $items, 'total' => array_sum(array_column($items, 'total')), 'paymentsReady' => $gateway->ready(), 'ordersEnabled' => $this->ordersEnabled(), 'novaPoshtaReady' => $carrier->configured()]);
     }
 
     public function updateCart(Request $request, Product $product, Cart $cart)
@@ -52,6 +55,18 @@ class ShopController extends Controller
             $quantity += (int) session('cart.'.$product->id, 0);
         }
         $cart->set($product, $quantity);
+
+        if ($request->expectsJson()) {
+            $items = $cart->items();
+
+            return response()->json([
+                'quantity' => $quantity,
+                'unitPrice' => Money::display($product->price_minor),
+                'lineTotal' => Money::display($product->price_minor * $quantity),
+                'total' => Money::display(array_sum(array_column($items, 'total'))),
+                'count' => array_sum(array_column($items, 'quantity')),
+            ]);
+        }
 
         return redirect()->route('shop.cart')->with('status', 'Кошик оновлено.');
     }

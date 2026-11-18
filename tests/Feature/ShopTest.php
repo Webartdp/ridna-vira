@@ -69,6 +69,29 @@ class ShopTest extends TestCase
         $this->get('/koshyk')->assertSee('Кошик поки порожній');
     }
 
+    public function test_cart_quantity_update_returns_totals_and_persists_only_valid_changes(): void
+    {
+        $product = $this->product();
+        $otherProduct = $this->product(['slug' => 'second', 'price_minor' => 10000]);
+        $url = route('shop.cart.update', $product);
+        $token = (string) Str::uuid();
+
+        $this->withSession(['cart' => [$product->id => 1, $otherProduct->id => 2], 'checkout_token' => $token])
+            ->postJson($url, ['quantity' => 3])
+            ->assertOk()
+            ->assertExactJson([
+                'quantity' => 3,
+                'unitPrice' => '125,50 ₴',
+                'lineTotal' => '376,50 ₴',
+                'total' => '576,50 ₴',
+                'count' => 5,
+            ]);
+
+        $this->postJson($url, ['quantity' => 6])->assertUnprocessable()->assertJsonValidationErrors('cart');
+        $this->post('/zamovlennia', [...$this->customer(), 'checkout_token' => $token, 'consent' => '1'])->assertRedirect();
+        $this->assertDatabaseHas('orders', ['total_minor' => 57650]);
+    }
+
     public function test_checkout_reserves_once_and_ignores_client_total(): void
     {
         $product = $this->product();
