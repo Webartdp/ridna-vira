@@ -54,7 +54,10 @@ class ProductResource extends Resource
             Toggle::make('made_to_order')->label('Під замовлення')->disabled()->visible(fn (?Product $record) => (bool) $record?->made_to_order),
             TextInput::make('stock')->label('Залишок, шт.')->integer()->required()->minValue(0)->maxValue(1000000)->default(0)->helperText('Показано вільний залишок, без зарезервованих замовлень.'),
             Hidden::make('stock_before')->afterStateHydrated(fn ($component, ?Product $record) => $component->state($record?->stock))->dehydrated(fn (?Product $record) => $record !== null),
-            Toggle::make('is_active')->label('Показувати в крамниці')->default(false),
+            Toggle::make('is_active')->label(fn (?Product $record) => $record?->maker_price_minor !== null
+                ? 'Схвалено до публікації' : 'Показувати в крамниці')->default(false)
+                ->disabled(fn (?Product $record) => $record?->maker_price_minor !== null && ! auth()->user()?->canManage('admin'))
+                ->helperText(fn (?Product $record) => $record?->maker_price_minor !== null ? 'Виріб майстра може опублікувати лише адміністратор.' : null),
             FileUpload::make('images')->label('Фотографії')->multiple()->reorderable()->image()->imageResizeMode('contain')->imageResizeTargetWidth('1600')->imageResizeTargetHeight('1600')->imageResizeUpscale(false)->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->disk('public')->directory('products')->visibility('public')->maxSize(4096)->maxFiles(8)->columnSpanFull(),
             RichEditor::make('description')->label('Опис')->fileAttachmentsDisk('public')->fileAttachmentsDirectory('products')->fileAttachmentsVisibility('public')->fileAttachmentsAcceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])->fileAttachmentsMaxSize(4096)->columnSpanFull(),
             TextInput::make('seo_title')->label('SEO: заголовок у пошуку')->maxLength(255),
@@ -76,6 +79,9 @@ class ProductResource extends Resource
                 $locked = Product::lockForUpdate()->findOrFail($record->id);
                 if ((int) ($data['stock_before'] ?? -1) !== $locked->stock) {
                     throw ValidationException::withMessages(['stock' => 'Залишок змінився під час редагування. Відкрийте товар повторно.']);
+                }
+                if ($locked->maker_price_minor !== null && ! auth()->user()?->canManage('admin')) {
+                    unset($data['is_active']);
                 }
                 unset($data['stock_before']);
                 $locked->fill($data)->save();

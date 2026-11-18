@@ -23,7 +23,7 @@
         <form class="shop-panel account-form" method="post" action="{{ route('maker.products.store') }}" enctype="multipart/form-data">
             @csrf
             <h2>Додати виріб</h2>
-            <p>Менеджер перевірить виріб перед публікацією в крамниці.</p>
+            <p>Адміністратор перевірить виріб перед публікацією в крамниці.</p>
             <label for="maker-name">Назва виробу</label>
             <input id="maker-name" name="name" required maxlength="150" value="{{ old('name') }}">
             <label for="maker-description">Опис</label>

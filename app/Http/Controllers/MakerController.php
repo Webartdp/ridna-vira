@@ -84,6 +84,6 @@ class MakerController extends Controller
             throw $error;
         }
 
-        return redirect()->route('maker.index')->with('status', 'Виріб додано. Він з’явиться в крамниці після публікації менеджером.');
+        return redirect()->route('maker.index')->with('status', 'Виріб додано. Він з’явиться в крамниці після схвалення адміністратором.');
     }
 }

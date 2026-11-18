@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\ProductResource\Pages\ManageProducts;
 use App\Models\Product;
 use App\Models\User;
 use App\Services\Checkout;
@@ -11,6 +12,7 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class MakerTest extends TestCase
@@ -63,6 +65,34 @@ class MakerTest extends TestCase
             ...$payload, 'stock' => 0, 'images' => [UploadedFile::fake()->image('bowl.jpg')],
         ])->assertRedirect(route('maker.index'));
         $this->assertFalse(Product::latest('id')->firstOrFail()->made_to_order);
+    }
+
+    public function test_sample_products_stay_private_until_an_administrator_approves(): void
+    {
+        $this->withoutVite();
+        $maker = User::factory()->create(['role' => 'maker']);
+        $manager = User::factory()->create(['role' => 'shop_manager']);
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $this->artisan('shop:seed-maker-samples', ['email' => $maker->email])->assertSuccessful();
+        $this->artisan('shop:seed-maker-samples', ['email' => $maker->email])->assertSuccessful();
+        $this->assertSame(2, Product::where('maker_id', $maker->id)->where('is_active', false)->count());
+
+        $product = Product::where('maker_id', $maker->id)->firstOrFail();
+        $this->get(route('shop.product', $product))->assertNotFound();
+
+        $this->actingAs($manager);
+        Livewire::test(ManageProducts::class)
+            ->mountTableAction('edit', $product)->set('mountedActions.0.data.is_active', true)
+            ->callMountedTableAction()->assertHasNoTableActionErrors();
+        $this->assertFalse($product->refresh()->is_active);
+
+        $this->actingAs($admin);
+        Livewire::test(ManageProducts::class)
+            ->mountTableAction('edit', $product)->set('mountedActions.0.data.is_active', true)
+            ->callMountedTableAction()->assertHasNoTableActionErrors();
+        $this->assertTrue($product->refresh()->is_active);
+        $this->get(route('shop.product', $product))->assertOk();
     }
 
     public function test_made_to_order_items_use_retail_price_and_do_not_change_stock(): void
