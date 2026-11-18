@@ -18,11 +18,24 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
+        $priceRules = ['nullable', 'regex:/^\d{1,7}(?:[.,]\d{1,2})?$/D'];
+        $prices = $request->validate([
+            'price_from' => $priceRules,
+            'price_to' => $priceRules,
+        ], [
+            'price_from.regex' => 'Вкажіть коректну ціну від.',
+            'price_to.regex' => 'Вкажіть коректну ціну до.',
+        ]);
+        $minimum = isset($prices['price_from']) ? Money::minor($prices['price_from']) : null;
+        $maximum = isset($prices['price_to']) ? Money::minor($prices['price_to']) : null;
+
         $products = Product::where('is_active', true)
             ->when($request->filled('category'), fn ($query) => $query->whereHas('category', fn ($category) => $category->where(fn ($match) => $match
                 ->where('slug', $request->string('category')->toString())
                 ->orWhereHas('parent', fn ($parent) => $parent->where('slug', $request->string('category')->toString())))))
             ->when($request->filled('q'), fn ($query) => $query->where('name', 'like', '%'.mb_substr($request->string('q')->toString(), 0, 100).'%'))
+            ->when($minimum !== null, fn ($query) => $query->where('price_minor', '>=', $minimum))
+            ->when($maximum !== null, fn ($query) => $query->where('price_minor', '<=', $maximum))
             ->latest()->paginate(12)->withQueryString();
 
         return view('shop.catalogue', ['products' => $products, 'categories' => ProductCategory::catalogue()]);

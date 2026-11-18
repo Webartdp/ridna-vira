@@ -153,6 +153,9 @@ final class Seo
         $noindex = self::privatePath($path) || ($path === '/statti'
             ? $request->anyFilled(['q', 'author', 'search', 'category'])
             : $request->hasAny(['q', 'search', 'category']));
+        if ($path === '/kramnychka') {
+            $noindex = $request->anyFilled(['q', 'search', 'category', 'price_from', 'price_to']);
+        }
         $published = $page?->published_at?->toIso8601String();
         if (! $published && $type === 'article') {
             $date = $document->getElementsByTagName('time')->item(0)?->getAttribute('datetime');

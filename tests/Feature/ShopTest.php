@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Filament\Resources\OrderResource\Pages\ManageOrders;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\SiteSetting;
 use App\Models\User;
 use App\Services\Checkout;
@@ -67,6 +68,30 @@ class ShopTest extends TestCase
         $this->post('/koshyk/knyha', ['quantity' => 6])->assertSessionHasErrors('cart');
         $this->post('/koshyk/knyha', ['quantity' => 0])->assertRedirect('/koshyk');
         $this->get('/koshyk')->assertSee('Кошик поки порожній');
+    }
+
+    public function test_catalogue_filters_by_price_and_nested_category(): void
+    {
+        $parent = ProductCategory::create(['name' => 'Прикраси', 'slug' => 'jewelry']);
+        $child = $parent->children()->create(['name' => 'Браслети', 'slug' => 'bracelets']);
+        $this->product(['product_category_id' => $child->id, 'name' => 'Мідний браслет', 'price_minor' => 12550]);
+        $this->product(['product_category_id' => $child->id, 'name' => 'Срібний браслет', 'slug' => 'silver', 'price_minor' => 15000]);
+        $this->product(['name' => 'Дерев’яний гребінь', 'slug' => 'comb', 'price_minor' => 12550]);
+
+        $this->get(route('shop.index', ['price_from' => '126']))
+            ->assertOk()
+            ->assertSee('Срібний браслет')
+            ->assertDontSee('Мідний браслет')
+            ->assertSee('<meta name="robots" content="noindex, follow">', false);
+
+        foreach ([$parent, $child] as $category) {
+            $this->get(route('shop.index', ['category' => $category->slug, 'price_from' => '125,50', 'price_to' => '125.50']))
+                ->assertOk()
+                ->assertSee('Мідний браслет')
+                ->assertDontSee('Срібний браслет')
+                ->assertDontSee('Дерев’яний гребінь')
+                ->assertSee('<details class="shop-category-group" open', false);
+        }
     }
 
     public function test_cart_quantity_update_returns_totals_and_persists_only_valid_changes(): void
