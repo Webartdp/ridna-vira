@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountAvatarController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\MakerController;
 use Illuminate\Support\Facades\Route;
@@ -32,6 +33,9 @@ Route::middleware(['auth', 'auth.session'])->group(function () {
     Route::get('/kabinet', [AccountController::class, 'index'])->name('account.index');
     Route::view('/kabinet/profil', 'account.profile')->name('account.profile');
     Route::put('/kabinet/profil', [AccountController::class, 'profile'])->middleware('throttle:10,1');
+    Route::get('/kabinet/profil/avatar', [AccountAvatarController::class, 'show'])->name('account.avatar.show');
+    Route::post('/kabinet/profil/avatar', [AccountAvatarController::class, 'update'])->middleware('throttle:8,1')->name('account.avatar.update');
+    Route::delete('/kabinet/profil/avatar', [AccountAvatarController::class, 'destroy'])->middleware('throttle:8,1')->name('account.avatar.destroy');
     Route::get('/kabinet/zamovlennia/{reference}', [AccountController::class, 'order'])->whereUuid('reference')->name('account.order');
     Route::post('/kabinet/zamovlennia/dodaty', [AccountController::class, 'claim'])->middleware(['verified', 'throttle:6,1'])->name('account.claim');
     Route::view('/kabinet/pidtverdzhennia-poshty', 'account.verify')->name('verification.notice');

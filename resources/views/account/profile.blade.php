@@ -1,5 +1,21 @@
 @extends('account.layout', ['accountTitle' => 'Мій профіль'])
 @section('account-content')
+<section class="shop-panel profile-avatar-panel" aria-labelledby="profile-avatar-heading">
+    <h2 id="profile-avatar-heading">Аватарка</h2>
+    <form method="post" action="{{ route('account.avatar.update') }}" enctype="multipart/form-data">
+        @csrf
+        <label for="profile-avatar">Фото профілю</label>
+        <small id="profile-avatar-hint">JPG, PNG або WebP, до 2 МБ і 3000 × 3000 px.</small>
+        <input id="profile-avatar" type="file" name="avatar" accept="image/jpeg,image/png,image/webp" aria-describedby="profile-avatar-hint" required>
+        <button class="shop-btn" type="submit">{{ auth()->user()->avatar_path ? 'Замінити фото' : 'Завантажити фото' }}</button>
+    </form>
+    @if (auth()->user()->avatar_path)
+        <form method="post" action="{{ route('account.avatar.destroy') }}">
+            @csrf @method('DELETE')
+            <button class="shop-btn shop-secondary" type="submit">Видалити аватарку</button>
+        </form>
+    @endif
+</section>
 <form method="post" action="{{ route('account.profile') }}" class="shop-panel account-form">@csrf @method('PUT')
     <div class="account-grid"><div><label for="profile-name">Ім’я та прізвище</label><input id="profile-name" name="name" value="{{ old('name', auth()->user()->name) }}" autocomplete="name" required maxlength="150"></div>
     <div><label for="profile-email">Електронна пошта</label><input id="profile-email" name="email" type="email" value="{{ old('email', auth()->user()->email) }}" autocomplete="email" required maxlength="190"></div>
