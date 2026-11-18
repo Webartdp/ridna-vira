@@ -29,16 +29,21 @@ class ShopController extends Controller
         $minimum = isset($prices['price_from']) ? Money::minor($prices['price_from']) : null;
         $maximum = isset($prices['price_to']) ? Money::minor($prices['price_to']) : null;
 
-        $products = Product::where('is_active', true)
+        $catalogue = Product::where('is_active', true)
             ->when($request->filled('category'), fn ($query) => $query->whereHas('category', fn ($category) => $category->where(fn ($match) => $match
                 ->where('slug', $request->string('category')->toString())
                 ->orWhereHas('parent', fn ($parent) => $parent->where('slug', $request->string('category')->toString())))))
-            ->when($request->filled('q'), fn ($query) => $query->where('name', 'like', '%'.mb_substr($request->string('q')->toString(), 0, 100).'%'))
+            ->when($request->filled('q'), fn ($query) => $query->where('name', 'like', '%'.mb_substr($request->string('q')->toString(), 0, 100).'%'));
+
+        $priceBounds = (clone $catalogue)->toBase()
+            ->selectRaw('MIN(price_minor) as minimum, MAX(price_minor) as maximum')->first();
+
+        $products = $catalogue
             ->when($minimum !== null, fn ($query) => $query->where('price_minor', '>=', $minimum))
             ->when($maximum !== null, fn ($query) => $query->where('price_minor', '<=', $maximum))
             ->latest()->paginate(12)->withQueryString();
 
-        return view('shop.catalogue', ['products' => $products, 'categories' => ProductCategory::catalogue()]);
+        return view('shop.catalogue', ['products' => $products, 'categories' => ProductCategory::catalogue(), 'priceBounds' => $priceBounds]);
     }
 
     public function show(Product $product)

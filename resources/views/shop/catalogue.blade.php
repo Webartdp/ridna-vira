@@ -23,6 +23,14 @@
         @media(max-width:900px){.shop-catalogue{grid-template-columns:minmax(0,1fr)}}
     </style>
 @endpush
+@push('scripts')
+    <script type="module">
+        const filters = document.querySelector('.shop-filters');
+        filters.addEventListener('change', event => {
+            if (event.target.matches('input[name="category"]')) filters.requestSubmit();
+        });
+    </script>
+@endpush
 @section('content')
 <section class="shop">
     <h1>Крамниця</h1>
@@ -47,6 +55,9 @@
             </div>
             <fieldset>
                 <legend>Ціна, ₴</legend>
+                @if ($priceBounds->minimum < $priceBounds->maximum)
+                    @include('shop.price-slider', ['minimum' => (int) $priceBounds->minimum, 'maximum' => (int) $priceBounds->maximum])
+                @endif
                 <div class="shop-price-range">
                     <div>
                         <label for="shop-price-from">Від</label>
