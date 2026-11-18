@@ -2,18 +2,17 @@
     <div class="np-field">
         <label for="np-city-search">Населений пункт</label>
         <input id="np-city-search" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
-            aria-controls="np-city-options" placeholder="Почніть вводити назву" maxlength="100" autocomplete="off">
+            aria-controls="np-city-options" placeholder="Почніть вводити назву" maxlength="100" autocomplete="off" required>
         <ul id="np-city-options" class="np-options" role="listbox" aria-label="Населені пункти" hidden></ul>
     </div>
     <div class="np-field">
         <label for="np-warehouse-search">Відділення або поштомат</label>
         <input id="np-warehouse-search" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false"
-            aria-controls="np-warehouse-options" placeholder="Спочатку виберіть населений пункт" maxlength="1000" autocomplete="off" disabled>
+            aria-controls="np-warehouse-options" placeholder="Спочатку виберіть населений пункт" maxlength="1000" autocomplete="off" required disabled>
         <ul id="np-warehouse-options" class="np-options" role="listbox" aria-label="Відділення й поштомати" hidden></ul>
     </div>
     <small id="np-status" role="status"></small>
 </div>
-<button class="np-manual-toggle" id="np-manual-toggle" type="button" aria-controls="np-manual-address" aria-expanded="false" hidden>Ввести адресу вручну</button>
 
 @push('styles')
 <style>
@@ -21,7 +20,6 @@
     .np-options:not([hidden]){position:absolute;z-index:5;inset-inline:0;top:100%;max-height:17rem;overflow:auto;list-style:none;margin:4px 0 0;padding:4px;background:#fffdf6;border:1px solid #cdbd9f;border-radius:8px;box-shadow:0 6px 18px #302a2226;overscroll-behavior:contain}
     .np-options li{padding:10px 12px;border-radius:5px;cursor:pointer;overflow-wrap:anywhere}
     .np-options li:hover,.np-options [aria-selected=true]{background:#eee5d3}
-    .np-manual-toggle{margin-top:12px;padding:4px 0;border:0;background:transparent;text-decoration:underline;color:#493a23;cursor:pointer}
     #np-status:not(:empty){margin-top:6px}
 </style>
 @endpush
@@ -31,12 +29,8 @@
     const byId = id => document.getElementById(id);
     const lookup = byId('nova-poshta-lookup');
     const address = byId('delivery-address');
-    const manualAddress = byId('np-manual-address');
-    const toggle = byId('np-manual-toggle');
     const status = byId('np-status');
     let selectedCity;
-    let selectedWarehouse;
-    let formattedAddress = '';
 
     const createPicker = (input, list, load, select, change) => {
         let items = [];
@@ -70,6 +64,10 @@
             clear();
             const query = input.value.trim();
             if (input.disabled) return;
+            if (input.id === 'np-city-search' && query.length === 1) {
+                status.textContent = 'Введіть щонайменше дві літери.';
+                return;
+            }
             const controller = new AbortController();
             request = controller;
             status.textContent = 'Завантаження…';
@@ -88,9 +86,11 @@
                     list.append(option);
                 });
                 open();
-                status.textContent = response.length ? '' : 'Збігів немає. Уточніть пошук або введіть адресу вручну.';
+                status.textContent = response.length ? '' : 'Збігів немає. Спробуйте іншу назву або номер.';
             } catch {
-                if (!controller.signal.aborted) status.textContent = 'Довідник тимчасово недоступний. Введіть адресу вручну.';
+                if (!controller.signal.aborted) {
+                    status.textContent = 'Довідник тимчасово недоступний. Спробуйте повторити пошук.';
+                }
             }
         };
 
@@ -116,6 +116,9 @@
             } else if (event.key === 'Enter' && !list.hidden && active >= 0) {
                 event.preventDefault();
                 choose(items[active]);
+            } else if (event.key === 'Enter' && !input.validity.valid) {
+                event.preventDefault();
+                search();
             } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
                 if (!items.length) return;
                 event.preventDefault();
@@ -139,14 +142,12 @@
     };
 
     const clearWarehouse = () => {
-        selectedWarehouse = null;
-        formattedAddress = '';
         address.value = '';
         warehousePicker.input.setCustomValidity('Виберіть відділення або поштомат зі списку.');
     };
 
     const cityPicker = createPicker(byId('np-city-search'), byId('np-city-options'), (query, signal) =>
-        query.length === 1 ? Promise.resolve([]) : fetchOptions(lookup.dataset.cities, { q: query }, signal),
+        fetchOptions(lookup.dataset.cities, { q: query }, signal),
     item => {
         selectedCity = item;
         warehousePicker.input.disabled = false;
@@ -166,39 +167,12 @@
     const warehousePicker = createPicker(byId('np-warehouse-search'), byId('np-warehouse-options'), (query, signal) =>
         fetchOptions(lookup.dataset.warehouses, { city: selectedCity.id, q: query.slice(0, 100), page: 1 }, signal),
     item => {
-        selectedWarehouse = item;
-        formattedAddress = selectedCity.name + ' — ' + item.name;
-        address.value = formattedAddress;
+        address.value = selectedCity.name + ' — ' + item.name;
     }, clearWarehouse);
 
-    const setManual = manual => {
-        lookup.hidden = manual;
-        manualAddress.hidden = !manual;
-        toggle.textContent = manual ? 'Вибрати з довідника' : 'Ввести адресу вручну';
-        toggle.setAttribute('aria-expanded', String(manual));
-        address.required = manual;
-        cityPicker.input.disabled = manual;
-        cityPicker.input.required = !manual;
-        warehousePicker.input.disabled = manual || !selectedCity;
-        warehousePicker.input.required = !manual;
-        if (manual) {
-            cityPicker.clear();
-            warehousePicker.clear();
-        } else {
-            address.value = formattedAddress;
-            if (!selectedCity) cityPicker.search();
-            else if (!selectedWarehouse) warehousePicker.search();
-        }
-        cityPicker.input.setCustomValidity(!manual && !selectedCity ? 'Виберіть населений пункт зі списку.' : '');
-        warehousePicker.input.setCustomValidity(!manual && !selectedWarehouse ? 'Виберіть відділення або поштомат зі списку.' : '');
-    };
-
-    toggle.hidden = false;
-    toggle.addEventListener('click', () => {
-        const manual = manualAddress.hidden;
-        setManual(manual);
-        (manual ? address : cityPicker.input).focus();
-    });
-    setManual(manualAddress.dataset.restore === 'yes');
+    cityPicker.input.setCustomValidity('Виберіть населений пункт зі списку.');
+    warehousePicker.input.setCustomValidity('Виберіть відділення або поштомат зі списку.');
+    lookup.hidden = false;
+    cityPicker.search();
 </script>
 @endpush

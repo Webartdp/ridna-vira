@@ -95,12 +95,11 @@
                     <p><strong>Нова пошта</strong> · відділення або поштомат</p>
                     @if ($novaPoshtaReady)
                         @include('shop.nova-poshta')
+                        <input id="delivery-address" type="hidden" name="delivery_address">
+                        <noscript><p>Увімкніть JavaScript, щоб вибрати відділення Нової пошти.</p></noscript>
+                    @else
+                        <p class="shop-alert" role="status">Вибір відділення Нової пошти тимчасово недоступний.</p>
                     @endif
-                    <div id="np-manual-address" data-restore="{{ old('delivery_address') ? 'yes' : 'no' }}">
-                        <label for="delivery-address">Адреса доставки вручну</label>
-                        <textarea id="delivery-address" name="delivery_address" required maxlength="1000" rows="3">{{ old('delivery_address', auth()->user()?->delivery_address) }}</textarea>
-                    </div>
-                    <small>Доставку оплачує покупець за тарифами перевізника при отриманні. </small>
                     <label for="order-comment">Коментар (необов’язково)</label><textarea id="order-comment" name="comment" maxlength="2000" rows="2">{{ old('comment') }}</textarea>
                 </section>
             </form>
@@ -120,14 +119,14 @@
             </fieldset>
             <dl class="checkout-totals">
                 <div><dt>Товари</dt><dd>{{ \App\Support\Money::display($total) }}</dd></div>
-                <div><dt>Доставка</dt><dd>Окремо</dd></div>
+                <div><dt>Доставка</dt><dd>Окремо, за тарифами Нової пошти</dd></div>
                 <div class="checkout-total"><dt>До оплати за товари</dt><dd>{{ \App\Support\Money::display($total) }}</dd></div>
             </dl>
             <label><input type="checkbox" form="checkout-form" name="consent" value="1" required @checked(old('consent'))> Погоджуюся з <a href="{{ url('/umovy-kramnytsi') }}" target="_blank" rel="noopener">умовами замовлення та обробкою даних</a>.</label>
             @if (!$ordersEnabled)
                 <div class="shop-alert" role="status">Оформлення замовлень тимчасово недоступне.</div>
             @endif
-            <button class="shop-btn checkout-submit" form="checkout-form" type="submit" @disabled(!$ordersEnabled)>Оформити замовлення</button>
+            <button class="shop-btn checkout-submit" form="checkout-form" type="submit" @disabled(!$ordersEnabled || !$novaPoshtaReady)>Оформити замовлення</button>
         </section>
     </div>
     @else
