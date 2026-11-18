@@ -56,11 +56,13 @@ class ShopTest extends TestCase
 
     public function test_catalogue_and_cart_use_real_products_and_server_prices(): void
     {
-        $product = $this->product();
+        $product = $this->product(['images' => ['products/book.jpg']]);
         $this->product(['slug' => 'hidden', 'name' => 'Прихований товар', 'is_active' => false]);
         $this->get('/kramnychka')->assertOk()->assertSee('125,50')->assertDontSee('Прихований товар');
         $this->post('/koshyk/knyha', ['quantity' => 2, 'add' => 1, 'price_minor' => 1])->assertRedirect('/koshyk');
-        $this->get('/koshyk')->assertOk()->assertSee('251,00');
+        $this->get('/koshyk')->assertOk()->assertSee('251,00')->assertSee('/storage/products/book.jpg', false)
+            ->assertSeeInOrder(['Товари в кошику', 'Контактні дані', 'Доставка', 'До оплати за товари'])
+            ->assertSee('form="checkout-form" name="payment_method"', false);
         $this->assertSame(5, $product->fresh()->stock);
         $this->post('/koshyk/knyha', ['quantity' => 6])->assertSessionHasErrors('cart');
         $this->post('/koshyk/knyha', ['quantity' => 0])->assertRedirect('/koshyk');
