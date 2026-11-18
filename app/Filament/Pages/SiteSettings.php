@@ -50,6 +50,7 @@ class SiteSettings extends Page
             'wayforpay_account' => SiteSetting::read('wayforpay_account', config('shop.wayforpay_account')),
             'wayforpay_domain' => SiteSetting::read('wayforpay_domain', config('shop.wayforpay_domain')),
             'wayforpay_secret' => '',
+            'nova_poshta_api_key' => '',
         ]);
     }
 
@@ -81,6 +82,8 @@ class SiteSettings extends Page
                 TextInput::make('label')->label('Назва')->required()->maxLength(100),
                 TextInput::make('url')->label('Адреса')->required()->maxLength(255)->regex('~^(https://|/(?!/))~'),
             ])->columns(2)->defaultItems(0)->maxItems(12),
+            TextInput::make('nova_poshta_api_key')->label('Нова пошта · API-ключ')->password()->autocomplete('new-password')->maxLength(200)
+                ->helperText('Підключає пошук міст, відділень і поштоматів у кошику. Порожнє поле зберігає поточний ключ.'),
             TextInput::make('wayforpay_account')->label('WayForPay · Merchant Account')->maxLength(190)->regex('/^[a-zA-Z0-9_-]*$/D'),
             TextInput::make('wayforpay_domain')->label('WayForPay · домен магазину')->required()->maxLength(190)->regex('/^(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/D'),
             TextInput::make('wayforpay_secret')->label('WayForPay · Secret Key')->password()->revealable()->autocomplete('new-password')->maxLength(500)
@@ -94,13 +97,14 @@ class SiteSettings extends Page
         $data = $this->form->getState();
         DB::transaction(function () use ($data) {
             foreach ($data as $key => $value) {
-                if ($key === 'wayforpay_secret' && blank($value)) {
+                if (in_array($key, ['wayforpay_secret', 'nova_poshta_api_key'], true) && blank($value)) {
                     continue;
                 }
                 SiteSetting::write($key, is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR) : $value);
             }
         });
         $this->data['wayforpay_secret'] = '';
+        $this->data['nova_poshta_api_key'] = '';
         Notification::make()->title('Налаштування збережено')->success()->send();
     }
 }

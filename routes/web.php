@@ -8,6 +8,7 @@ use App\Http\Controllers\DocumentDownloadController;
 use App\Http\Controllers\GodController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\NovaPoshtaController;
 use App\Http\Controllers\PrayerController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\RitualController;
@@ -99,6 +100,8 @@ Route::get('/tvorchist/{publication}', [PublicationController::class, 'show'])
 
 Route::get('/kramnychka', [ShopController::class, 'index'])->name('shop.index');
 Route::get('/kramnychka/{product:slug}', [ShopController::class, 'show'])->name('shop.product');
+Route::get('/koshyk/nova-poshta/mista', [NovaPoshtaController::class, 'cities'])->middleware('throttle:30,1')->name('shop.nova-poshta.cities');
+Route::get('/koshyk/nova-poshta/viddilennia', [NovaPoshtaController::class, 'warehouses'])->middleware('throttle:40,1')->name('shop.nova-poshta.warehouses');
 Route::get('/koshyk', [ShopController::class, 'cart'])->name('shop.cart');
 Route::post('/koshyk/{product:slug}', [ShopController::class, 'updateCart'])->middleware('throttle:60,1')->name('shop.cart.update');
 Route::post('/zamovlennia', [ShopController::class, 'checkout'])->middleware('throttle:10,1')->name('shop.checkout');

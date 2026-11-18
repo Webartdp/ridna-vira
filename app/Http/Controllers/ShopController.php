@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Services\Cart;
 use App\Services\Checkout;
+use App\Services\NovaPoshta;
 use App\Services\WayForPay;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -32,14 +33,14 @@ class ShopController extends Controller
         return view('shop.product', compact('product'));
     }
 
-    public function cart(Cart $cart, WayForPay $gateway)
+    public function cart(Cart $cart, WayForPay $gateway, NovaPoshta $carrier)
     {
         $token = session('checkout_token');
         if (! $token || Order::where('checkout_token', $token)->exists()) {
             session()->put('checkout_token', (string) Str::uuid());
         }
 
-        return view('shop.cart', ['items' => $cart->items(), 'total' => $cart->total(), 'paymentsReady' => $gateway->ready()]);
+        return view('shop.cart', ['items' => $cart->items(), 'total' => $cart->total(), 'paymentsReady' => $gateway->ready(), 'novaPoshtaReady' => $carrier->configured()]);
     }
 
     public function updateCart(Request $request, Product $product, Cart $cart)

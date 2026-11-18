@@ -22,6 +22,9 @@
         <label for="customer-email">Електронна пошта</label><input id="customer-email" type="email" name="email" value="{{ auth()->check() ? auth()->user()->email : old('email') }}" autocomplete="email" required maxlength="190" @readonly(auth()->check())>
         <label for="customer-phone">Телефон</label><input id="customer-phone" type="tel" name="phone" value="{{ old('phone', auth()->user()?->phone) }}" autocomplete="tel" required maxlength="30">
         <label for="delivery-method">Доставка</label><select id="delivery-method" name="delivery_method"><option value="nova_poshta" @selected(old('delivery_method') === 'nova_poshta')>Нова пошта</option><option value="ukrposhta" @selected(old('delivery_method') === 'ukrposhta')>Укрпошта</option><option value="pickup" @selected(old('delivery_method') === 'pickup')>Самовивіз за узгодженням</option></select>
+        @if ($novaPoshtaReady)
+            @include('shop.nova-poshta')
+        @endif
         <label for="delivery-address">Місто, відділення / поштомат або адреса</label><textarea id="delivery-address" name="delivery_address" required maxlength="1000" rows="3">{{ old('delivery_address', auth()->user()?->delivery_address) }}</textarea>
         <label for="order-comment">Коментар (необов’язково)</label><textarea id="order-comment" name="comment" maxlength="2000" rows="2">{{ old('comment') }}</textarea>
         <label><input type="checkbox" name="consent" value="1" required @checked(old('consent'))> Погоджуюся з <a href="{{ url('/umovy-kramnytsi') }}" target="_blank" rel="noopener">умовами замовлення та обробкою даних</a>.</label>
