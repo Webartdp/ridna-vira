@@ -15,6 +15,27 @@ class MakerPayoutTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_sample_payouts_are_repeatable_private_and_removable(): void
+    {
+        $this->withoutVite();
+        $maker = User::factory()->create(['role' => 'maker']);
+        $other = User::factory()->create(['role' => 'maker']);
+        $this->artisan('shop:seed-maker-payouts', ['email' => $maker->email])->assertSuccessful();
+        $this->artisan('shop:seed-maker-payouts', ['email' => $maker->email])->assertSuccessful();
+        $this->assertDatabaseCount('orders', 4);
+        $this->assertDatabaseCount('order_items', 4);
+        $this->actingAs($maker)->get(route('maker.payouts'))->assertOk()
+            ->assertSee('ТЕСТ · Глиняна миска')->assertSee('1 350,00')
+            ->assertSee('Очікує виконання')->assertSee('До виплати')
+            ->assertSee('Виплачено')->assertSee('Скасовано');
+        $this->actingAs($other)->get(route('maker.payouts'))->assertOk()->assertDontSee('ТЕСТ ·');
+        $this->artisan('shop:seed-maker-payouts', ['email' => $other->email, '--remove' => true])->assertSuccessful();
+        $this->assertDatabaseCount('orders', 4);
+        $this->artisan('shop:seed-maker-payouts', ['email' => $maker->email, '--remove' => true])->assertSuccessful();
+        $this->assertDatabaseCount('orders', 0);
+        $this->assertDatabaseCount('order_items', 0);
+    }
+
     public function test_manual_payout_uses_frozen_price_and_keeps_other_makers_private(): void
     {
         $this->withoutVite();
