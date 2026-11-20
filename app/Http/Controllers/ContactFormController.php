@@ -6,9 +6,11 @@ namespace App\Http\Controllers;
 
 use App\Mail\ContactFormMessage;
 use App\Models\SiteSetting;
+use App\Services\TelegramAlerts;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Throwable;
 
@@ -81,6 +83,18 @@ final class ContactFormController extends Controller
                 'message' => 'Не вдалося надіслати звернення. Спробуйте ще раз трохи пізніше.',
             ], 500);
         }
+
+        $details = [
+            'Тема' => $validated['topic_label'],
+            'Надіслано' => now()->timezone('Europe/Kyiv')->format('d.m.Y H:i'),
+            'Ім’я' => $validated['name'],
+            'Електронна пошта' => $validated['email'],
+            'Телефон' => $validated['phone'] ?? null,
+            'Місто' => $validated['city'] ?? null,
+            'Організація' => $validated['organization'] ?? null,
+            'Повідомлення' => $validated['message'],
+        ];
+        app(TelegramAlerts::class)->enqueue('contact:'.Str::uuid(), '✉️ Нове звернення з сайту', array_filter($details, filled(...)));
 
         return response()->json([
             'message' => 'Звернення успішно надіслано Управі. Відповідь надійде на вказану електронну пошту.',

@@ -6,6 +6,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Services\ProductImages;
+use App\Services\TelegramAlerts;
 use App\Support\Money;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -135,6 +136,7 @@ class MakerController extends Controller
                 if (count($photos) < 1 || count($photos) > 8) {
                     throw ValidationException::withMessages(['images' => 'Залиште або завантажте від 1 до 8 фотографій.']);
                 }
+                $wasPublished = $locked->is_active;
                 $stock = $data['stock'] ?? null;
                 $locked->fill([
                     ...array_intersect_key($data, ['product_category_id' => true]),
@@ -146,6 +148,9 @@ class MakerController extends Controller
                     'stock' => $stock ?? 0,
                     'is_active' => false,
                 ])->save();
+                if ($locked->wasRecentlyCreated || $wasPublished) {
+                    app(TelegramAlerts::class)->productAdded($locked, $request->user(), $data['description']);
+                }
             }, 3);
         } catch (Throwable $error) {
             $disk = Storage::disk('public');

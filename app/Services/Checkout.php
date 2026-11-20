@@ -53,6 +53,7 @@ class Checkout
                 'checkout_token' => $token, 'total_minor' => $total, 'reserved_until' => now()->addMinutes(config('shop.reservation_minutes')),
             ]);
             $order->items()->createMany($items);
+            $this->enqueueOrderAlert($order, 'created', '🛒 Нове замовлення', $items);
 
             return $order;
         }, 3);
@@ -86,6 +87,7 @@ class Checkout
             }
 
             $locked->update(['payment_status' => 'paid', 'paid_at' => now(), 'fulfilment_status' => 'completed']);
+            $this->enqueueOrderAlert($locked, 'paid', '✅ Післяплату підтверджено');
         }, 3);
     }
 
@@ -111,7 +113,11 @@ class Checkout
                 $order->payment_status = 'refunded';
             }
             $order->save();
+            if (! $wasPaid && $order->payment_status === 'review') {
+                $this->enqueueOrderAlert($order, 'review', '⚠️ Оплата після завершення резерву — перевірте замовлення');
+            }
             if (! $wasPaid && $order->payment_status === 'paid') {
+                $this->enqueueOrderAlert($order, 'paid', '✅ Онлайн-оплату підтверджено');
                 DB::afterCommit(function () use ($order) {
                     $recipients = array_unique(array_filter([$order->email, SiteSetting::read('order_email')]));
                     foreach ($recipients as $recipient) {
@@ -126,5 +132,39 @@ class Checkout
 
             return $order;
         }, 3);
+    }
+
+    private function enqueueOrderAlert(Order $order, string $event, string $heading, array $items = []): void
+    {
+        $details = ['Номер замовлення' => $order->reference];
+        if ($items !== []) {
+            $delivery = match ($order->delivery_method) {
+                'nova_poshta' => 'Нова пошта',
+                'pickup' => 'Самовивіз',
+                default => $order->delivery_method,
+            };
+            $positions = array_map(function (array $item): string {
+                $name = $item['name'].($item['made_to_order'] ? ' (під замовлення)' : '');
+
+                return '• '.$name.' — '.$item['quantity'].' × '.Money::display($item['price_minor']);
+            }, $items);
+            $details += [
+                'Оформлено' => $order->created_at->timezone('Europe/Kyiv')->format('d.m.Y H:i'),
+                'Покупець' => $order->customer_name,
+                'Електронна пошта' => $order->email,
+                'Телефон' => $order->phone,
+                'Доставка' => $delivery,
+                'Відділення або адреса' => $order->delivery_address,
+                'Коментар' => $order->comment,
+                'Позиції' => implode("\n", $positions),
+            ];
+        }
+
+        $paymentMethods = Order::paymentMethods();
+        $details += [
+            'Сума' => Money::display($order->total_minor),
+            'Спосіб оплати' => $paymentMethods[$order->payment_method] ?? $paymentMethods['wayforpay'],
+        ];
+        app(TelegramAlerts::class)->enqueue('order:'.$order->reference.':'.$event, $heading, array_filter($details, filled(...)), '/admin/orders');
     }
 }
