@@ -4,7 +4,7 @@
 @section('description', 'Духовний центр Рідна Віра: управління, зв’язок, Академія, Енциклопедія та світлини громади.')
 
 @section('content')
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/fancybox/fancybox.css">
+@include('partials.fancybox', ['fancyboxSelector' => '[data-fancybox="about-center"]'])
 
 <section class="inner-hero inner-hero--about" aria-labelledby="about-page-title">
     <div class="inner-hero__overlay"></div>
@@ -37,8 +37,4 @@
     <!-- /cms-live:about-gallery -->
 </section>
 
-<script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@6.1.14/dist/fancybox/fancybox.umd.js"></script>
-<script>
-    window.Fancybox?.bind('[data-fancybox="about-center"]', {});
-</script>
 @endsection

@@ -5,6 +5,8 @@ import 'swiper/css';
 const gallery = document.querySelector('[data-product-gallery]');
 const rail = gallery.querySelector('.product-gallery__thumbnails');
 const links = Array.from(rail.querySelectorAll('a'));
+const stage = gallery.querySelector('.product-gallery__stage');
+const zoomLinks = Array.from(stage.querySelectorAll('[data-fancybox]'));
 const speed = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 250;
 
 const thumbnails = new Swiper(rail, {
@@ -15,7 +17,7 @@ const thumbnails = new Swiper(rail, {
     breakpoints: { 541: { direction: 'vertical' } },
 });
 
-const photos = new Swiper(gallery.querySelector('.product-gallery__stage'), {
+const photos = new Swiper(stage, {
     modules: [A11y, Navigation, Thumbs],
     rewind: true,
     speed,
@@ -35,7 +37,9 @@ const photos = new Swiper(gallery.querySelector('.product-gallery__stage'), {
     on: {
         slideChange(swiper) {
             links.forEach((link, index) => {
-                if (index === swiper.activeIndex) {
+                const isActive = index === swiper.activeIndex;
+                zoomLinks[index].tabIndex = isActive ? 0 : -1;
+                if (isActive) {
                     link.setAttribute('aria-current', 'true');
                 } else {
                     link.removeAttribute('aria-current');

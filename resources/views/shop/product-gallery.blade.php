@@ -6,15 +6,35 @@
         : '(min-width: 1240px) 580px, (min-width: 901px) calc(50vw - 40px), (min-width: 541px) calc(100vw - 48px), calc(100vw - 32px)';
 @endphp
 
+@if ($photos)
+    @include('partials.fancybox', [
+        'fancyboxSelector' => '[data-fancybox="product-gallery"]',
+        'fancyboxOptions' => [
+            'Hash' => false,
+            'Carousel' => ['Toolbar' => ['display' => [
+                'left' => ['counter'], 'middle' => ['zoomIn', 'zoomOut'], 'right' => ['close'],
+            ]]],
+        ],
+    ])
+@endif
+
 <div @class(['product-gallery', 'product-gallery--multiple' => $multiplePhotos]) @if ($multiplePhotos) data-product-gallery role="group" aria-label="Фото товару" @endif>
-    <div class="swiper product-gallery__stage">
+    <div @class(['swiper', 'product-gallery__stage', 'product-gallery__stage--photos' => $photos])>
         <div class="swiper-wrapper">
             @forelse ($photos as $photo)
                 <div class="swiper-slide">
-                    <img class="product-gallery__photo" src="{{ $product->imageUrl($photo) }}"
-                        srcset="{{ $product->imageSrcset($photo) }}" sizes="{{ $sizes }}"
-                        width="800" height="800" alt="{{ $product->name }}" decoding="async" draggable="false"
-                        @if ($loop->first) fetchpriority="high" @else loading="lazy" @endif>
+                    <a class="product-gallery__zoom" href="{{ $product->imageUrl($photo, 1200) }}" data-fancybox="product-gallery"
+                        aria-label="Збільшити фото {{ $loop->iteration }} з {{ $loop->count }}" draggable="false" @unless ($loop->first) tabindex="-1" @endunless>
+                        <img class="product-gallery__photo" src="{{ $product->imageUrl($photo) }}"
+                            srcset="{{ $product->imageSrcset($photo) }}" sizes="{{ $sizes }}"
+                            width="800" height="800" alt="{{ $product->name }}" decoding="async" draggable="false"
+                            @if ($loop->first) fetchpriority="high" @else loading="lazy" @endif>
+                        <span class="product-gallery__zoom-icon" aria-hidden="true">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round">
+                                <circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5M8 10.5h5m-2.5-2.5v5"/>
+                            </svg>
+                        </span>
+                    </a>
                 </div>
             @empty
                 <div class="swiper-slide">
@@ -70,6 +90,15 @@
         .product-gallery__stage .swiper-wrapper,
         .product-gallery__stage .swiper-slide{height:100%}
         .product-gallery__photo{display:block;width:100%;height:100%;object-fit:contain}
+        .product-gallery__stage--photos{aspect-ratio:4/5}
+        .product-gallery__zoom{position:relative;display:block;height:100%;cursor:zoom-in}
+        .product-gallery__zoom img{object-fit:cover}
+        .product-gallery__zoom:focus-visible{outline:2px solid #765931;outline-offset:-3px}
+        .product-gallery__zoom-icon{
+            position:absolute;top:10px;right:10px;display:grid;place-items:center;
+            width:38px;height:38px;border:1px solid #d7cab3;border-radius:50%;
+            background:#fffdf6;color:#493a23;box-shadow:0 2px 8px #302a221a;
+        }
         .product-gallery__rail{grid-area:rail;position:relative}
         .product-gallery__thumbnails{position:absolute;inset:0;padding:2px}
         .product-gallery__thumbnails .swiper-slide{height:68px}
