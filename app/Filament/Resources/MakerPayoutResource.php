@@ -47,7 +47,11 @@ class MakerPayoutResource extends Resource
     {
         return $table->defaultSort('id', 'desc')->columns([
             TextColumn::make('maker.name')->label('Майстер')->description(fn (OrderItem $record) => $record->maker?->email)->searchable(),
-            TextColumn::make('order.reference')->label('Замовлення')->limit(12)->copyable()->searchable(),
+            TextColumn::make('order_number')->label('Замовлення')
+                ->state(fn (OrderItem $record) => $record->order->displayNumber())
+                ->searchable(query: fn (Builder $query, string $search) => $query
+                    ->whereHas('order', fn (Builder $orders) => $orders->searchNumber($search)))
+                ->copyable(),
             TextColumn::make('name')->label('Виріб')->description(fn (OrderItem $record) => $record->quantity.' шт.')->searchable()->wrap(),
             TextColumn::make('maker_price_minor')->label('Нараховано')->formatStateUsing(fn ($state, OrderItem $record) => Money::display($record->makerAccruedMinor())),
             TextColumn::make('maker_paid_minor')->label('Фактично виплачено')->formatStateUsing(fn ($state) => Money::display((int) $state))->placeholder('—'),

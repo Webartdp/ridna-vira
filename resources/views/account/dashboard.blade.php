@@ -9,7 +9,7 @@
 <div class="shop-panel shop-empty"><p>У кабінеті ще немає замовлень. Покупки, оформлені після входу, з’являтимуться тут автоматично.</p><a href="{{ route('shop.index') }}" class="shop-btn">До крамниці</a></div>
 @else
 <div class="shop-panel account-orders"><table><thead><tr><th>Замовлення</th><th>Дата</th><th>Оплата</th><th>Сума</th><th></th></tr></thead><tbody>
-@foreach($orders as $order)<tr><td><span class="account-order-ref">{{ Str::limit($order->reference, 13, '') }}</span></td><td>{{ $order->created_at->timezone('Europe/Kyiv')->format('d.m.Y') }}</td><td>{{ \App\Models\Order::paymentLabels()[$order->payment_status] ?? $order->payment_status }}</td><td>{{ \App\Support\Money::display($order->total_minor) }}</td><td><a href="{{ route('account.order', $order->reference) }}">Переглянути →</a></td></tr>@endforeach
+@foreach($orders as $order)<tr><td><span class="account-order-ref">{{ $order->displayNumber() }}</span></td><td>{{ $order->created_at->timezone('Europe/Kyiv')->format('d.m.Y') }}</td><td>{{ \App\Models\Order::paymentLabels()[$order->payment_status] ?? $order->payment_status }}</td><td>{{ \App\Support\Money::display($order->total_minor) }}</td><td><a href="{{ route('account.order', $order->reference) }}">Переглянути →</a></td></tr>@endforeach
 </tbody></table></div>
 @if($orders->hasPages()){{ $orders->links('partials.articles-pagination') }}@endif
 @endif

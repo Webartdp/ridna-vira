@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderResource extends Resource
@@ -45,7 +46,9 @@ class OrderResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return $schema->columns(2)->components([
-            TextInput::make('reference')->label('Номер замовлення')->disabled()->columnSpanFull(),
+            TextInput::make('order_number')->label('Номер замовлення')
+                ->formatStateUsing(fn (?Order $record) => $record?->displayNumber())
+                ->disabled()->columnSpanFull(),
             TextInput::make('customer_name')->label('Покупець')->disabled(), TextInput::make('phone')->label('Телефон')->disabled(),
             TextInput::make('email')->label('Пошта')->disabled(),
             TextInput::make('payment_method')->label('Спосіб оплати')->formatStateUsing(fn ($state) => Order::paymentMethods()[$state] ?? $state)->disabled(),
@@ -71,7 +74,10 @@ class OrderResource extends Resource
     public static function table(Table $table): Table
     {
         return $table->defaultSort('created_at', 'desc')->columns([
-            TextColumn::make('reference')->label('Номер')->limit(12)->searchable()->copyable(),
+            TextColumn::make('order_number')->label('Номер')
+                ->state(fn (Order $record) => $record->displayNumber())
+                ->searchable(query: fn (Builder $query, string $search) => $query->searchNumber($search))
+                ->copyable(),
             TextColumn::make('customer_name')->label('Покупець')->searchable(), TextColumn::make('phone')->label('Телефон')->searchable(),
             TextColumn::make('total_minor')->label('Сума')->formatStateUsing(fn ($state) => Money::display((int) $state))->sortable(),
             TextColumn::make('payment_method')->label('Спосіб оплати')->formatStateUsing(fn ($state) => Order::paymentMethods()[$state] ?? $state),

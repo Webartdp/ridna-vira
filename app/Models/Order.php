@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -19,6 +20,23 @@ class Order extends Model
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function displayNumber(): string
+    {
+        return 'RV-'.str_pad((string) $this->getKey(), 6, '0', STR_PAD_LEFT);
+    }
+
+    public function scopeSearchNumber(Builder $query, string $search): Builder
+    {
+        $search = trim($search);
+        if (preg_match('/^RV-([0-9]+)$/iD', $search, $matches)) {
+            $id = filter_var(ltrim($matches[1], '0'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+
+            return $query->whereKey($id === false ? [] : $id);
+        }
+
+        return $query->whereLike('reference', '%'.$search.'%');
     }
 
     public function publicUrl(): string

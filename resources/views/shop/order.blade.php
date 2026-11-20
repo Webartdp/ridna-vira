@@ -9,7 +9,7 @@
 <section class="shop">
     <h1>Ваше замовлення</h1>
 @endif
-    <p>Номер: {{ $order->reference }}</p><p class="shop-status">{{ $order->paymentStatusLabel() }}</p>
+    <p>Номер: {{ $order->displayNumber() }}</p><p class="shop-status">{{ $order->paymentStatusLabel() }}</p>
     <div class="shop-panel{{ $inAccount ? ' account-orders' : '' }}"><table><thead><tr><th>Товар</th><th>Кількість</th><th>Сума</th></tr></thead><tbody>@foreach($order->items as $item)<tr><td>{{ $item->name }}@if($item->made_to_order) · Під замовлення@endif</td><td>{{ $item->quantity }}</td><td>{{ \App\Support\Money::display($item->price_minor * $item->quantity) }}</td></tr>@endforeach</tbody></table><p class="shop-price" style="margin-top:20px">Разом: {{ \App\Support\Money::display($order->total_minor) }}</p></div>
     @if($order->isCashOnDelivery() && $order->payment_status === 'pending')
         <p class="shop-alert">Замовлення прийнято. Оплата за вироби — при отриманні посилки Нової пошти.</p>

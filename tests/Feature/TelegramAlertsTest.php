@@ -100,9 +100,10 @@ class TelegramAlertsTest extends TestCase
             $this->assertEquals('424242', $message['chat_id']);
             $this->assertSame('HTML', $message['parse_mode']);
             $this->assertTrue($message['protect_content']);
-            $this->assertStringContainsString($order->reference, $message['text']);
+            $this->assertStringContainsString($order->displayNumber(), $message['text']);
+            $this->assertStringNotContainsString($order->reference, $message['text']);
             $this->assertStringContainsString('251,00', $message['text']);
-            $this->assertStringContainsString('<a href="https://ridna.example.test/admin/orders', $message['text']);
+            $this->assertStringContainsString('<a href="https://ridna.example.test/admin/orders?search='.$order->displayNumber().'"', $message['text']);
             foreach ([$order->access_token, $token, $payment['cardPan'], $payment['merchantSignature']] as $secret) {
                 $this->assertStringNotContainsString($secret, $message['text']);
             }

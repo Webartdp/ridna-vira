@@ -136,7 +136,7 @@ class Checkout
 
     private function enqueueOrderAlert(Order $order, string $event, string $heading, array $items = []): void
     {
-        $details = ['Номер замовлення' => $order->reference];
+        $details = ['Номер замовлення' => $order->displayNumber()];
         if ($items !== []) {
             $delivery = match ($order->delivery_method) {
                 'nova_poshta' => 'Нова пошта',
@@ -165,6 +165,6 @@ class Checkout
             'Сума' => Money::display($order->total_minor),
             'Спосіб оплати' => $paymentMethods[$order->payment_method] ?? $paymentMethods['wayforpay'],
         ];
-        app(TelegramAlerts::class)->enqueue('order:'.$order->reference.':'.$event, $heading, array_filter($details, filled(...)), '/admin/orders');
+        app(TelegramAlerts::class)->enqueue('order:'.$order->reference.':'.$event, $heading, array_filter($details, filled(...)), '/admin/orders?search='.rawurlencode($order->displayNumber()));
     }
 }

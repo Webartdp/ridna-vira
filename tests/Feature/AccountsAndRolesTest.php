@@ -181,9 +181,9 @@ class AccountsAndRolesTest extends TestCase
         $own = $this->order($alice);
         $other = $this->order($bob);
         $guest = $this->order(null, ['email' => $alice->email]);
-        $this->actingAs($alice)->get('/kabinet')->assertOk()->assertSee(route('account.order', $own->reference), false)->assertDontSee($other->reference)->assertDontSee($guest->reference);
+        $this->actingAs($alice)->get('/kabinet')->assertOk()->assertSee($own->displayNumber())->assertSee(route('account.order', $own->reference), false)->assertDontSee($other->displayNumber())->assertDontSee($other->reference)->assertDontSee($guest->reference);
         $this->get(route('account.order', $other->reference))->assertNotFound();
-        $this->get(route('account.order', $own->reference))->assertOk()->assertSee('Ваше замовлення');
+        $this->get(route('account.order', $own->reference))->assertOk()->assertSee('Ваше замовлення')->assertSee($own->displayNumber());
         $this->assertNull($guest->fresh()->user_id);
     }
 

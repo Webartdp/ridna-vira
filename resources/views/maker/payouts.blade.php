@@ -18,7 +18,7 @@
                 @foreach ($items as $item)
                     <tr>
                         <th scope="row">{{ $item->name }} · {{ $item->quantity }} шт.
-                            <small>{{ \Illuminate\Support\Str::limit($item->order->reference, 12) }} · {{ $item->order->created_at->format('d.m.Y') }}</small>
+                            <small>{{ $item->order->displayNumber() }} · {{ $item->order->created_at->format('d.m.Y') }}</small>
                         </th>
                         <td>{{ \App\Support\Money::display($item->makerAccruedMinor()) }}</td>
                         <td>

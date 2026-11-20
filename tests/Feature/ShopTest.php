@@ -183,7 +183,7 @@ class ShopTest extends TestCase
         $this->assertTrue($order->isCashOnDelivery());
         $this->assertSame(3, $product->refresh()->stock);
         $this->get($order->publicUrl())->assertOk()
-            ->assertSee('Оплата за вироби — при отриманні')->assertDontSee('Оплатити карткою через WayForPay');
+            ->assertSee($order->displayNumber())->assertSee('Оплата за вироби — при отриманні')->assertDontSee('Оплатити карткою через WayForPay');
         $this->post(route('shop.pay', $order->access_token))->assertConflict();
 
         $this->travel(31)->minutes();
@@ -198,6 +198,23 @@ class ShopTest extends TestCase
             ->callTableAction('confirmCashOnDelivery', $order)->assertHasNoTableActionErrors();
         $this->assertSame('paid', $order->refresh()->payment_status);
         $this->assertSame('completed', $order->fulfilment_status);
+    }
+
+    public function test_admin_can_find_orders_by_the_readable_number_or_legacy_reference(): void
+    {
+        $product = $this->product();
+        $first = $this->order($product, 1);
+        $second = $this->order($product, 1);
+        $this->actingAs(User::factory()->create(['role' => 'admin']));
+
+        Livewire::withQueryParams(['search' => $first->displayNumber()])
+            ->test(ManageOrders::class)
+            ->assertSee($first->displayNumber())
+            ->assertCanSeeTableRecords([$first])
+            ->assertCanNotSeeTableRecords([$second])
+            ->searchTable($second->reference)
+            ->assertCanSeeTableRecords([$second])
+            ->assertCanNotSeeTableRecords([$first]);
     }
 
     public function test_cancelling_cash_on_delivery_releases_stock_only_once(): void
