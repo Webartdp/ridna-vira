@@ -129,7 +129,7 @@ class TelegramAlertsTest extends TestCase
         ])->assertRedirect(route('maker.index'));
         $this->assertDatabaseCount('telegram_alerts', 1);
         $alert = $this->sentMessages()->sole()['text'];
-        foreach ([$details['name'], $maker->name, $maker->email, 'Опис &lt;виробу&gt; &amp; догляд', '100,00', '130,00'] as $detail) {
+        foreach ([$details['name'], $maker->name, $maker->email, 'Опис &lt;виробу&gt; &amp; догляд', '100,00', '138,00'] as $detail) {
             $this->assertStringContainsString($detail, $alert);
         }
 

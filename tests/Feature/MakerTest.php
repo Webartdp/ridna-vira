@@ -53,13 +53,13 @@ class MakerTest extends TestCase
         $product = Product::firstOrFail();
         $this->assertSame($maker->id, $product->maker_id);
         $this->assertSame(10005, $product->maker_price_minor);
-        $this->assertSame(13007, $product->price_minor);
+        $this->assertSame(13807, $product->price_minor);
         $this->assertTrue($product->made_to_order);
         $this->assertFalse($product->is_active);
         $this->assertCount(2, $product->images);
         Storage::disk('public')->assertExists($product->images);
         $this->get(route('shop.product', $product))->assertNotFound();
-        $this->get(route('maker.index'))->assertOk()->assertSee('Глиняна миска')->assertSee('130,07');
+        $this->get(route('maker.index'))->assertOk()->assertSee('Глиняна миска')->assertSee('138,07');
         $this->actingAs($other)->get(route('maker.index'))->assertOk()->assertDontSee('Глиняна миска');
 
         $this->actingAs($maker)->post(route('maker.products.store'), [
@@ -83,7 +83,8 @@ class MakerTest extends TestCase
         $this->delete(route('maker.products.destroy', $product))->assertNotFound();
 
         $this->actingAs($maker)->get(route('maker.index'))->assertOk()->assertSee('Приховати Крайка')->assertSee('<table class="maker-table"', false)->assertSee('aria-controls="maker-create"', false);
-        $this->get(route('maker.products.edit', $product))->assertOk()->assertSee('Редагувати виріб');
+        $this->get(route('maker.products.edit', $product))->assertOk()
+            ->assertSee('Редагувати виріб')->assertSee('Ціна в крамниці включає націнку 38%.');
         $this->patch(route('maker.products.hide', $product))->assertRedirect();
         $this->assertFalse($product->refresh()->is_active);
         $product->update(['is_active' => true]);
@@ -92,7 +93,7 @@ class MakerTest extends TestCase
             'stock' => 2, 'stock_before' => 2, 'images' => [UploadedFile::fake()->image('photo.jpg')],
         ])->assertRedirect(route('maker.index'));
         $this->assertFalse($product->refresh()->is_active);
-        $this->assertSame(26000, $product->price_minor);
+        $this->assertSame(27600, $product->price_minor);
         $this->assertCount(1, $product->images);
         $this->get(route('maker.products.edit', $product))->assertOk()->assertSee('Поточні фото');
         $this->delete(route('maker.products.destroy', $product))->assertRedirect(route('maker.index'));
@@ -183,15 +184,15 @@ class MakerTest extends TestCase
             'name' => 'Ткана крайка', 'slug' => 'tkana-kraika', 'maker_price_minor' => 10000,
             'made_to_order' => true, 'stock' => 0, 'is_active' => true,
         ]);
-        $this->get(route('shop.product', $product))->assertOk()->assertSee('Під замовлення')->assertSee('130,00');
+        $this->get(route('shop.product', $product))->assertOk()->assertSee('Під замовлення')->assertSee('138,00');
         $this->post(route('shop.cart.update', $product), ['quantity' => 2])->assertRedirect(route('shop.cart'));
-        $this->get(route('shop.cart'))->assertOk()->assertSee('260,00');
+        $this->get(route('shop.cart'))->assertOk()->assertSee('276,00');
         $checkout = app(Checkout::class);
         $order = $checkout->create([
             'customer_name' => 'Покупець', 'email' => 'buyer@example.com', 'phone' => '+380671234567',
             'delivery_method' => 'pickup', 'delivery_address' => 'Дніпро',
         ], [$product->id => 2], (string) Str::uuid());
-        $this->assertSame(26000, $order->total_minor);
+        $this->assertSame(27600, $order->total_minor);
         $this->assertTrue($order->items()->firstOrFail()->made_to_order);
         $this->assertSame(0, $product->refresh()->stock);
         $checkout->release($order);

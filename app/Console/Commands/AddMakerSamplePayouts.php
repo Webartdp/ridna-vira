@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Order;
+use App\Models\Product;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -48,7 +49,7 @@ class AddMakerSamplePayouts extends Command
                 }
 
                 $date = now()->subDays(4 - $index);
-                $retailPrice = (int) round($price * 1.3);
+                $retailPrice = Product::makerRetailPrice($price);
                 $order = Order::create([
                     'reference' => (string) Str::uuid(),
                     'access_token' => Str::random(64),

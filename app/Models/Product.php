@@ -12,6 +12,9 @@ class Product extends Model
 {
     use SoftDeletes;
 
+    public const MAKER_MARKUP_PERCENT = 38;
+
+
     protected $guarded = ['id'];
 
     protected static function booted(): void
@@ -30,7 +33,7 @@ class Product extends Model
 
     public static function makerRetailPrice(int $minor): int
     {
-        return intdiv($minor * 130 + 50, 100);
+        return intdiv($minor * (100 + self::MAKER_MARKUP_PERCENT) + 50, 100);
     }
 
     public function purchaseLimit(): int
