@@ -74,14 +74,18 @@
         });
     }
 
+    const needsQuantityUpdate = row => row.input.value !== row.saved || !row.input.validity.valid;
+
     checkout.addEventListener('submit', async event => {
-        if (submitting) return;
+        if (submitting || (!waitingForQuantity && !running && !rows.some(needsQuantityUpdate))) return;
         event.preventDefault();
         if (waitingForQuantity) return;
         waitingForQuantity = true;
         await flush();
+        // Let the original form submission finish before requesting another one.
+        await new Promise(resolve => setTimeout(resolve, 0));
         waitingForQuantity = false;
-        const unsaved = rows.find(row => row.input.value !== row.saved || !row.input.validity.valid);
+        const unsaved = rows.find(needsQuantityUpdate);
         if (unsaved) {
             unsaved.input.focus();
             unsaved.input.reportValidity();
