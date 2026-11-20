@@ -23,6 +23,8 @@ use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
 
+use function Illuminate\Support\defer;
+
 class TelegramAlertsTest extends TestCase
 {
     use RefreshDatabase;
@@ -68,6 +70,8 @@ class TelegramAlertsTest extends TestCase
         $this->post(route('shop.checkout'), $customer)->assertRedirect();
         $this->assertDatabaseCount('orders', 1);
         $this->assertDatabaseCount('telegram_alerts', 1);
+        Http::assertSentCount(1);
+        $this->assertCount(1, $this->sentMessages());
 
         $order = Order::sole();
         $payment = [
@@ -86,9 +90,9 @@ class TelegramAlertsTest extends TestCase
         $this->postJson(route('shop.webhook'), $payment)->assertOk();
         $this->postJson(route('shop.webhook'), $payment)->assertOk();
         $this->assertDatabaseCount('telegram_alerts', 2);
-        Http::assertNothingSent();
+        Http::assertSentCount(2);
+        $this->assertCount(2, $this->sentMessages());
 
-        $this->artisan('telegram:alerts')->assertSuccessful();
         $this->artisan('telegram:alerts')->assertSuccessful();
         $messages = $this->sentMessages();
         $this->assertCount(2, $messages);
@@ -110,7 +114,7 @@ class TelegramAlertsTest extends TestCase
         }
     }
 
-    public function test_valid_maker_submission_and_previously_published_edit_queue_moderation_alerts(): void
+    public function test_valid_maker_submission_and_previously_published_edit_send_moderation_alerts_immediately(): void
     {
         Storage::fake('public');
         $maker = User::factory()->create(['role' => 'maker', 'name' => 'Майстриня', 'email' => 'maker@example.test']);
@@ -123,7 +127,6 @@ class TelegramAlertsTest extends TestCase
             'images' => [UploadedFile::fake()->image('bowl.jpg')],
         ])->assertRedirect(route('maker.index'));
         $this->assertDatabaseCount('telegram_alerts', 1);
-        $this->artisan('telegram:alerts')->assertSuccessful();
         $alert = $this->sentMessages()->sole()['text'];
         foreach ([$details['name'], $maker->name, $maker->email, 'Опис &lt;виробу&gt; &amp; догляд', '100,00', '130,00'] as $detail) {
             $this->assertStringContainsString($detail, $alert);
@@ -137,13 +140,13 @@ class TelegramAlertsTest extends TestCase
         $product->update(['is_active' => true]);
         $this->put(route('maker.products.update', $product), $update)->assertRedirect(route('maker.index'));
         $this->assertDatabaseCount('telegram_alerts', 2);
-        $this->artisan('telegram:alerts')->assertSuccessful();
+        Http::assertSentCount(2);
         $messages = $this->sentMessages();
         $this->assertCount(2, $messages);
         $this->assertStringContainsString('Миска з розписом', $messages->last()['text']);
     }
 
-    public function test_new_product_in_the_admin_panel_also_queues_an_alert(): void
+    public function test_new_product_in_the_admin_panel_also_sends_an_alert_after_the_response(): void
     {
         $admin = User::factory()->create(['role' => 'admin', 'name' => 'Адміністратор']);
         $this->actingAs($admin);
@@ -152,7 +155,7 @@ class TelegramAlertsTest extends TestCase
         ])->assertHasNoActionErrors();
 
         $this->assertDatabaseCount('telegram_alerts', 1);
-        $this->artisan('telegram:alerts')->assertSuccessful();
+        defer()->invoke();
         $message = $this->sentMessages()->sole()['text'];
         $this->assertStringContainsString('Новий товар додано в адмінці', $message);
         $this->assertStringContainsString('Крамнична книга', $message);
@@ -178,16 +181,10 @@ class TelegramAlertsTest extends TestCase
 
         $this->postJson(route('contact.submit'), $contact)->assertOk();
         Mail::assertSent(ContactFormMessage::class, 1);
-        Http::assertNothingSent();
-        foreach (DB::table('telegram_alerts')->pluck('message') as $stored) {
-            $this->assertStringNotContainsString($contact['email'], $stored);
-            $this->assertStringNotContainsString('🌻', $stored);
-        }
-
-        $this->artisan('telegram:alerts')->assertSuccessful();
         $this->assertSame(0, DB::table('telegram_alerts')->whereNotNull('message')->count());
         $messages = $this->sentMessages();
         $this->assertGreaterThan(1, $messages->count());
+        Http::assertSentCount($messages->count());
         $combined = $messages->pluck('text')->implode('');
         foreach (['Співпраця', 'Початок &lt;звернення&gt; &amp;', 'Кінець звернення.', $contact['email'],
             $contact['name'], $contact['phone'], $contact['city'], $contact['organization']] as $detail) {
@@ -224,9 +221,12 @@ class TelegramAlertsTest extends TestCase
                 ->push(['ok' => true]),
             'https://api.telegram.org/bot123456:abc_DE-f/getUpdates' => Http::response(['ok' => true, 'result' => []]),
         ]);
-        app(TelegramAlerts::class)->enqueue('test:retry', 'Виріб готовий до модерації');
+        app(TelegramAlerts::class)->enqueue('test:retry', 'Виріб готовий до модерації', ['Пошта' => 'maker@example.test']);
+        Http::assertNothingSent();
+        $this->assertStringNotContainsString('maker@example.test', DB::table('telegram_alerts')->value('message'));
+        defer()->invoke();
+        $this->assertCount(1, $this->sentMessages());
 
-        $this->artisan('telegram:alerts')->assertSuccessful();
         $this->artisan('telegram:alerts')->assertSuccessful();
         $this->assertCount(1, $this->sentMessages());
         $this->assertDatabaseHas('telegram_alerts', ['event_key' => 'test:retry', 'attempts' => 1, 'sent_at' => null]);
@@ -235,6 +235,17 @@ class TelegramAlertsTest extends TestCase
         $this->artisan('telegram:alerts')->assertSuccessful();
         $this->assertCount(2, $this->sentMessages());
         $this->assertDatabaseHas('telegram_alerts', ['event_key' => 'test:retry', 'attempts' => 2, 'message' => null]);
+    }
+
+    public function test_rolled_back_alert_is_not_scheduled_for_delivery(): void
+    {
+        DB::beginTransaction();
+        app(TelegramAlerts::class)->enqueue('test:rollback', 'Виріб на модерації');
+        DB::rollBack();
+
+        defer()->invoke();
+        $this->assertDatabaseMissing('telegram_alerts', ['event_key' => 'test:rollback']);
+        Http::assertNothingSent();
     }
 
     public function test_bot_answers_commands_only_in_the_configured_private_chat(): void

@@ -17,6 +17,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Throwable;
 
+use function Illuminate\Support\defer;
+
 final class TelegramAlerts
 {
     private const TEXT_LIMIT = 1800;
@@ -53,7 +55,16 @@ final class TelegramAlerts
                     'created_at' => $now,
                 ];
             }
-            DB::table('telegram_alerts')->insertOrIgnore($rows);
+            if (DB::table('telegram_alerts')->insertOrIgnore($rows) > 0) {
+                $eventKeys = array_column($rows, 'event_key');
+                DB::afterCommit(fn () => defer(function () use ($eventKeys): void {
+                    try {
+                        $this->deliver($eventKeys);
+                    } catch (Throwable) {
+                        Log::warning('Immediate Telegram delivery failed.');
+                    }
+                })->always());
+            }
         } catch (Throwable) {
             Log::warning('Unable to queue a Telegram notification.', ['event' => $eventKey]);
         }
@@ -171,13 +182,21 @@ final class TelegramAlerts
         return $parts;
     }
 
-    private function deliver(): int
+    /** @param  list<string>|null  $eventKeys */
+    private function deliver(?array $eventKeys = null): int
     {
         $pending = DB::table('telegram_alerts')->whereNull('sent_at')->whereNull('failed_at');
-        $alerts = (clone $pending)->where('available_at', '<=', now())->orderBy('id')->limit(10)->get();
+        $due = (clone $pending)->where('available_at', '<=', now())->orderBy('id');
+        $alerts = ($eventKeys === null ? $due->limit(10) : $due->whereIn('event_key', $eventKeys))->get();
 
         $sent = 0;
         foreach ($alerts as $alert) {
+            $claimed = (clone $pending)->where('id', $alert->id)->where('available_at', '<=', now())
+                ->update(['available_at' => now()->addSeconds(15)]);
+            if ($claimed === 0) {
+                continue;
+            }
+
             $record = DB::table('telegram_alerts')->where('id', $alert->id);
             try {
                 $message = Crypt::decryptString($alert->message);
