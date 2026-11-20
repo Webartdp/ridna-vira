@@ -9,6 +9,13 @@
     <label for="register-password">Пароль</label><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
     <p class="account-password-hint">Щонайменше 12 символів, із літерами та цифрами.</p>
     <label for="register-confirmation">Повторіть пароль</label><input id="register-confirmation" name="password_confirmation" type="password" autocomplete="new-password" minlength="12" maxlength="128" required>
+    @if (! empty($maker))
+        @include('partials.shop-policy-links', [
+            'links' => \App\Support\ShopPolicies::makerLinks(),
+            'label' => 'Документи для майстрів',
+            'newTab' => true,
+        ])
+    @endif
     <button class="shop-btn" type="submit">{{ !empty($maker) ? 'Створити кабінет майстра' : 'Створити кабінет' }}</button>
 </form></div>
 @endsection

@@ -1,3 +1,4 @@
+@php($shopPolicyLinks = \App\Support\ShopPolicies::publicLinks())
 <!doctype html>
 <html lang="uk" prefix="og: https://ogp.me/ns# article: https://ogp.me/ns/article#">
 <head>
@@ -12,6 +13,18 @@
     <meta name="description" content="@yield('description', 'Офіційний портал Духовного центру Рідна Віра')">
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     @stack('styles')
+    @if ($shopPolicyLinks)
+        <style>
+            .shop-policy-links{display:flex;flex-wrap:wrap;gap:6px 16px;margin:12px 0;font-size:.875rem}
+            .shop-policy-links a{text-decoration:underline;text-underline-offset:3px}
+            .site-footer.site-footer--shop-policies{height:auto}
+            .site-footer--shop-policies .shop-policy-links{justify-content:center;margin:0 auto 12px;max-width:920px}
+            .site-footer--shop-policies .shop-policy-links a{color:#e7c28b}
+            .site-footer--shop-policies .shop-policy-links a:hover{color:#fff}
+            .site-footer--shop-policies .footer-copy{position:static;white-space:normal;transform:none}
+            @media (min-width:768px){.site-footer.site-footer--shop-policies{padding:320px 24px 24px}}
+        </style>
+    @endif
 </head>
 <body class="@yield('body-class')">
 <div class="announcement" aria-label="Оголошення">
@@ -66,7 +79,7 @@
 
 <main>@yield('content')</main>
 
-<footer class="site-footer">
+<footer class="site-footer{{ $shopPolicyLinks ? ' site-footer--shop-policies' : '' }}">
     <div class="site-footer__ornament">
         <img src="{{ asset('assets/figma/home/ornament.png') }}" alt="">
     </div>
@@ -109,6 +122,7 @@
     </div>
 
     <div class="footer-rule"><img src="{{ asset('assets/figma/home/footer-line.svg') }}" alt=""></div>
+    @include('partials.shop-policy-links', ['links' => $shopPolicyLinks, 'label' => 'Документи крамниці'])
     <p class="footer-copy">© 2006–{{ date('Y') }} {{ \App\Models\SiteSetting::read('footer_text', 'РІДНА ВІРА — Всі права захищені') }} — <a href="{{ url('/umovy-kramnytsi') }}">Умови та конфіденційність</a></p>
 </footer>
 <button class="back-to-top" type="button" data-back-to-top hidden>

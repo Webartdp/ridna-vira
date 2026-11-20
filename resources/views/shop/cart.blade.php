@@ -126,6 +126,11 @@
                 <div class="checkout-total"><dt>До оплати за товари</dt><dd data-cart-total>{{ \App\Support\Money::display($total) }}</dd></div>
             </dl>
             <label><input type="checkbox" form="checkout-form" name="consent" value="1" required @checked(old('consent'))> Погоджуюся з <a href="{{ url('/umovy-kramnytsi') }}" target="_blank" rel="noopener">умовами замовлення та обробкою даних</a>.</label>
+            @include('partials.shop-policy-links', [
+                'links' => \App\Support\ShopPolicies::buyerLinks(),
+                'label' => 'Умови крамниці для покупців',
+                'newTab' => true,
+            ])
             @if (!$ordersEnabled)
                 <div class="shop-alert" role="status">Оформлення замовлень тимчасово недоступне.</div>
             @endif

@@ -9,6 +9,11 @@
         @if (auth()->user()->hasVerifiedEmail())
             <form method="post" action="{{ route('maker.activate') }}">
                 @csrf
+                @include('partials.shop-policy-links', [
+                    'links' => \App\Support\ShopPolicies::makerLinks(),
+                    'label' => 'Документи для майстрів',
+                    'newTab' => true,
+                ])
                 <button class="shop-btn" type="submit">Відкрити майстерню</button>
             </form>
         @else
