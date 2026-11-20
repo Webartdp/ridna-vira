@@ -55,7 +55,7 @@ class ShopController extends Controller
     public function cart(Cart $cart, WayForPay $gateway, NovaPoshta $carrier)
     {
         $token = session('checkout_token');
-        if (! $token || Order::where('checkout_token', $token)->exists()) {
+        if (! $token || Order::withTrashed()->where('checkout_token', $token)->exists()) {
             session()->put('checkout_token', (string) Str::uuid());
         }
 

@@ -36,10 +36,10 @@ class AddMakerSamplePayouts extends Command
             User::whereKey($maker->id)->lockForUpdate()->firstOrFail();
             foreach ($samples as $index => [$name, $price, $quantity, $status, $paid]) {
                 $key = $marker.'-'.($index + 1);
-                $existing = Order::where('admin_notes', $key)->where('email', $maker->email)
+                $existing = Order::withTrashed()->where('admin_notes', $key)->where('email', $maker->email)
                     ->whereHas('items', fn ($query) => $query->where('maker_id', $maker->id))->first();
                 if ($this->option('remove')) {
-                    $existing?->delete();
+                    $existing?->forceDelete();
 
                     continue;
                 }

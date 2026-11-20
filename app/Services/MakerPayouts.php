@@ -16,7 +16,7 @@ class MakerPayouts
         abort_unless($admin->canManage('admin'), 403);
         DB::transaction(function () use ($admin, $item, $amount, $reference) {
             // Serialize with WayForPay callbacks before checking eligibility.
-            $order = Order::lockForUpdate()->findOrFail($item->order_id);
+            $order = Order::withTrashed()->lockForUpdate()->findOrFail($item->order_id);
             $locked = $order->items()->lockForUpdate()->findOrFail($item->id);
             $locked->setRelation('order', $order);
             if (! $locked->canRecordMakerPayout()) {

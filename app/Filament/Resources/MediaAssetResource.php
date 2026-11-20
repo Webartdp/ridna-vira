@@ -4,14 +4,18 @@ namespace App\Filament\Resources;
 
 use App\Models\MediaAsset;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Storage;
 
 class MediaAssetResource extends Resource
@@ -43,12 +47,17 @@ class MediaAssetResource extends Resource
         return $table->columns([
             TextColumn::make('name')->label('Назва')->searchable(),
             TextColumn::make('file')->label('Адреса файлу')->formatStateUsing(fn ($state) => Storage::disk('public')->url($state))->copyable()->copyableState(fn ($state) => Storage::disk('public')->url($state))->limit(60),
-        ])->recordActions([EditAction::make(), Action::make('open')->label('Відкрити')->url(fn (MediaAsset $record) => Storage::disk('public')->url($record->file))->openUrlInNewTab()]);
+        ])->filters([TrashedFilter::make()])->recordActions([
+            EditAction::make(),
+            Action::make('open')->label('Відкрити')->url(fn (MediaAsset $record) => Storage::disk('public')->url($record->file))->openUrlInNewTab(),
+            DeleteAction::make()->modalDescription('Запис переміститься до кошика медіатеки. Його можна відновити через фільтр «Видалені».'),
+            RestoreAction::make(),
+        ]);
     }
 
-    public static function canDelete(Model $record): bool
+    public static function getEloquentQuery(): Builder
     {
-        return false;
+        return parent::getEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
     }
 
     public static function getPages(): array

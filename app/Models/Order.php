@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
+    use SoftDeletes;
+
     protected $guarded = ['id'];
 
     protected $hidden = ['access_token', 'checkout_token'];
@@ -47,6 +50,18 @@ class Order extends Model
     public function isCashOnDelivery(): bool
     {
         return $this->payment_method === 'cod';
+    }
+
+    public function hasUnpaidReservation(): bool
+    {
+        return ! $this->paid_at && ! $this->stock_released_at
+            && in_array($this->payment_status, ['pending', 'failed', 'expired'], true);
+    }
+
+    public function canEditItems(): bool
+    {
+        return ! $this->trashed() && $this->isCashOnDelivery() && $this->payment_status === 'pending'
+            && $this->hasUnpaidReservation() && in_array($this->fulfilment_status, ['new', 'processing'], true);
     }
 
     public function paymentStatusLabel(): string

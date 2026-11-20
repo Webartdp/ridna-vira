@@ -18,14 +18,18 @@ class Checkout
     public function create(array $customer, array $cart, string $token, ?int $userId = null): Order
     {
         return DB::transaction(function () use ($customer, $cart, $token, $userId) {
-            if ($existing = Order::where('checkout_token', $token)->first()) {
+            if ($existing = Order::withTrashed()->where('checkout_token', $token)->first()) {
+                abort_if($existing->trashed(), 409, 'Це замовлення видалено. Поверніться до кошика.');
+
                 return $existing;
             }
             if ($cart === []) {
                 throw ValidationException::withMessages(['cart' => 'Кошик порожній.']);
             }
             $products = Product::whereIn('id', array_keys($cart))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
-            if ($existing = Order::where('checkout_token', $token)->lockForUpdate()->first()) {
+            if ($existing = Order::withTrashed()->where('checkout_token', $token)->lockForUpdate()->first()) {
+                abort_if($existing->trashed(), 409, 'Це замовлення видалено. Поверніться до кошика.');
+
                 return $existing;
             }
             $total = 0;
@@ -39,11 +43,7 @@ class Checkout
                 if ($total > 999999999) {
                     throw ValidationException::withMessages(['cart' => 'Сума замовлення перевищує допустиму. Зменште кількість товарів.']);
                 }
-                $items[] = [
-                    'product_id' => $product->id, 'name' => $product->name, 'sku' => $product->sku,
-                    'quantity' => $quantity, 'price_minor' => $product->price_minor, 'made_to_order' => $product->made_to_order ?? false,
-                    'maker_id' => $product->maker_id, 'maker_price_minor' => $product->maker_id ? $product->maker_price_minor : null,
-                ];
+                $items[] = self::itemSnapshot($product, $quantity);
                 if (! $product->made_to_order) {
                     $product->decrement('stock', $quantity);
                 }
@@ -59,23 +59,55 @@ class Checkout
         }, 3);
     }
 
+    public static function itemSnapshot(Product $product, int $quantity): array
+    {
+        return [
+            'product_id' => $product->id, 'name' => $product->name, 'sku' => $product->sku,
+            'quantity' => $quantity, 'price_minor' => $product->price_minor, 'made_to_order' => $product->made_to_order ?? false,
+            'maker_id' => $product->maker_id, 'maker_price_minor' => $product->maker_id ? $product->maker_price_minor : null,
+        ];
+    }
+
     public function release(Order $order, string $status = 'expired', bool $cancel = false): void
     {
         DB::transaction(function () use ($order, $status, $cancel) {
-            $locked = Order::lockForUpdate()->findOrFail($order->id);
-            if ($locked->stock_released_at || $locked->paid_at || ($locked->isCashOnDelivery() && ! $cancel)) {
+            $locked = Order::withTrashed()->lockForUpdate()->findOrFail($order->id);
+            if ($locked->trashed() || ! $locked->hasUnpaidReservation() || ($locked->isCashOnDelivery() && ! $cancel)) {
                 return;
             }
-            foreach ($locked->items()->orderBy('product_id')->get() as $item) {
-                if (! $item->made_to_order) {
-                    Product::withTrashed()->whereKey($item->product_id)->increment('stock', $item->quantity);
-                }
-            }
-            $locked->update([
-                'stock_released_at' => now(), 'payment_status' => $status,
-                'fulfilment_status' => $cancel ? 'cancelled' : $locked->fulfilment_status,
-            ]);
+
+            $this->releaseReservedStock($locked, $status, $cancel);
         }, 3);
+    }
+
+    public function archiveOrder(Order $order): void
+    {
+        DB::transaction(function () use ($order) {
+            $locked = Order::withTrashed()->lockForUpdate()->findOrFail($order->id);
+            if ($locked->trashed()) {
+                return;
+            }
+
+            if ($locked->hasUnpaidReservation()
+                && in_array($locked->fulfilment_status, ['new', 'processing', 'cancelled'], true)) {
+                $this->releaseReservedStock($locked, 'expired', true);
+            }
+
+            $locked->delete();
+        }, 3);
+    }
+
+    private function releaseReservedStock(Order $order, string $status, bool $cancel): void
+    {
+        foreach ($order->items()->orderBy('product_id')->get() as $item) {
+            if (! $item->made_to_order) {
+                Product::withTrashed()->whereKey($item->product_id)->increment('stock', $item->quantity);
+            }
+        }
+        $order->update([
+            'stock_released_at' => now(), 'payment_status' => $status,
+            'fulfilment_status' => $cancel ? 'cancelled' : $order->fulfilment_status,
+        ]);
     }
 
     public function confirmCashOnDelivery(Order $order): void
@@ -94,7 +126,7 @@ class Checkout
     public function payment(array $data): Order
     {
         return DB::transaction(function () use ($data) {
-            $order = Order::where('reference', $data['orderReference'])->lockForUpdate()->firstOrFail();
+            $order = Order::withTrashed()->where('reference', $data['orderReference'])->lockForUpdate()->firstOrFail();
             abort_if($order->isCashOnDelivery(), 409);
             try {
                 $amount = Money::minor((string) $data['amount']);
@@ -114,6 +146,9 @@ class Checkout
             }
             $order->save();
             if (! $wasPaid && $order->payment_status === 'review') {
+                if ($order->trashed()) {
+                    $order->restore();
+                }
                 $this->enqueueOrderAlert($order, 'review', '⚠️ Оплата після завершення резерву — перевірте замовлення');
             }
             if (! $wasPaid && $order->payment_status === 'paid') {

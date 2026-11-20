@@ -3,21 +3,27 @@
 namespace App\Filament\Resources;
 
 use App\Models\Order;
+use App\Models\Product;
 use App\Services\Checkout;
 use App\Support\Money;
 use Filament\Actions\Action;
+use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\RestoreAction;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\View;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 
 class OrderResource extends Resource
 {
@@ -38,9 +44,11 @@ class OrderResource extends Resource
         return false;
     }
 
-    public static function canDelete(Model $record): bool
+    public static function getEloquentQuery(): Builder
     {
-        return false;
+        $query = parent::getEloquentQuery();
+
+        return auth()->user()?->canManage('admin') ? $query->withTrashed() : $query;
     }
 
     public static function form(Schema $schema): Schema
@@ -49,23 +57,41 @@ class OrderResource extends Resource
             TextInput::make('order_number')->label('Номер замовлення')
                 ->formatStateUsing(fn (?Order $record) => $record?->displayNumber())
                 ->disabled()->columnSpanFull(),
-            TextInput::make('customer_name')->label('Покупець')->disabled(), TextInput::make('phone')->label('Телефон')->disabled(),
-            TextInput::make('email')->label('Пошта')->disabled(),
+            TextInput::make('customer_name')->label('Покупець')->required()->maxLength(150),
+            TextInput::make('phone')->label('Телефон')->tel()->required()->maxLength(30)->regex('/^\+?[\d ()-]{9,30}$/'),
+            TextInput::make('email')->label('Пошта')->email()->required()->maxLength(190),
             TextInput::make('payment_method')->label('Спосіб оплати')->formatStateUsing(fn ($state) => Order::paymentMethods()[$state] ?? $state)->disabled(),
             TextInput::make('payment_status')->label('Оплата')->formatStateUsing(fn ($state) => Order::paymentLabels()[$state] ?? $state)->disabled(),
-            TextInput::make('delivery_method')->label('Спосіб доставки')->disabled(), Textarea::make('delivery_address')->label('Адреса доставки')->disabled(),
-            Textarea::make('comment')->label('Коментар покупця')->disabled()->columnSpanFull(),
-            View::make('filament.order-items')->columnSpanFull(),
+            TextInput::make('delivery_method')->label('Спосіб доставки')
+                ->formatStateUsing(fn ($state) => $state === 'nova_poshta' ? 'Нова пошта' : $state)->disabled(),
+            Textarea::make('delivery_address')->label('Адреса доставки або відділення')->required()->maxLength(1000),
+            Textarea::make('comment')->label('Коментар покупця')->maxLength(2000)->columnSpanFull(),
+            View::make('filament.order-items')->columnSpanFull()
+                ->hidden(fn (?Order $record): bool => $record?->canEditItems() ?? false),
+            TextInput::make('order_total')->label('Поточна сума')->disabled()
+                ->formatStateUsing(fn (?Order $record) => $record ? Money::display($record->total_minor) : null)
+                ->visible(fn (?Order $record): bool => $record?->canEditItems() ?? false),
+            Repeater::make('items')->label('Склад замовлення')->columnSpanFull()
+                ->visible(fn (?Order $record): bool => $record?->canEditItems() ?? false)
+                ->addActionLabel('Додати позицію')->reorderable(false)->minItems(1)
+                ->helperText('Ціна нової позиції береться з каталогу. Під час збереження буде перераховано суму замовлення й залишки.')
+                ->columns(3)->schema([
+                    Hidden::make('id'),
+                    Hidden::make('original_name')->dehydrated(false),
+                    Select::make('product_id')->label('Виріб')->searchable()
+                        ->getSearchResultsUsing(fn (string $search): array => Product::where('is_active', true)
+                            ->whereLike('name', '%'.$search.'%')->orderBy('name')->limit(30)->get(['id', 'name', 'price_minor'])
+                            ->mapWithKeys(fn (Product $product) => [$product->id => $product->name.' · '.Money::display($product->price_minor)])->all())
+                        ->getOptionLabelUsing(fn ($value, Get $get): ?string => $get('original_name') ?? Product::find($value)?->name)
+                        ->placeholder(fn (Get $get): string => $get('original_name') ?? 'Оберіть виріб')
+                        ->required(fn (Get $get): bool => blank($get('id')))
+                        ->disabled(fn (Get $get): bool => filled($get('id')))->dehydrated(),
+                    TextInput::make('unit_price')->label('Ціна за одиницю')->disabled()
+                        ->visible(fn (Get $get): bool => filled($get('id'))),
+                    TextInput::make('quantity')->label('Кількість')->required()->integer()->minValue(1)->maxValue(99),
+                ]),
             Select::make('fulfilment_status')->label('Виконання')->required()->options(['new' => 'Нове', 'processing' => 'Готується', 'shipped' => 'Відправлено', 'completed' => 'Виконано', 'cancelled' => 'Скасовано'])
-                ->rules([fn ($record) => function (string $attribute, $value, \Closure $fail) use ($record) {
-                    if ($value === 'cancelled' && $record->isCashOnDelivery() && $record->payment_status === 'pending') {
-                        $fail('Скористайтеся дією «Скасувати й повернути залишок».');
-                    }
-                    $canShipCashOnDelivery = $value === 'shipped' && $record->isCashOnDelivery() && $record->payment_status === 'pending' && ! $record->stock_released_at;
-                    if (in_array($value, ['shipped', 'completed'], true) && $record->payment_status !== 'paid' && ! $canShipCashOnDelivery) {
-                        $fail('Відправляти можна лише замовлення з підтвердженою оплатою.');
-                    }
-                }])->helperText('Оплату WayForPay підтверджує сервіс. Післяплату підтвердіть після фактичного надходження коштів.'),
+                ->helperText('Оплату WayForPay підтверджує сервіс. Післяплату підтвердіть після фактичного надходження коштів.'),
             TextInput::make('tracking_number')->label('Номер відправлення')->maxLength(190),
             Textarea::make('admin_notes')->label('Внутрішні нотатки')->maxLength(10000)->columnSpanFull(),
         ]);
@@ -86,19 +112,33 @@ class OrderResource extends Resource
             }),
             TextColumn::make('fulfilment_status')->label('Виконання')->formatStateUsing(fn ($state) => ['new' => 'Нове', 'processing' => 'Готується', 'shipped' => 'Відправлено', 'completed' => 'Виконано', 'cancelled' => 'Скасовано'][$state] ?? $state)->badge(),
             TextColumn::make('created_at')->label('Створено')->dateTime('d.m.Y H:i')->sortable(),
-        ])->filters([SelectFilter::make('payment_status')->label('Оплата')->options(Order::paymentLabels())])
+        ])->filters([
+            SelectFilter::make('payment_status')->label('Оплата')->options(Order::paymentLabels()),
+            TrashedFilter::make()->label('Видалені замовлення')
+                ->visible(fn (): bool => auth()->user()?->canManage('admin') ?? false),
+        ])
             ->recordActions([
-                EditAction::make()->label('Відкрити')->modalWidth('6xl'),
+                EditAction::make()->label('Редагувати')->visible(fn (Order $record): bool => ! $record->trashed()),
                 Action::make('confirmCashOnDelivery')->label('Підтвердити отримання й оплату')
                     ->authorize(fn () => auth()->user()?->canManage('shop'))
-                    ->visible(fn (Order $record) => $record->isCashOnDelivery() && $record->payment_status === 'pending'
+                    ->visible(fn (Order $record) => ! $record->trashed() && $record->isCashOnDelivery() && $record->payment_status === 'pending'
                         && $record->fulfilment_status === 'shipped' && ! $record->stock_released_at)
                     ->requiresConfirmation()
                     ->modalDescription('Підтвердіть лише після вручення посилки та фактичного надходження післяплати.')
                     ->action(fn (Order $record) => app(Checkout::class)->confirmCashOnDelivery($record)),
-                Action::make('cancel')->label('Скасувати й повернути залишок')->authorize(fn () => auth()->user()?->canManage('shop'))->requiresConfirmation()->visible(fn (Order $record) => ! $record->paid_at && ! $record->stock_released_at)->action(function (Order $record) {
-                    app(Checkout::class)->release($record, 'expired', cancel: true);
-                }),
+                Action::make('cancel')->label('Скасувати й повернути залишок')
+                    ->authorize(fn () => auth()->user()?->canManage('shop'))
+                    ->requiresConfirmation()
+                    ->visible(fn (Order $record) => ! $record->trashed() && $record->hasUnpaidReservation())
+                    ->action(fn (Order $record) => app(Checkout::class)->release($record, 'expired', cancel: true)),
+                DeleteAction::make()->label('Видалити')
+                    ->modalDescription('Замовлення зникне з основного списку. Його можна відновити через фільтр видалених замовлень.')
+                    ->using(function (Order $record): bool {
+                        app(Checkout::class)->archiveOrder($record);
+
+                        return true;
+                    }),
+                RestoreAction::make()->label('Відновити'),
             ]);
     }
 
@@ -111,6 +151,9 @@ class OrderResource extends Resource
 
     public static function getPages(): array
     {
-        return ['index' => OrderResource\Pages\ManageOrders::route('/')];
+        return [
+            'index' => OrderResource\Pages\ManageOrders::route('/'),
+            'edit' => OrderResource\Pages\EditOrder::route('/{record}/edit'),
+        ];
     }
 }
