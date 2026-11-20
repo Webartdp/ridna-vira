@@ -83,12 +83,26 @@ final class Seo
         return [str_contains($title, 'Рідна Віра') ? $title : $title.' — Рідна Віра', $description];
     }
 
+    private static function productImages(Product $product): array
+    {
+        $disk = Storage::disk('public');
+        $images = [];
+        foreach ($product->images ?? [] as $photo) {
+            if ($disk->exists($photo) || $disk->exists(ProductImages::variant($photo, 1200))) {
+                $url = $product->imageUrl($photo, 1200);
+                $images[] = preg_match('~^https?://~i', $url) ? $url : self::url($url);
+            }
+        }
+
+        return array_values(array_unique($images));
+    }
+
     public static function metadata(Request $request, string $html): array
     {
         $path = '/'.trim($request->path(), '/');
-        $page = Cms::ready() ? ContentPage::where('path', $path)->first() : null;
         $product = $request->route('product');
         $product = $product instanceof Product ? $product : null;
+        $page = ! $product && Cms::ready() ? ContentPage::where('path', $path)->first() : null;
         preg_match('~<main\b[^>]*>(.*?)</main>~s', $html, $main);
         $body = $main[1] ?? '';
         $document = Cms::document($body);
@@ -97,43 +111,56 @@ final class Seo
             preg_match('~<title>(.*?)</title>~s', $html, $oldTitle);
             $title = self::text($oldTitle[1] ?? 'Рідна Віра');
         }
-        // Read prose, never navigation or the footer, when creating a search snippet.
-        $prose = Cms::fragment($body);
-        if ($prose === null) {
-            $paragraphs = [];
-            foreach ($document->getElementsByTagName('p') as $paragraph) {
-                if (mb_strlen(trim($paragraph->textContent)) >= 40) {
-                    $paragraphs[] = $paragraph->textContent;
-                }
+        $productCategory = $product?->category;
+        $productDescription = $product ? self::text($product->description ?? '', 5000) : null;
+        if ($product) {
+            [$seoTitle, $description] = self::defaults($path, $title);
+            $summary = Str::limit($productDescription, 165, '…');
+            if (mb_strlen($summary) < 35 && ($summary !== '' || $productCategory)) {
+                $details = $title.($productCategory ? ' · '.$productCategory->name : '');
+                $summary = self::text($summary ? rtrim($summary, '.!?').'. '.$details : $details.' — крамниця «Рідна Віра».');
             }
-            $prose = implode(' ', $paragraphs);
+            $seoTitle = $product->seo_title ?: $seoTitle;
+            $description = $product->seo_description ?: ($summary ?: $description);
+        } else {
+            // Read prose, never navigation or the footer, when creating a search snippet.
+            $prose = Cms::fragment($body);
+            if ($prose === null) {
+                $paragraphs = [];
+                foreach ($document->getElementsByTagName('p') as $paragraph) {
+                    if (mb_strlen(trim($paragraph->textContent)) >= 40) {
+                        $paragraphs[] = $paragraph->textContent;
+                    }
+                }
+                $prose = implode(' ', $paragraphs);
+            }
+            [$seoTitle, $description] = self::defaults($path, $title, $prose, $page?->excerpt);
+            $seoTitle = $page?->seo_title ?: $seoTitle;
+            $description = $page?->seo_description ?: $description;
         }
-        [$seoTitle, $description] = self::defaults($path, $title, $prose, $page?->excerpt);
-        $seoTitle = $page?->seo_title ?: ($product?->seo_title ?: $seoTitle);
-        $description = $page?->seo_description ?: ($product?->seo_description ?: $description);
         $query = [];
-        $pagination = max(1, (int) $request->query('page', 1));
-        if ($pagination > 1) {
-            $query['page'] = $pagination;
-            $seoTitle .= ' — Сторінка '.$pagination;
-            $description .= ' Сторінка '.$pagination.'.';
-        }
-        $category = $request->query('category');
-        if (is_string($category) && $category !== '') {
-            $query['category'] = mb_substr($category, 0, 200);
+        if (! $product) {
+            $pagination = max(1, (int) $request->query('page', 1));
+            if ($pagination > 1) {
+                $query['page'] = $pagination;
+                $seoTitle .= ' — Сторінка '.$pagination;
+                $description .= ' Сторінка '.$pagination.'.';
+            }
+            $category = $request->query('category');
+            if (is_string($category) && $category !== '') {
+                $query['category'] = mb_substr($category, 0, 200);
+            }
         }
         $canonical = self::url($path).($query ? '?'.http_build_query($query) : '');
-        $image = $page?->image ? self::shareImage($page->image) : null;
+        $productImages = $product ? self::productImages($product) : [];
+        $image = $page?->image ? self::shareImage($page->image) : ($productImages[0] ?? null);
         if (! $image && $path === '/' && ! $page?->image_origin) {
             $image = '/assets/figma/home/hero.png';
         }
         if (! $image && $path === '/novyny') {
             $image = '/assets/social/news.jpg';
         }
-        if (! $image && $product && ! empty($product->images)) {
-            $image = $product->imageUrl($product->images[0], 1200);
-        }
-        if (! $image && ! $page?->image_origin) {
+        if (! $image && ! $product && ! $page?->image_origin) {
             foreach ($document->getElementsByTagName('img') as $node) {
                 $src = $node->getAttribute('src');
                 if ($src && ! preg_match('~(?:ornament|texture|logo|icon|star|\.svg(?:\?|$))~i', $src)) {
@@ -150,9 +177,9 @@ final class Seo
         }
         $imageInfo = self::imageInfo($image);
         $type = $product ? 'product' : (preg_match('~^/(?:novyny|statti|tvorchist)/[^/]+$~D', $path) ? 'article' : 'website');
-        $noindex = self::privatePath($path) || ($path === '/statti'
+        $noindex = self::privatePath($path) || (! $product && ($path === '/statti'
             ? $request->anyFilled(['q', 'author', 'search', 'category'])
-            : $request->hasAny(['q', 'search', 'category']));
+            : $request->hasAny(['q', 'search', 'category'])));
         if ($path === '/kramnychka') {
             $noindex = $request->anyFilled(['q', 'search', 'category', 'price_from', 'price_to']);
         }
@@ -220,8 +247,18 @@ final class Seo
         }
         if ($product) {
             $graph[2]['mainEntity'] = ['@id' => $canonical.'#product'];
-            $graph[] = ['@type' => 'Product', '@id' => $canonical.'#product', 'url' => $canonical, 'name' => $product->name, 'description' => $description, 'image' => [$image], 'sku' => $product->sku ?: (string) $product->id,
+            $productSchema = ['@type' => 'Product', '@id' => $canonical.'#product', 'url' => $canonical, 'name' => $product->name,
+                'description' => $product->seo_description ?: ($productDescription ?: $description), 'sku' => $product->sku ?: (string) $product->id,
                 'offers' => ['@type' => 'Offer', 'url' => $canonical, 'priceCurrency' => 'UAH', 'price' => number_format($product->price_minor / 100, 2, '.', ''), 'availability' => 'https://schema.org/'.($product->made_to_order ? 'MadeToOrder' : ($product->stock > 0 ? 'InStock' : 'OutOfStock'))]];
+            if ($productImages) {
+                $productSchema['image'] = $productImages;
+            }
+            if ($productCategory) {
+                $productSchema['category'] = $productCategory->parent
+                    ? $productCategory->parent->name.' > '.$productCategory->name
+                    : $productCategory->name;
+            }
+            $graph[] = $productSchema;
         }
 
         return compact('seoTitle', 'description', 'canonical', 'image', 'imageInfo', 'type', 'noindex', 'graph', 'published', 'modified', 'sectionLabel', 'video');

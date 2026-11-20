@@ -11,14 +11,19 @@ class FillSiteSeo extends Command
 {
     protected $signature = 'site:seo';
 
-    protected $description = 'Заповнити порожні SEO-поля сторінок і товарів, зберігши редакторські значення';
+    protected $description = 'Заповнити порожні SEO-поля сторінок і власних товарів крамниці, зберігши редакторські значення';
 
     public function handle(): int
     {
         $count = 0;
         foreach ([ContentPage::class, Product::class] as $model) {
             $model::withoutTimestamps(function () use ($model, &$count) {
-                $model::chunkById(100, function ($records) use (&$count) {
+                $query = $model::query();
+                if ($model === Product::class) {
+                    // Maker listings derive their metadata from the current listing fields on every request.
+                    $query->whereNull('maker_price_minor');
+                }
+                $query->chunkById(100, function ($records) use (&$count) {
                     foreach ($records as $record) {
                         $isPage = $record instanceof ContentPage;
                         [$title, $description] = Seo::defaults($isPage ? $record->path : '/kramnychka/'.$record->slug, $isPage ? $record->title : $record->name, $isPage ? ($record->body ?? '') : ($record->description ?? ''), $isPage ? $record->excerpt : null);

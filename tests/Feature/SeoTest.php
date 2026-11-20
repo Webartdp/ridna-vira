@@ -4,7 +4,13 @@ namespace Tests\Feature;
 
 use App\Models\ContentPage;
 use App\Models\Product;
+use App\Models\ProductCategory;
+use App\Models\User;
+use App\Services\ProductImages;
+use App\Support\Money;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class SeoTest extends TestCase
@@ -86,6 +92,53 @@ class SeoTest extends TestCase
         $xml = simplexml_load_string($response->getContent());
         $this->assertNotFalse($xml);
         $this->assertGreaterThan(100, count($xml->url));
+    }
+
+    public function test_approved_maker_listings_generate_seo_from_current_listing_data(): void
+    {
+        Storage::fake('public');
+        $maker = User::factory()->create(['role' => 'maker']);
+        $category = ProductCategory::where('slug', 'oberehy-dlia-domu-motanky')->firstOrFail();
+        $this->actingAs($maker)->post(route('maker.products.store'), [
+            'name' => 'Лляна мотанка', 'description' => 'Льон і вовна.', 'price' => '1000',
+            'product_category_id' => $category->id,
+            'images' => [UploadedFile::fake()->image('front.jpg', 320, 480), UploadedFile::fake()->image('back.jpg', 320, 480)],
+        ])->assertRedirect(route('maker.index'));
+
+        $product = Product::firstOrFail();
+        $path = '/kramnychka/'.$product->slug;
+        $url = 'https://ridnavira.com.ua'.$path;
+        $this->get($path)->assertNotFound()->assertHeader('X-Robots-Tag', 'noindex, nofollow');
+        $this->get('/sitemap.xml')->assertDontSee($path, false);
+
+        $product->update(['is_active' => true]);
+        $this->artisan('site:seo')->assertSuccessful();
+        $this->assertNull($product->fresh()->seo_title);
+        $this->assertNull($product->fresh()->seo_description);
+        $photos = array_map(fn ($path) => 'https://ridnavira.com.ua/storage/'.ProductImages::variant($path, 1200), $product->images);
+        $response = $this->get($path.'?page=3&category=unrelated&utm_medium=test')->assertOk()
+            ->assertSee('<title>Лляна мотанка — Рідна Віра</title>', false)
+            ->assertSee('name="description" content="Льон і вовна. Лляна мотанка · '.$category->name.'"', false)
+            ->assertSee('property="og:image" content="'.$photos[0].'"', false)
+            ->assertSee('<link rel="canonical" href="'.$url.'">', false);
+        preg_match('~<script type="application/ld\+json">(.*?)</script>~s', $response->getContent(), $json);
+        $graph = json_decode($json[1], true, 512, JSON_THROW_ON_ERROR)['@graph'];
+        $productSchema = collect($graph)->firstWhere('@type', 'Product');
+        $this->assertSame($photos, $productSchema['image']);
+        $this->assertSame($category->parent->name.' > '.$category->name, $productSchema['category']);
+        $this->assertSame('Льон і вовна.', $productSchema['description']);
+        $this->assertSame(Money::decimal($product->price_minor), $productSchema['offers']['price']);
+        $this->assertSame('https://schema.org/MadeToOrder', $productSchema['offers']['availability']);
+        $this->get('/sitemap.xml')->assertSee($url, false);
+
+        $product->update(['name' => 'Мотанка з льону', 'description' => '<p>Робота з льону.</p>']);
+        $this->get($path)->assertOk()->assertSee('<title>Мотанка з льону — Рідна Віра</title>', false)
+            ->assertSee('name="description" content="Робота з льону. Мотанка з льону', false);
+
+        $product->update(['seo_title' => 'Авторська назва', 'seo_description' => 'Опис, заданий адміністратором.']);
+        $this->artisan('site:seo')->assertSuccessful();
+        $this->get($path)->assertOk()->assertSee('<title>Авторська назва</title>', false)
+            ->assertSee('name="description" content="Опис, заданий адміністратором."', false);
     }
 
     public function test_backfill_is_idempotent_and_preserves_body_visibility_and_editor_seo(): void

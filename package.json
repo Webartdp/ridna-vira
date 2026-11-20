@@ -8,5 +8,8 @@
     "laravel-vite-plugin": "^2.0.1",
     "sass": "^1.89.2",
     "vite": "^7.0.4"
+  },
+  "dependencies": {
+    "swiper": "^14.4.0"
   }
 }
