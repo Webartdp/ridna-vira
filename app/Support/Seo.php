@@ -181,7 +181,7 @@ final class Seo
             ? $request->anyFilled(['q', 'author', 'search', 'category'])
             : $request->hasAny(['q', 'search', 'category'])));
         if ($path === '/kramnychka') {
-            $noindex = $request->anyFilled(['q', 'search', 'category', 'price_from', 'price_to']);
+            $noindex = $request->anyFilled(['q', 'search', 'category', 'price_from', 'price_to', 'maker']);
         }
         $published = $page?->published_at?->toIso8601String();
         if (! $published && $type === 'article') {
@@ -234,12 +234,18 @@ final class Seo
         $graph[] = ['@type' => 'ImageObject', '@id' => $canonical.'#image', 'url' => $image, 'contentUrl' => $image, ...Arr::only($imageInfo, ['width', 'height'])];
         if ($path !== '/') {
             $crumbs = [['@type' => 'ListItem', 'position' => 1, 'name' => 'Головна', 'item' => self::url('/')]];
-            $parts = explode('/', trim($path, '/'));
-            $parent = '';
-            foreach (array_slice($parts, 0, -1) as $part) {
-                $parent .= '/'.$part;
-                if ($parentMeta = config('seo.pages.'.$parent)) {
-                    $crumbs[] = ['@type' => 'ListItem', 'position' => count($crumbs) + 1, 'name' => $parentMeta[0], 'item' => self::url($parent)];
+            if ($product) {
+                foreach (array_slice($product->breadcrumbTrail(), 1, -1) as $crumb) {
+                    $crumbs[] = ['@type' => 'ListItem', 'position' => count($crumbs) + 1, 'name' => $crumb['name'], 'item' => self::url($crumb['path'])];
+                }
+            } else {
+                $parts = explode('/', trim($path, '/'));
+                $parent = '';
+                foreach (array_slice($parts, 0, -1) as $part) {
+                    $parent .= '/'.$part;
+                    if ($parentMeta = config('seo.pages.'.$parent)) {
+                        $crumbs[] = ['@type' => 'ListItem', 'position' => count($crumbs) + 1, 'name' => $parentMeta[0], 'item' => self::url($parent)];
+                    }
                 }
             }
             $crumbs[] = ['@type' => 'ListItem', 'position' => count($crumbs) + 1, 'name' => self::text($title, 220), 'item' => $canonical];

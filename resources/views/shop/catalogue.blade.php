@@ -18,8 +18,11 @@
         .shop-filters-reset{text-align:center}
         .shop-catalogue .shop-grid{gap:16px}
         .shop-catalogue .shop-card{padding:16px;overflow-wrap:anywhere}
+        .shop-catalogue .shop-card h2{font-size:1.125rem;line-height:1.35}
         .shop-catalogue .shop-card img{height:auto;aspect-ratio:1;max-height:260px}
         .shop-catalogue .shop-card .shop-btn{margin-top:auto;text-align:center;padding-inline:10px}
+        .shop .shop-maker-title{font-size:clamp(1.625rem,3vw,2.25rem);margin-bottom:6px;overflow-wrap:anywhere}
+        .shop-maker-name{margin-bottom:6px;overflow-wrap:anywhere}
         @media(max-width:900px){.shop-catalogue{grid-template-columns:minmax(0,1fr)}}
     </style>
 @endpush
@@ -33,13 +36,19 @@
 @endpush
 @section('content')
 <section class="shop">
-    <h1>Крамниця</h1>
-    <p>Книги, речі та видання, що підтримують живу традицію.</p>
-    @guest
-        <p><a href="{{ route('maker.register') }}">Пропонувати свої вироби</a></p>
-    @elseif (in_array(auth()->user()->roleName(), ['user', 'maker'], true))
-        <p><a href="{{ route('maker.index') }}">Кабінет майстра</a></p>
-    @endguest
+    @if ($maker ?? null)
+        <h1 class="shop-maker-title">Вироби майстра</h1>
+        <p class="shop-maker-name">{{ $maker->name }}</p>
+        <small><a href="{{ route('shop.index') }}">Усі товари</a></small>
+    @else
+        <h1>Крамниця</h1>
+        <p>Книги, речі та видання, що підтримують живу традицію.</p>
+        @guest
+            <p><a href="{{ route('maker.register') }}">Пропонувати свої вироби</a></p>
+        @elseif (in_array(auth()->user()->roleName(), ['user', 'maker'], true))
+            <p><a href="{{ route('maker.index') }}">Кабінет майстра</a></p>
+        @endguest
+    @endif
     @php
         $selectedCategory = request()->string('category', strict: true)->toString();
         $priceFrom = old('price_from', request('price_from'));
@@ -48,6 +57,9 @@
     @endphp
     <div class="shop-catalogue">
         <form method="get" action="{{ route('shop.index') }}" class="shop-panel shop-filters" aria-labelledby="shop-filters-title">
+            @if ($maker ?? null)
+                <input type="hidden" name="maker" value="{{ $maker->id }}">
+            @endif
             <h2 id="shop-filters-title">Фільтри</h2>
             <div>
                 <label for="shop-search">Пошук</label>
@@ -98,7 +110,7 @@
             </fieldset>
             <button class="shop-btn" type="submit">Застосувати</button>
             @if ($hasFilters)
-                <a class="shop-filters-reset" href="{{ route('shop.index') }}">Скинути фільтри</a>
+                <a class="shop-filters-reset" href="{{ route('shop.index', ($maker ?? null) ? ['maker' => $maker->id] : []) }}">Скинути фільтри</a>
             @endif
         </form>
         <div>
@@ -112,7 +124,17 @@
                         <a class="shop-btn" href="{{ route('shop.product', $product) }}">Переглянути</a>
                     </article>
                 @empty
-                    <div class="shop-panel shop-empty" style="grid-column:1/-1"><h2>{{ $hasFilters ? 'Товарів не знайдено' : 'Готуємо крамницю до відкриття' }}</h2><p>{{ $hasFilters ? 'Спробуйте змінити фільтри.' : 'Незабаром тут з’являться наші книги та інші товари.' }}</p></div>
+                    <div class="shop-panel shop-empty" style="grid-column:1/-1">
+                        @if ($hasFilters)
+                            <h2>Товарів не знайдено</h2>
+                            <p>Спробуйте змінити фільтри.</p>
+                        @elseif ($maker ?? null)
+                            <h2>Виробів поки немає</h2>
+                        @else
+                            <h2>Готуємо крамницю до відкриття</h2>
+                            <p>Незабаром тут з’являться наші книги та інші товари.</p>
+                        @endif
+                    </div>
                 @endforelse
             </div>
             {{ $products->links('partials.articles-pagination', ['paginationLabel' => 'Сторінки крамниці']) }}

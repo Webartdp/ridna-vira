@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Services\Checkout;
 use App\Services\ProductImages;
 use App\Services\WayForPay;
+use App\Support\Cms;
 use App\Support\Money;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -91,6 +92,66 @@ class ShopTest extends TestCase
                 ->assertDontSee('Срібний браслет')
                 ->assertDontSee('Дерев’яний гребінь')
                 ->assertSee('<details class="shop-category-group" open', false);
+        }
+    }
+
+    public function test_product_navigation_links_to_its_categories_and_maker(): void
+    {
+        $maker = User::factory()->create(['name' => 'Олена Різьбярка', 'role' => 'maker', 'email' => 'private-maker@example.test']);
+        $category = ProductCategory::create(['name' => 'Дерев’яні прикраси', 'slug' => 'shop-nav-jewelry']);
+        $child = $category->children()->create(['name' => 'Різьблені підвіски', 'slug' => 'shop-nav-pendants']);
+        $product = $this->product([
+            'name' => 'Дубова підвіска', 'product_category_id' => $child->id, 'maker_id' => $maker->id, 'maker_price_minor' => 10000,
+        ]);
+
+        $response = $this->get(route('shop.product', $product))->assertOk()
+            ->assertSee($maker->name)->assertDontSee($maker->email);
+        $document = new \DOMXPath(Cms::document($response->getContent()));
+        $navigation = $document->query('//main//nav[.//a[normalize-space(.) = "Різьблені підвіски"]]')->item(0);
+        $this->assertNotNull($navigation);
+        $this->assertMatchesRegularExpression('~Головна.*Крамниця.*Дерев’яні прикраси.*Різьблені підвіски.*Дубова підвіска~su', $navigation->textContent);
+        $this->assertStringEndsWith(route('shop.index', ['category' => $category->slug], false), $document->query('.//a[normalize-space(.) = "Дерев’яні прикраси"]', $navigation)->item(0)->getAttribute('href'));
+        $this->assertStringEndsWith(route('shop.index', ['category' => $child->slug], false), $document->query('.//a[normalize-space(.) = "Різьблені підвіски"]', $navigation)->item(0)->getAttribute('href'));
+        $this->assertStringEndsWith(route('shop.index', ['maker' => $maker->id], false), $document->query('//main//a[normalize-space(.) = "Олена Різьбярка"]')->item(0)->getAttribute('href'));
+
+        $schema = $document->query('//script[@type = "application/ld+json"]')->item(0);
+        $graph = json_decode($schema->textContent, true, 512, JSON_THROW_ON_ERROR)['@graph'];
+        $breadcrumbs = collect($graph)->firstWhere('@type', 'BreadcrumbList')['itemListElement'];
+        $this->assertSame(['Головна', 'Крамниця', $category->name, $child->name, $product->name], array_column($breadcrumbs, 'name'));
+    }
+
+    public function test_maker_catalogue_keeps_its_published_products_and_catalogue_filters(): void
+    {
+        $maker = User::factory()->create(['name' => 'Олена Гончарка', 'role' => 'maker', 'email' => 'private-maker@example.test']);
+        $anotherMaker = User::factory()->create(['role' => 'maker']);
+        $category = ProductCategory::create(['name' => 'Кераміка для дому', 'slug' => 'maker-filter-pottery']);
+        $child = $category->children()->create(['name' => 'Чаші', 'slug' => 'maker-filter-bowls']);
+        $details = ['maker_id' => $maker->id, 'maker_price_minor' => 15000, 'product_category_id' => $child->id];
+
+        $this->product([...$details, 'name' => 'Керамічна чаша', 'slug' => 'maker-filter-bowl']);
+        $this->product([...$details, 'name' => 'Керамічна таця', 'slug' => 'maker-filter-tray', 'maker_price_minor' => 7000]);
+        $this->product([...$details, 'name' => 'Керамічна підвіска', 'slug' => 'maker-filter-pendant', 'product_category_id' => null]);
+        $this->product([...$details, 'name' => 'Глиняна скульптура', 'slug' => 'maker-filter-sculpture']);
+        $this->product([...$details, 'name' => 'Керамічна кружка іншого майстра', 'slug' => 'maker-filter-mug', 'maker_id' => $anotherMaker->id]);
+        $this->product([...$details, 'name' => 'Прихована чаша майстра', 'slug' => 'maker-filter-unpublished', 'is_active' => false]);
+        $this->product([...$details, 'name' => 'Видалена чаша майстра', 'slug' => 'maker-filter-deleted'])->delete();
+        $this->product(['name' => 'Книга крамниці', 'slug' => 'maker-filter-book']);
+
+        $this->get(route('shop.index', ['maker' => $maker->id]))->assertOk()
+            ->assertSee($maker->name)->assertDontSee($maker->email)
+            ->assertSee('Керамічна чаша')->assertSee('Керамічна таця')
+            ->assertDontSee('Керамічна кружка іншого майстра')->assertDontSee('Книга крамниці')
+            ->assertDontSee('Прихована чаша майстра')->assertDontSee('Видалена чаша майстра')
+            ->assertSee('<meta name="robots" content="noindex, follow">', false);
+
+        $this->get(route('shop.index', ['maker' => $maker->id, 'q' => 'Керамічна', 'category' => $category->slug, 'price_from' => '150']))
+            ->assertOk()->assertSee('Керамічна чаша')->assertDontSee('Керамічна таця')
+            ->assertDontSee('Керамічна підвіска')->assertDontSee('Глиняна скульптура')->assertDontSee('Керамічна кружка іншого майстра');
+
+        $buyer = User::factory()->create(['role' => 'user']);
+        $inactiveMaker = User::factory()->create(['role' => 'maker', 'is_active' => false]);
+        foreach ([$buyer->id, $inactiveMaker->id, 'invalid', ['invalid']] as $invalidMaker) {
+            $this->get(route('shop.index', ['maker' => $invalidMaker]))->assertNotFound();
         }
     }
 

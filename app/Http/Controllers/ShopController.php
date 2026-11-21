@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\ProductCategory;
 use App\Models\SiteSetting;
+use App\Models\User;
 use App\Services\Cart;
 use App\Services\Checkout;
 use App\Services\NovaPoshta;
@@ -18,6 +19,15 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
+        $maker = null;
+        if ($request->filled('maker')) {
+            $makerId = filter_var($request->query('maker'), FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            abort_if($makerId === false, 404);
+            $maker = User::where('role', 'maker')->where('is_active', true)
+                ->whereIn('id', Product::where('is_active', true)->select('maker_id'))
+                ->findOrFail($makerId, ['id', 'name']);
+        }
+
         $priceRules = ['nullable', 'regex:/^\d{1,7}(?:[.,]\d{1,2})?$/D'];
         $prices = $request->validate([
             'price_from' => $priceRules,
@@ -30,6 +40,7 @@ class ShopController extends Controller
         $maximum = isset($prices['price_to']) ? Money::minor($prices['price_to']) : null;
 
         $catalogue = Product::where('is_active', true)
+            ->when($maker, fn ($query) => $query->where('maker_id', $maker->id))
             ->when($request->filled('category'), fn ($query) => $query->whereHas('category', fn ($category) => $category->where(fn ($match) => $match
                 ->where('slug', $request->string('category')->toString())
                 ->orWhereHas('parent', fn ($parent) => $parent->where('slug', $request->string('category')->toString())))))
@@ -42,12 +53,16 @@ class ShopController extends Controller
             ->when($maximum !== null, fn ($query) => $query->where('price_minor', '<=', $maximum))
             ->latest()->paginate(12)->withQueryString();
 
-        return view('shop.catalogue', ['products' => $products, 'categories' => ProductCategory::catalogue(), 'sliderMaximum' => $sliderMaximum]);
+        return view('shop.catalogue', ['products' => $products, 'categories' => ProductCategory::catalogue(), 'sliderMaximum' => $sliderMaximum, 'maker' => $maker]);
     }
 
     public function show(Product $product)
     {
         abort_unless($product->is_active, 404);
+        $product->load([
+            'category.parent',
+            'maker' => fn ($query) => $query->select(['id', 'name'])->where('role', 'maker')->where('is_active', true),
+        ]);
 
         return view('shop.product', compact('product'));
     }

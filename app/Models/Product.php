@@ -86,6 +86,21 @@ class Product extends Model
         return $this->belongsTo(ProductCategory::class, 'product_category_id');
     }
 
+    /** @return list<array{name: string, path: string}> */
+    public function breadcrumbTrail(): array
+    {
+        $trail = [
+            ['name' => 'Головна', 'path' => route('home', absolute: false)],
+            ['name' => 'Крамниця', 'path' => route('shop.index', absolute: false)],
+        ];
+        foreach (array_filter([$this->category?->parent, $this->category]) as $category) {
+            $trail[] = ['name' => $category->name, 'path' => route('shop.index', ['category' => $category->slug], false)];
+        }
+        $trail[] = ['name' => $this->name, 'path' => route('shop.product', $this, false)];
+
+        return $trail;
+    }
+
     public function getRouteKeyName(): string
     {
         return 'slug';
