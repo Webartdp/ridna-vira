@@ -38,7 +38,7 @@ class MakerOrderEmailTest extends TestCase
         Mail::fake();
     }
 
-    public function test_cash_on_delivery_emails_each_eligible_maker_once_with_only_their_order_items(): void
+    public function test_cash_on_delivery_emails_each_eligible_maker_with_their_items_and_shipping_details(): void
     {
         $first = User::factory()->create(['role' => 'maker']);
         $second = User::factory()->create(['role' => 'maker']);
@@ -85,9 +85,10 @@ class MakerOrderEmailTest extends TestCase
             $this->assertStringContainsString($order->displayNumber(), $html);
             $this->assertStringContainsString($mail->orderUrl, $html);
             $this->assertStringContainsString(Money::display($mail->totalMinor), $html);
+            $this->assertShippingDetails($order, $mail, $html);
             foreach ([
-                $order->customer_name, $order->email, $order->phone, $order->delivery_address, $order->comment,
-                $order->access_token, $token, $shopProduct->name, $inactiveProduct->name,
+                $order->email, $order->comment, $order->access_token, $token,
+                $shopProduct->name, $inactiveProduct->name,
                 $unverifiedProduct->name, Money::display($order->total_minor),
             ] as $privateValue) {
                 $this->assertStringNotContainsString($privateValue, $html);
@@ -127,7 +128,11 @@ class MakerOrderEmailTest extends TestCase
         $this->assertTrue($mail->hasTo($maker->email));
         $this->assertSame('Оплачено', $mail->paymentStatus);
         $this->assertSame(25000, $mail->totalMinor);
-        $this->assertStringNotContainsString($payment['cardPan'], $mail->render());
+        $html = $mail->render();
+        $this->assertShippingDetails($order, $mail, $html);
+        foreach ([$order->email, $order->comment, $payment['cardPan'], $payment['merchantSignature']] as $privateValue) {
+            $this->assertStringNotContainsString($privateValue, $html);
+        }
         Mail::assertSent(OrderPaid::class, fn ($confirmation) => $confirmation->hasTo($order->email));
     }
 
@@ -145,6 +150,24 @@ class MakerOrderEmailTest extends TestCase
         Mail::assertNothingSent();
     }
 
+    private function assertShippingDetails(Order $order, MakerOrderReceived $mail, string $html): void
+    {
+        $expected = [
+            'Отримувач' => $order->customer_name,
+            'Телефон' => $order->phone,
+            'Доставка' => 'Нова пошта',
+            'Відділення або адреса' => $order->delivery_address,
+        ];
+        $this->assertEquals($expected, $mail->deliveryDetails);
+        $this->assertStringContainsString('Дані для відправлення', $html);
+        foreach ($expected as $label => $value) {
+            $this->assertStringContainsString($label, $html);
+            $this->assertStringContainsString(e($value), $html);
+        }
+        $this->assertStringNotContainsString($order->customer_name, $html);
+        $this->assertStringNotContainsString($order->delivery_address, $html);
+    }
+
     private function product(string $name, ?User $maker, int $price, bool $madeToOrder = false): Product
     {
         return Product::create([
@@ -157,11 +180,11 @@ class MakerOrderEmailTest extends TestCase
     private function checkout(string $method, array $cart, ?string $token = null): Order
     {
         return app(Checkout::class)->create([
-            'customer_name' => 'Покупець Тестовий',
+            'customer_name' => 'Покупець <Тестовий>',
             'email' => 'customer@example.test',
             'phone' => '+380671234567',
             'delivery_method' => 'nova_poshta',
-            'delivery_address' => 'Дніпро, відділення 123',
+            'delivery_address' => 'Дніпро — Поштомат №123 & вхід 2',
             'comment' => 'Домофон недоступний',
             'payment_method' => $method,
         ], $cart, $token ?? (string) Str::uuid());

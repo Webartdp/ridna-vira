@@ -55,6 +55,7 @@ final class TelegramAlerts
 
         try {
             $links = MakerTelegramLink::whereIn('user_id', $itemsByMaker->keys())->whereNotNull('chat_id')->get();
+            $deliveryDetails = $order->deliveryDetails();
             foreach ($links as $link) {
                 $positions = $itemsByMaker[$link->user_id];
                 $lines = $positions->map(function (OrderItem $item): string {
@@ -70,6 +71,7 @@ final class TelegramAlerts
                         'Оплата' => $order->paymentStatusLabel(),
                         'Ваші вироби' => $lines->implode("\n"),
                         'Сума майстра' => Money::display($positions->sum(fn (OrderItem $item) => $item->makerAccruedMinor())),
+                        ...$deliveryDetails,
                     ],
                     route('maker.order', ['order' => $order->reference], false),
                     $link->id,

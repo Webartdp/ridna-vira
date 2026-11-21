@@ -40,6 +40,17 @@
             </table>
 
             <p style="margin:18px 0 24px;"><strong>Сума майстра</strong> · {{ \App\Support\Money::display($totalMinor) }}</p>
+            @if ($deliveryDetails !== [])
+                <div style="margin:0 0 24px; padding:16px; background:#f6f2ea; border:1px solid #e3d8c6; border-radius:6px;">
+                    <h2 style="margin:0 0 10px; font-size:18px; line-height:1.3;">Дані для відправлення</h2>
+                    <dl style="margin:0; font-size:14px;">
+                        @foreach ($deliveryDetails as $label => $value)
+                            <dt style="margin:8px 0 0; font-weight:bold;">{{ $label }}</dt>
+                            <dd style="margin:0; overflow-wrap:break-word;">{{ $value }}</dd>
+                        @endforeach
+                    </dl>
+                </div>
+            @endif
             <p style="margin:0;">
                 <a href="{{ $orderUrl }}" style="display:inline-block; padding:12px 16px; border-radius:6px; background:#342618; color:#ffffff; font-weight:bold; text-decoration:none;">Відкрити замовлення в кабінеті</a>
             </p>

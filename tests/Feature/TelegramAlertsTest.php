@@ -60,7 +60,7 @@ class TelegramAlertsTest extends TestCase
             'email' => 'customer@example.test',
             'phone' => '+380671234567',
             'delivery_method' => 'nova_poshta',
-            'delivery_address' => 'Дніпро, відділення 1',
+            'delivery_address' => 'Дніпро — Поштомат №1 & вхід 2',
             'comment' => 'Зателефонуйте після 16:00 & перед відправкою',
             'checkout_token' => $token,
             'consent' => '1',
@@ -104,13 +104,18 @@ class TelegramAlertsTest extends TestCase
             $this->assertStringNotContainsString($order->reference, $message['text']);
             $this->assertStringContainsString('251,00', $message['text']);
             $this->assertStringContainsString('<a href="https://ridna.example.test/admin/orders?search='.$order->displayNumber().'"', $message['text']);
+            foreach (['Ім’я &lt;покупця&gt;', $customer['phone'], 'Нова пошта', e($customer['delivery_address'])] as $detail) {
+                $this->assertStringContainsString($detail, $message['text']);
+            }
+            $this->assertStringNotContainsString($customer['customer_name'], $message['text']);
+            $this->assertStringNotContainsString($customer['delivery_address'], $message['text']);
             foreach ([$order->access_token, $token, $payment['cardPan'], $payment['merchantSignature']] as $secret) {
                 $this->assertStringNotContainsString($secret, $message['text']);
             }
         }
 
         $newOrder = $messages->first()['text'];
-        foreach (['Ім’я &lt;покупця&gt;', $customer['email'], $customer['phone'], $customer['delivery_address'], '16:00 &amp; перед відправкою', $product->name] as $detail) {
+        foreach ([$customer['email'], '16:00 &amp; перед відправкою', $product->name] as $detail) {
             $this->assertStringContainsString($detail, $newOrder);
         }
     }

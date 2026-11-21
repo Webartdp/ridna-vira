@@ -85,18 +85,28 @@ final class MakerTelegram
 
     private function poll(string $offsetKey): void
     {
-        $response = TelegramBot::request($this->token(), 'getUpdates', [
-            'offset' => (int) Cache::get($offsetKey, 0),
+        $offset = (int) Cache::get($offsetKey, 0);
+        $parameters = [
+            'offset' => $offset,
             'allowed_updates' => ['message'],
             'limit' => 10,
-        ]);
+        ];
+        $response = TelegramBot::request($this->token(), 'getUpdates', $parameters);
         if ($response?->json('ok') !== true) {
             return;
         }
 
+        $nextOffset = $offset;
         foreach ($response->json('result', []) as $update) {
             $this->answer($update);
-            Cache::put($offsetKey, (int) $update['update_id'] + 1, now()->addDays(2));
+            $nextOffset = max($nextOffset, (int) $update['update_id'] + 1);
+            Cache::put($offsetKey, $nextOffset, now()->addDays(2));
+        }
+        if ($nextOffset > $offset) {
+            // Acknowledge handled updates even when the cache is lost before the next run.
+            TelegramBot::request($this->token(), 'getUpdates', [
+                ...$parameters, 'offset' => $nextOffset, 'limit' => 1,
+            ]);
         }
     }
 

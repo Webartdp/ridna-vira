@@ -34,6 +34,7 @@ final class MakerOrderNotifications
         $makers = User::whereKey($itemsByMaker->keys()->all())->where('role', 'maker')
             ->where('is_active', true)->whereNotNull('email_verified_at')->get(['id', 'email']);
         $orderUrl = rtrim((string) config('app.url'), '/').route('maker.order', ['order' => $order->reference], false);
+        $deliveryDetails = $order->deliveryDetails();
 
         foreach ($makers as $maker) {
             $items = $itemsByMaker[$maker->id]->map(fn (OrderItem $item) => [
@@ -50,6 +51,7 @@ final class MakerOrderNotifications
                     $orderUrl,
                     $items->all(),
                     $items->sum('total_minor'),
+                    $deliveryDetails,
                 ));
             } catch (Throwable $exception) {
                 Log::warning('Maker order email could not be delivered.', [

@@ -74,13 +74,18 @@ class MakerTelegramTest extends TestCase
             'chat_id' => null,
         ]);
 
-        $this->fakeTelegram([self::MAKER_API.'getUpdates' => Http::sequence()
+        $updates = Http::sequence()
             ->push(['ok' => true, 'result' => [$this->startUpdate(100, $token, '111111', 'group')]])
             ->push(['ok' => true, 'result' => [$this->startUpdate(101, $token, '111111')]])
             ->push(['ok' => true, 'result' => [
                 $this->startUpdate(102, $token, '222222'),
                 $this->startUpdate(103, $otherToken, '111111'),
-            ]])]);
+            ]]);
+        $this->fakeTelegram([
+            self::MAKER_API.'getUpdates' => fn (Request $request) => $request['limit'] === 1
+                ? Http::response(['ok' => true, 'result' => []])
+                : $updates($request),
+        ]);
 
         $this->artisan('telegram:makers')->assertSuccessful();
         $this->assertDatabaseHas('maker_telegram_links', ['user_id' => $maker->id, 'chat_id' => null]);
@@ -96,7 +101,10 @@ class MakerTelegramTest extends TestCase
         $this->assertDatabaseHas('maker_telegram_links', ['user_id' => $maker->id, 'chat_id' => '111111']);
         $this->assertDatabaseMissing('maker_telegram_links', ['chat_id' => '222222']);
         $this->assertDatabaseMissing('maker_telegram_links', ['user_id' => $other->id, 'chat_id' => '111111']);
-        Http::assertSent(fn (Request $request) => $request->url() === self::MAKER_API.'getUpdates' && $request['offset'] === 102);
+        Http::assertSent(fn (Request $request) => $request->url() === self::MAKER_API.'getUpdates'
+            && $request['offset'] === 102 && $request['limit'] === 10);
+        Http::assertSent(fn (Request $request) => $request->url() === self::MAKER_API.'getUpdates'
+            && $request['offset'] === 104 && $request['limit'] === 1);
     }
 
     public function test_expired_pairing_cannot_link_a_chat(): void
@@ -106,7 +114,10 @@ class MakerTelegramTest extends TestCase
         $this->travel(16)->minutes();
 
         $this->fakeTelegram([
-            self::MAKER_API.'getUpdates' => Http::response(['ok' => true, 'result' => [$this->startUpdate(100, $token, '111111')]]),
+            self::MAKER_API.'getUpdates' => fn (Request $request) => Http::response([
+                'ok' => true,
+                'result' => $request['limit'] === 1 ? [] : [$this->startUpdate(100, $token, '111111')],
+            ]),
         ]);
         $this->artisan('telegram:makers')->assertSuccessful();
         $this->assertDatabaseMissing('maker_telegram_links', ['chat_id' => '111111']);
@@ -123,21 +134,24 @@ class MakerTelegramTest extends TestCase
         Http::assertSentCount(2);
     }
 
-    public function test_a_cash_on_delivery_order_alerts_each_linked_maker_once_with_only_their_items(): void
+    public function test_a_cash_on_delivery_order_alerts_each_eligible_linked_maker_with_their_items_and_shipping_details(): void
     {
         $this->fakeTelegram();
 
         $maker = User::factory()->create(['role' => 'maker']);
         $other = User::factory()->create(['role' => 'maker']);
         $unlinked = User::factory()->create(['role' => 'maker']);
+        $inactive = User::factory()->create(['role' => 'maker', 'is_active' => false]);
         $this->linkMaker($maker, '111111');
         $this->linkMaker($other, '222222');
+        $this->linkMaker($inactive, '333333');
         $first = $this->product('Миска <глиняна>', $maker, 12500);
         $second = $this->product('Чашка', $maker, 25000);
         $third = $this->product('Ткана крайка', $other, 45000);
         $fourth = $this->product('Ручна лялька', $unlinked, 30000);
+        $inactiveItem = $this->product('Виріб неактивного майстра', $inactive, 33000);
         $shopItem = $this->product('Книга крамниці', null, 96000);
-        $cart = [$first->id => 2, $second->id => 1, $third->id => 3, $fourth->id => 1, $shopItem->id => 1];
+        $cart = [$first->id => 2, $second->id => 1, $third->id => 3, $fourth->id => 1, $inactiveItem->id => 1, $shopItem->id => 1];
         $token = (string) Str::uuid();
         $order = $this->createOrder('cod', $cart, $token);
         $this->assertSame($order->id, $this->createOrder('cod', $cart, $token)->id);
@@ -155,9 +169,10 @@ class MakerTelegramTest extends TestCase
             $this->assertTrue($message['protect_content']);
             $this->assertStringContainsString($order->displayNumber(), $message['text']);
             $this->assertStringContainsString($link, $message['text']);
+            $this->assertShippingDetails($order, $message['text']);
             foreach ([
-                $order->customer_name, $order->email, $order->phone, $order->delivery_address, $order->comment,
-                $order->access_token, $token, $fourth->name, $shopItem->name, Money::display($order->total_minor),
+                $order->email, $order->comment, $order->access_token, $token,
+                $fourth->name, $inactiveItem->name, $shopItem->name, Money::display($order->total_minor),
             ] as $privateValue) {
                 $this->assertStringNotContainsString($privateValue, $message['text']);
             }
@@ -211,7 +226,10 @@ class MakerTelegramTest extends TestCase
         $alert = $this->makerMessages()->sole();
         $this->assertSame('111111', (string) $alert['chat_id']);
         $this->assertStringContainsString($order->displayNumber(), $alert['text']);
-        $this->assertStringNotContainsString($payment['cardPan'], $alert['text']);
+        $this->assertShippingDetails($order, $alert['text']);
+        foreach ([$order->email, $order->comment, $payment['cardPan'], $payment['merchantSignature']] as $privateValue) {
+            $this->assertStringNotContainsString($privateValue, $alert['text']);
+        }
         $this->assertCount(2, $this->messages(self::ADMIN_API));
     }
 
@@ -314,14 +332,28 @@ class MakerTelegramTest extends TestCase
     private function createOrder(string $paymentMethod, array $cart, ?string $token = null): Order
     {
         return app(Checkout::class)->create([
-            'customer_name' => 'Покупець Тестовий',
+            'customer_name' => 'Покупець <Тестовий>',
             'email' => 'customer@example.test',
             'phone' => '+380671234567',
             'delivery_method' => 'nova_poshta',
-            'delivery_address' => 'Дніпро, відділення 123',
+            'delivery_address' => 'Дніпро — Поштомат №123 & вхід 2',
             'comment' => 'Домофон недоступний',
             'payment_method' => $paymentMethod,
         ], $cart, $token ?? (string) Str::uuid());
+    }
+
+    private function assertShippingDetails(Order $order, string $text): void
+    {
+        foreach ([
+            'Отримувач' => $order->customer_name,
+            'Телефон' => $order->phone,
+            'Доставка' => 'Нова пошта',
+            'Відділення або адреса' => $order->delivery_address,
+        ] as $label => $value) {
+            $this->assertStringContainsString('<b>'.$label.': </b>'.e($value), $text);
+        }
+        $this->assertStringNotContainsString($order->customer_name, $text);
+        $this->assertStringNotContainsString($order->delivery_address, $text);
     }
 
     private function makerMessages(): Collection

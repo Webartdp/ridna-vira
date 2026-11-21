@@ -176,25 +176,19 @@ class Checkout
 
     private function enqueueOrderAlert(Order $order, string $event, string $heading, array $items = []): void
     {
-        $details = ['Номер замовлення' => $order->displayNumber()];
+        $details = [
+            'Номер замовлення' => $order->displayNumber(),
+            'Оформлено' => $items !== [] ? $order->created_at->timezone('Europe/Kyiv')->format('d.m.Y H:i') : null,
+            ...$order->deliveryDetails(),
+        ];
         if ($items !== []) {
-            $delivery = match ($order->delivery_method) {
-                'nova_poshta' => 'Нова пошта',
-                'pickup' => 'Самовивіз',
-                default => $order->delivery_method,
-            };
             $positions = array_map(function (array $item): string {
                 $name = $item['name'].($item['made_to_order'] ? ' (під замовлення)' : '');
 
                 return '• '.$name.' — '.$item['quantity'].' × '.Money::display($item['price_minor']);
             }, $items);
             $details += [
-                'Оформлено' => $order->created_at->timezone('Europe/Kyiv')->format('d.m.Y H:i'),
-                'Покупець' => $order->customer_name,
                 'Електронна пошта' => $order->email,
-                'Телефон' => $order->phone,
-                'Доставка' => $delivery,
-                'Відділення або адреса' => $order->delivery_address,
                 'Коментар' => $order->comment,
                 'Позиції' => implode("\n", $positions),
             ];

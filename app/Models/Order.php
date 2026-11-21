@@ -64,6 +64,21 @@ class Order extends Model
             && $this->hasUnpaidReservation() && in_array($this->fulfilment_status, ['new', 'processing'], true);
     }
 
+    /** @return array<string, string> */
+    public function deliveryDetails(): array
+    {
+        return array_filter([
+            'Отримувач' => (string) $this->customer_name,
+            'Телефон' => (string) $this->phone,
+            'Доставка' => match ($this->delivery_method) {
+                'nova_poshta' => 'Нова пошта',
+                'pickup' => 'Самовивіз',
+                default => (string) $this->delivery_method,
+            },
+            'Відділення або адреса' => (string) $this->delivery_address,
+        ], filled(...));
+    }
+
     public function paymentStatusLabel(): string
     {
         return $this->isCashOnDelivery() && $this->payment_status === 'pending'
