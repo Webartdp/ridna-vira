@@ -46,7 +46,7 @@ class MakerTest extends TestCase
         $other = User::factory()->create(['role' => 'maker']);
         $payload = ['name' => 'Глиняна миска', 'description' => 'Миска ручної роботи', 'price' => '100,05'];
         $this->actingAs($maker)->post(route('maker.products.store'), [
-            ...$payload, 'images' => [UploadedFile::fake()->image('bowl.jpg'), UploadedFile::fake()->image('back.png')],
+            ...$payload, 'images' => [UploadedFile::fake()->image('bowl.jpg'), UploadedFile::fake()->image('back.webp')],
             'maker_id' => $other->id, 'price_minor' => 1, 'is_active' => true,
         ])->assertRedirect(route('maker.index'));
 
@@ -138,6 +138,34 @@ class MakerTest extends TestCase
             ->assertOk()
             ->assertSee('data-reopen="yes"', false)
             ->assertSee('value="Нова миска"', false);
+        $this->assertDatabaseCount('products', 0);
+    }
+
+    public function test_photo_validation_reports_one_clear_error_per_file(): void
+    {
+        $this->withoutVite();
+        $maker = User::factory()->create(['role' => 'maker']);
+        $invalidUpload = new UploadedFile(__FILE__, 'oversize.jpg', 'image/jpeg', UPLOAD_ERR_INI_SIZE, true);
+
+        $this->actingAs($maker)->from(route('maker.index'))->post(route('maker.products.store'), [
+            'name' => 'Нова миска',
+            'description' => 'Глиняна миска ручної роботи',
+            'price' => '100',
+            'images' => [
+                UploadedFile::fake()->image('large.jpg', 4032, 16)->size(2500),
+                UploadedFile::fake()->image('tall.jpg', 16, 4032),
+                UploadedFile::fake()->create('label.pdf', 1, 'application/pdf'),
+                $invalidUpload,
+            ],
+        ])->assertRedirect(route('maker.index'))
+            ->assertSessionHasErrors([
+                'images.0' => 'Фото №1 важить понад 2 МБ. Виберіть менший файл.',
+                'images.1' => 'Фото №2 має бути не більше 4000 × 4000 пікселів.',
+                'images.2' => 'Фото №3 має бути у форматі JPG, PNG або WebP.',
+                'images.3' => 'Фото №4 не вдалося завантажити. Виберіть менший файл і спробуйте ще раз.',
+            ]);
+
+        $this->assertCount(4, session('errors')->all());
         $this->assertDatabaseCount('products', 0);
     }
 

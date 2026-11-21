@@ -30,4 +30,6 @@
 .maker-photos{margin-top:18px}
 .maker-photos label{display:flex;gap:10px;align-items:center}
 .maker-photos img{flex:none}
+.maker-photo-feedback,.maker-dialog .shop-error,.account-content > .shop-error{font-family:var(--rv-font-body)}
+.maker-photo-feedback{margin:6px 0 0;font-size:.95rem}
 </style>

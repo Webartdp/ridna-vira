@@ -12,7 +12,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules\File;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -102,7 +101,18 @@ class MakerController extends Controller
             'remove_images' => 'nullable|array|max:8',
             'remove_images.*' => 'string|max:255',
             'images' => $product ? 'nullable|array|max:8' : 'required|array|min:1|max:8',
-            'images.*' => ['required', File::types(['jpg', 'jpeg', 'png', 'webp'])->max('2mb'), 'dimensions:max_width=4000,max_height=4000'],
+            'images.*' => 'bail|required|file|max:2048|mimes:jpg,jpeg,png,webp|dimensions:max_width=4000,max_height=4000',
+        ], [
+            'images.required' => 'Додайте щонайменше одне фото виробу.',
+            'images.array' => 'Виберіть фотографії виробу ще раз.',
+            'images.min' => 'Додайте щонайменше одне фото виробу.',
+            'images.max' => 'Можна завантажити до 8 фотографій.',
+            'images.*.required' => 'Виберіть фото №:position ще раз.',
+            'images.*.uploaded' => 'Фото №:position не вдалося завантажити. Виберіть менший файл і спробуйте ще раз.',
+            'images.*.file' => 'Фото №:position має бути файлом зображення.',
+            'images.*.max' => 'Фото №:position важить понад 2 МБ. Виберіть менший файл.',
+            'images.*.mimes' => 'Фото №:position має бути у форматі JPG, PNG або WebP.',
+            'images.*.dimensions' => 'Фото №:position має бути не більше 4000 × 4000 пікселів.',
         ]);
         $price = Money::minor($data['price']);
         if ($price < 1 || Product::makerRetailPrice($price) > 999999999) {

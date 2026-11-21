@@ -22,9 +22,7 @@
             @endforeach
         </fieldset>
     @endif
-    <label for="maker-images">Фотографії</label>
-    <input id="maker-images" type="file" name="images[]" accept="image/jpeg,image/png,image/webp" multiple @required(!$product) aria-describedby="maker-images-hint">
-    <small id="maker-images-hint">До 8 фотографій у форматі JPG, PNG або WebP. До 2 МБ на фото й до 6 МБ загалом.</small>
+    @include('maker.photo-upload')
     <label for="maker-price">Ваша ціна, грн</label>
     <input id="maker-price" name="price" inputmode="decimal" pattern="[0-9]{1,7}([.,][0-9]{1,2})?" required maxlength="10" value="{{ old('price', $product ? \App\Support\Money::decimal($product->maker_price_minor) : '') }}" aria-describedby="maker-retail">
     <small id="maker-retail">Ціна в крамниці включає націнку {{ \App\Models\Product::MAKER_MARKUP_PERCENT }}%.</small>
