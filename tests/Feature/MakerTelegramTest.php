@@ -112,6 +112,17 @@ class MakerTelegramTest extends TestCase
         $this->assertDatabaseMissing('maker_telegram_links', ['chat_id' => '111111']);
     }
 
+    public function test_scheduler_polls_both_telegram_bots_in_the_current_process(): void
+    {
+        $this->fakeTelegram();
+
+        $this->artisan('schedule:run')->assertSuccessful();
+
+        Http::assertSent(fn (Request $request) => $request->url() === self::MAKER_API.'getUpdates');
+        Http::assertSent(fn (Request $request) => $request->url() === self::ADMIN_API.'getUpdates');
+        Http::assertSentCount(2);
+    }
+
     public function test_a_cash_on_delivery_order_alerts_each_linked_maker_once_with_only_their_items(): void
     {
         $this->fakeTelegram();
