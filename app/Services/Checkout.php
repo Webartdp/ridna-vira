@@ -49,13 +49,14 @@ class Checkout
                 }
             }
             $order = Order::create([
+                'payment_status' => 'pending',
                 ...$customer, 'user_id' => $userId, 'reference' => (string) Str::uuid(), 'access_token' => Str::random(64),
                 'checkout_token' => $token, 'total_minor' => $total, 'reserved_until' => now()->addMinutes(config('shop.reservation_minutes')),
             ]);
             $order->items()->createMany($items);
             $this->enqueueOrderAlert($order, 'created', '🛒 Нове замовлення', $items);
             if ($order->isCashOnDelivery()) {
-                app(TelegramAlerts::class)->enqueueMakerOrder($order);
+                app(MakerOrderNotifications::class)->enqueue($order);
             }
 
             return $order;
@@ -156,7 +157,7 @@ class Checkout
             }
             if (! $wasPaid && $order->payment_status === 'paid') {
                 $this->enqueueOrderAlert($order, 'paid', '✅ Онлайн-оплату підтверджено');
-                app(TelegramAlerts::class)->enqueueMakerOrder($order);
+                app(MakerOrderNotifications::class)->enqueue($order);
                 DB::afterCommit(function () use ($order) {
                     $recipients = array_unique(array_filter([$order->email, SiteSetting::read('order_email')]));
                     foreach ($recipients as $recipient) {

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Support\Money;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Client\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
@@ -46,17 +47,16 @@ final class TelegramAlerts
         }
     }
 
-    public function enqueueMakerOrder(Order $order): void
+    public function enqueueMakerOrder(Order $order, Collection $itemsByMaker): void
     {
         if (! app(MakerTelegram::class)->configured()) {
             return;
         }
 
         try {
-            $items = $order->items()->whereNotNull('maker_id')->whereNotNull('maker_price_minor')->get()->groupBy('maker_id');
-            $links = MakerTelegramLink::whereIn('user_id', $items->keys())->whereNotNull('chat_id')->get();
+            $links = MakerTelegramLink::whereIn('user_id', $itemsByMaker->keys())->whereNotNull('chat_id')->get();
             foreach ($links as $link) {
-                $positions = $items[$link->user_id];
+                $positions = $itemsByMaker[$link->user_id];
                 $lines = $positions->map(function (OrderItem $item): string {
                     $name = $item->name.($item->made_to_order ? ' (під замовлення)' : '');
 
