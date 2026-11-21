@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountAvatarController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\MakerController;
+use App\Http\Controllers\MakerOrdersController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('guest')->group(function () {
@@ -22,6 +23,12 @@ Route::middleware('guest')->group(function () {
 Route::middleware(['auth', 'auth.session'])->group(function () {
     Route::get('/kabinet/maisternia', [MakerController::class, 'index'])->name('maker.index');
     Route::get('/kabinet/maisternia/vyplaty', [MakerController::class, 'payouts'])->name('maker.payouts');
+    Route::middleware('verified')->prefix('/kabinet/maisternia')->name('maker.')->group(function () {
+        Route::get('/zamovlennia', [MakerOrdersController::class, 'index'])->name('orders');
+        Route::get('/zamovlennia/{order}', [MakerOrdersController::class, 'show'])->whereUuid('order')->name('order');
+        Route::post('/telegram', [MakerOrdersController::class, 'connectTelegram'])->middleware('throttle:6,1')->name('telegram.connect');
+        Route::delete('/telegram', [MakerOrdersController::class, 'disconnectTelegram'])->middleware('throttle:6,1')->name('telegram.disconnect');
+    });
     Route::post('/kabinet/maisternia', [MakerController::class, 'activate'])->middleware(['verified', 'throttle:4,1'])->name('maker.activate');
     Route::post('/kabinet/maisternia/vyroby', [MakerController::class, 'store'])->middleware(['verified', 'throttle:10,1'])->name('maker.products.store');
     Route::middleware(['verified', 'throttle:20,1'])->prefix('/kabinet/maisternia/vyroby/{product}')->name('maker.products.')->group(function () {

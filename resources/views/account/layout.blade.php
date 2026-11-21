@@ -71,6 +71,7 @@
             $viewingProfile = request()->routeIs('account.profile');
             $viewingProducts = request()->routeIs('maker.index', 'maker.products.*');
             $viewingPayouts = request()->routeIs('maker.payouts');
+            $viewingMakerOrders = request()->routeIs('maker.orders', 'maker.order');
         @endphp
         <nav class="account-nav" aria-label="Меню особистого кабінету">
             <a class="shop-btn {{ $viewingOrders ? '' : 'shop-secondary' }}" href="{{ route('account.index') }}" @if ($viewingOrders) aria-current="{{ request()->routeIs('account.index') ? 'page' : 'location' }}" @endif>Мої замовлення</a>
@@ -79,6 +80,7 @@
                 <a class="shop-btn {{ $viewingProducts ? '' : 'shop-secondary' }}" href="{{ route('maker.index') }}" @if ($viewingProducts) aria-current="{{ request()->routeIs('maker.index') ? 'page' : 'location' }}" @endif>{{ $role === 'maker' ? 'Мої вироби' : 'Кабінет майстра' }}</a>
             @endif
             @if ($role === 'maker')
+                <a class="shop-btn {{ $viewingMakerOrders ? '' : 'shop-secondary' }}" href="{{ route('maker.orders') }}" @if ($viewingMakerOrders) aria-current="{{ request()->routeIs('maker.orders') ? 'page' : 'location' }}" @endif>Замовлення на мої вироби</a>
                 <a class="shop-btn {{ $viewingPayouts ? '' : 'shop-secondary' }}" href="{{ route('maker.payouts') }}" @if ($viewingPayouts) aria-current="page" @endif>Мої виплати</a>
             @endif
             @if ($user->canManage('admin') || $user->canManage('content') || $user->canManage('shop'))

@@ -2,16 +2,17 @@
 
 namespace App\Services;
 
+use App\Models\MakerTelegramLink;
+use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\User;
 use App\Support\Money;
 use Illuminate\Contracts\Encryption\DecryptException;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -25,7 +26,7 @@ final class TelegramAlerts
 
     private function hasBotToken(): bool
     {
-        return preg_match('/^[0-9]+:[a-zA-Z0-9_-]+$/D', (string) config('services.telegram.bot_token')) === 1;
+        return TelegramBot::validToken((string) config('services.telegram.bot_token'));
     }
 
     public function configured(): bool
@@ -40,16 +41,55 @@ final class TelegramAlerts
      */
     public function enqueue(string $eventKey, string $heading, array $lines = [], ?string $adminPath = null): void
     {
-        if (! $this->configured()) {
+        if ($this->configured()) {
+            $this->queue($eventKey, $heading, $lines, $adminPath);
+        }
+    }
+
+    public function enqueueMakerOrder(Order $order): void
+    {
+        if (! app(MakerTelegram::class)->configured()) {
             return;
         }
 
         try {
+            $items = $order->items()->whereNotNull('maker_id')->whereNotNull('maker_price_minor')->get()->groupBy('maker_id');
+            $links = MakerTelegramLink::whereIn('user_id', $items->keys())->whereNotNull('chat_id')->get();
+            foreach ($links as $link) {
+                $positions = $items[$link->user_id];
+                $lines = $positions->map(function (OrderItem $item): string {
+                    $name = $item->name.($item->made_to_order ? ' (під замовлення)' : '');
+
+                    return '• '.$name.' — '.$item->quantity.' шт.';
+                });
+                $this->queue(
+                    'maker-order:'.$order->reference.':'.$link->user_id,
+                    '🧺 Нове замовлення на ваші вироби',
+                    [
+                        'Замовлення' => $order->displayNumber(),
+                        'Оплата' => $order->paymentStatusLabel(),
+                        'Ваші вироби' => $lines->implode("\n"),
+                        'Сума майстра' => Money::display($positions->sum(fn (OrderItem $item) => $item->makerAccruedMinor())),
+                    ],
+                    route('maker.order', ['order' => $order->reference], false),
+                    $link->id,
+                );
+            }
+        } catch (Throwable) {
+            Log::warning('Unable to queue a maker Telegram notification.', ['order_id' => $order->id]);
+        }
+    }
+
+    private function queue(string $eventKey, string $heading, array $lines, ?string $path, ?int $makerLinkId = null): void
+    {
+        try {
             $now = now();
             $rows = [];
-            foreach ($this->format($heading, $lines, $adminPath) as $index => $message) {
+            $linkLabel = $makerLinkId === null ? 'Відкрити в адмінці →' : 'Відкрити в кабінеті майстра →';
+            foreach ($this->format($heading, $lines, $path, $linkLabel) as $index => $message) {
                 $rows[] = [
                     'event_key' => $index === 0 ? $eventKey : $eventKey.':part:'.($index + 1),
+                    'maker_telegram_link_id' => $makerLinkId,
                     'message' => Crypt::encryptString($message),
                     'available_at' => $now,
                     'created_at' => $now,
@@ -57,9 +97,9 @@ final class TelegramAlerts
             }
             if (DB::table('telegram_alerts')->insertOrIgnore($rows) > 0) {
                 $eventKeys = array_column($rows, 'event_key');
-                DB::afterCommit(fn () => defer(function () use ($eventKeys): void {
+                DB::afterCommit(fn () => defer(function () use ($eventKeys, $makerLinkId): void {
                     try {
-                        $this->deliver($eventKeys);
+                        $this->deliver($eventKeys, makers: $makerLinkId !== null);
                     } catch (Throwable) {
                         Log::warning('Immediate Telegram delivery failed.');
                     }
@@ -123,7 +163,7 @@ final class TelegramAlerts
 
         $chats = [];
         foreach ($response->json('result', []) as $update) {
-            $id = $this->privateChatId($update);
+            $id = TelegramBot::privateChatId($update);
             if ($id !== null) {
                 $chats[$id] = $id;
             }
@@ -146,8 +186,13 @@ final class TelegramAlerts
         });
     }
 
+    public function processMakers(): int
+    {
+        return app(MakerTelegram::class)->configured() ? $this->deliver(makers: true) : 0;
+    }
+
     /** @return list<string> */
-    private function format(string $heading, array $lines, ?string $adminPath): array
+    private function format(string $heading, array $lines, ?string $path, string $linkLabel): array
     {
         $parts = [];
         $body = [];
@@ -172,7 +217,7 @@ final class TelegramAlerts
         }
         $parts[] = implode("\n", $body);
 
-        $link = $adminPath === null ? '' : "\n\n".'<a href="'.e(rtrim((string) config('app.url'), '/').$adminPath).'">Відкрити в адмінці →</a>';
+        $link = $path === null ? '' : "\n\n".'<a href="'.e(rtrim((string) config('app.url'), '/').$path).'">'.e($linkLabel).'</a>';
         $total = count($parts);
         foreach ($parts as $index => &$part) {
             $page = $total > 1 ? ' · '.($index + 1).'/'.$total : '';
@@ -183,9 +228,14 @@ final class TelegramAlerts
     }
 
     /** @param  list<string>|null  $eventKeys */
-    private function deliver(?array $eventKeys = null): int
+    private function deliver(?array $eventKeys = null, bool $makers = false): int
     {
         $pending = DB::table('telegram_alerts')->whereNull('sent_at')->whereNull('failed_at');
+        if ($makers) {
+            $pending->whereNotNull('maker_telegram_link_id');
+        } else {
+            $pending->whereNull('maker_telegram_link_id');
+        }
         $due = (clone $pending)->where('available_at', '<=', now())->orderBy('id');
         $alerts = ($eventKeys === null ? $due->limit(10) : $due->whereIn('event_key', $eventKeys))->get();
 
@@ -198,6 +248,12 @@ final class TelegramAlerts
             }
 
             $record = DB::table('telegram_alerts')->where('id', $alert->id);
+            $chatId = $makers ? $this->makerChatId($alert->maker_telegram_link_id) : (string) config('services.telegram.chat_id');
+            if ($chatId === null) {
+                $record->update(['failed_at' => now(), 'message' => null]);
+
+                continue;
+            }
             try {
                 $message = Crypt::decryptString($alert->message);
             } catch (DecryptException) {
@@ -206,7 +262,8 @@ final class TelegramAlerts
 
                 continue;
             }
-            $response = $this->send($message);
+            $token = (string) config($makers ? 'services.maker_telegram.bot_token' : 'services.telegram.bot_token');
+            $response = TelegramBot::send($token, $chatId, $message);
             $attempts = $alert->attempts + 1;
 
             if ($response?->json('ok') === true) {
@@ -237,6 +294,13 @@ final class TelegramAlerts
         return $sent;
     }
 
+    private function makerChatId(int $linkId): ?string
+    {
+        return MakerTelegramLink::whereKey($linkId)
+            ->whereHas('user', fn ($users) => $users->where('role', 'maker')->where('is_active', true)->whereNotNull('email_verified_at'))
+            ->value('chat_id');
+    }
+
     private function answerCommands(): void
     {
         $offsetKey = 'telegram:offset:'.hash('sha256', (string) config('services.telegram.bot_token'));
@@ -250,7 +314,7 @@ final class TelegramAlerts
         }
 
         foreach ($response->json('result', []) as $update) {
-            if ($this->privateChatId($update) === (string) config('services.telegram.chat_id')) {
+            if (TelegramBot::privateChatId($update) === (string) config('services.telegram.chat_id')) {
                 $command = explode(' ', trim((string) data_get($update, 'message.text')), 2)[0];
                 $answer = match ($command) {
                     '/start', '/help' => "🔔 <b>Рідна Віра · Сповіщення сайту</b>\n\nЯ надсилаю нові замовлення, платежі, вироби та звернення.\n/status — перевірити підключення",
@@ -266,35 +330,13 @@ final class TelegramAlerts
         }
     }
 
-    private function privateChatId(array $update): ?string
-    {
-        if (data_get($update, 'message.chat.type') !== 'private') {
-            return null;
-        }
-        $id = (string) data_get($update, 'message.chat.id');
-
-        return preg_match('/^[1-9][0-9]*$/D', $id) === 1 ? $id : null;
-    }
-
     private function send(string $message): ?Response
     {
-        return $this->request('sendMessage', [
-            'chat_id' => (string) config('services.telegram.chat_id'),
-            'text' => $message,
-            'parse_mode' => 'HTML',
-            'link_preview_options' => ['is_disabled' => true],
-            'protect_content' => true,
-        ]);
+        return TelegramBot::send((string) config('services.telegram.bot_token'), (string) config('services.telegram.chat_id'), $message);
     }
 
     private function request(string $method, array $data): ?Response
     {
-        $token = config('services.telegram.bot_token');
-        try {
-            return Http::acceptJson()->connectTimeout(3)->timeout(5)->withoutRedirecting()
-                ->post("https://api.telegram.org/bot{$token}/{$method}", $data);
-        } catch (ConnectionException) {
-            return null;
-        }
+        return TelegramBot::request((string) config('services.telegram.bot_token'), $method, $data);
     }
 }
