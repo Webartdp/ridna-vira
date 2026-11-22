@@ -77,21 +77,34 @@ class ShopCatalogueSeoTest extends TestCase
             $this->product($subcategory, 'seo-motanka-copy-'.$i, 'Мотанка №'.$i);
         }
 
-        $paragraphs = config('shop_catalogue_copy.categories.'.$category->slug);
-        $this->assertNotEmpty($paragraphs);
+        $sections = config('shop_catalogue_copy.categories.'.$category->slug);
+        $this->assertGreaterThanOrEqual(2, count($sections));
+        $descriptionMarkup = [];
+        foreach ($sections as $heading => $paragraphs) {
+            $descriptionMarkup[] = '<h3>'.e($heading).'</h3>';
+            foreach ($paragraphs as $paragraph) {
+                $descriptionMarkup[] = '<p>'.e($paragraph).'</p>';
+            }
+        }
         $this->get($category->publicUrl())->assertOk()->assertSeeInOrder([
             'aria-label="Сторінки крамниці"',
             'id="shop-catalogue-copy-title"',
-            ...array_map(fn (string $paragraph) => e($paragraph), $paragraphs),
+            ...$descriptionMarkup,
             'Читати повністю',
-        ], false)->assertSee('aria-expanded="true" aria-controls="shop-catalogue-copy-text" hidden', false);
+        ], false)->assertSee('--shop-copy-preview-height: 250px', false)
+            ->assertSee('aria-expanded="true" aria-controls="shop-catalogue-copy-text" hidden', false);
 
+        $subcategorySections = config('shop_catalogue_copy.categories.'.$subcategory->slug);
         $this->get($subcategory->publicUrl())->assertOk()
-            ->assertSee(config('shop_catalogue_copy.categories.'.$subcategory->slug.'.0'))
-            ->assertDontSee($paragraphs[0]);
-        $this->get('/kramnychka')->assertOk()->assertSee(config('shop_catalogue_copy.catalogue.0'));
+            ->assertSee('<h3>'.e(array_key_first($subcategorySections)).'</h3>', false)
+            ->assertDontSee($descriptionMarkup[0], false);
+        $this->get('/kramnychka')->assertOk()
+            ->assertSee('<h3>'.e(array_key_first(config('shop_catalogue_copy.catalogue'))).'</h3>', false);
         $this->get($category->publicUrl().'?page=2')->assertOk()->assertDontSee('id="shop-catalogue-copy-title"', false);
         $this->get($category->publicUrl().'?price_from=100')->assertOk()->assertDontSee('id="shop-catalogue-copy-title"', false);
+
+        config(['shop_catalogue_copy.categories.'.$category->slug => ['Короткий опис із попереднього кешу.']]);
+        $this->get($category->publicUrl())->assertOk()->assertSee('<p>Короткий опис із попереднього кешу.</p>', false);
     }
 
     private function product(ProductCategory $category, string $slug, string $name, bool $active = true): Product

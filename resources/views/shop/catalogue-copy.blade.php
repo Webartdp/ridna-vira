@@ -18,7 +18,7 @@
             line-height: 1.3;
         }
 
-        .shop-catalogue-copy__viewport { --shop-copy-preview-height: 350px; }
+        .shop-catalogue-copy__viewport { --shop-copy-preview-height: 250px; }
 
         .shop-catalogue-copy__viewport[data-collapsed] {
             max-height: var(--shop-copy-preview-height);
@@ -28,7 +28,18 @@
 
         .shop-catalogue-copy__text {
             display: grid;
-            gap: 1em;
+            gap: 1.375em;
+        }
+
+        .shop-catalogue-copy__topic {
+            display: grid;
+            gap: .65em;
+        }
+
+        .shop-catalogue-copy__text h3 {
+            margin: 0;
+            font-size: 1.125rem;
+            line-height: 1.35;
         }
 
         .shop-catalogue-copy__text p { margin: 0; }
@@ -79,8 +90,18 @@
         <h2 id="shop-catalogue-copy-title">{{ $heading }}</h2>
         <div id="shop-catalogue-copy-text" class="shop-catalogue-copy__viewport">
             <div class="shop-catalogue-copy__text">
-                @foreach ($paragraphs as $paragraph)
-                    <p>{{ $paragraph }}</p>
+                @foreach ($sections as $topic => $paragraphs)
+                    {{-- An earlier cached configuration can still supply individual paragraphs. --}}
+                    @if (is_string($paragraphs))
+                        <p>{{ $paragraphs }}</p>
+                        @continue
+                    @endif
+                    <div class="shop-catalogue-copy__topic">
+                        <h3>{{ $topic }}</h3>
+                        @foreach ($paragraphs as $paragraph)
+                            <p>{{ $paragraph }}</p>
+                        @endforeach
+                    </div>
                 @endforeach
             </div>
         </div>

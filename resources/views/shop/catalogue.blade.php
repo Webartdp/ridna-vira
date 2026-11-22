@@ -240,7 +240,7 @@
             @if ($catalogueCopy)
                 @include('shop.catalogue-copy', [
                     'heading' => $browseCategory ? 'Про розділ «'.$browseCategory->name.'»' : 'Про крамницю «Рідна Віра»',
-                    'paragraphs' => $catalogueCopy,
+                    'sections' => $catalogueCopy,
                 ])
             @endif
         </div>
