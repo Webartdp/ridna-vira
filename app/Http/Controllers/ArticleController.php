@@ -59,8 +59,9 @@ final class ArticleController extends Controller
         });
 
         $page = LengthAwarePaginator::resolveCurrentPage();
+        abort_if($page > max(1, (int) ceil(count($articles) / 18)), 404);
         $articles = new LengthAwarePaginator(
-            $page <= (int) ceil(count($articles) / 18) ? array_slice($articles, ($page - 1) * 18, 18) : [], count($articles), 18, $page,
+            array_slice($articles, ($page - 1) * 18, 18), count($articles), 18, $page,
             ['path' => $request->url(), 'query' => $query, 'fragment' => 'articles-catalogue'],
         );
 
@@ -77,7 +78,7 @@ final class ArticleController extends Controller
         return mb_strtolower(trim(preg_replace('/\s+/u', ' ', str_replace(['’', 'ʼ', '‘'], "'", $value)) ?? ''));
     }
 
-    public function show(string $article): View
+    public function show(string $article, Publications $publications): View
     {
         $entry = $this->resolveArticle($article);
         $path = $this->absolutePath($entry);
@@ -88,6 +89,7 @@ final class ArticleController extends Controller
             'article' => $entry,
             'articleSlug' => $article,
             'articleTitle' => $presented['title'],
+            'articleAuthor' => $publications->articleAuthor($entry),
             'content' => $presented['content'],
             'extension' => strtoupper($extension),
             'size' => is_file($path) ? (filesize($path) ?: 0) : 0,

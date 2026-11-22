@@ -12,12 +12,34 @@ use App\Services\Checkout;
 use App\Services\NovaPoshta;
 use App\Services\WayForPay;
 use App\Support\Money;
+use App\Support\ShopCatalogueSeo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
 class ShopController extends Controller
 {
     public function index(Request $request)
+    {
+        if ($request->filled('category') && ! $request->filled('maker')) {
+            $category = ProductCategory::withPublishedProducts()->where('slug', $request->string('category', strict: true)->toString())->first();
+            if ($category) {
+                $query = http_build_query($request->except('category'), encoding_type: PHP_QUERY_RFC3986);
+
+                return redirect()->to($category->publicUrl().($query !== '' ? '?'.$query : ''), 301);
+            }
+        }
+
+        return $this->catalogue($request);
+    }
+
+    public function category(Request $request, ProductCategory $category)
+    {
+        abort_unless(ProductCategory::withPublishedProducts()->whereKey($category->id)->exists(), 404);
+
+        return $this->catalogue($request, $category->load('parent'));
+    }
+
+    private function catalogue(Request $request, ?ProductCategory $browseCategory = null)
     {
         $maker = null;
         if ($request->filled('maker')) {
@@ -38,12 +60,13 @@ class ShopController extends Controller
         ]);
         $minimum = isset($prices['price_from']) ? Money::minor($prices['price_from']) : null;
         $maximum = isset($prices['price_to']) ? Money::minor($prices['price_to']) : null;
+        $selectedCategory = $browseCategory?->slug ?? $request->string('category', strict: true)->toString();
 
         $catalogue = Product::where('is_active', true)
             ->when($maker, fn ($query) => $query->where('maker_id', $maker->id))
-            ->when($request->filled('category'), fn ($query) => $query->whereHas('category', fn ($category) => $category->where(fn ($match) => $match
-                ->where('slug', $request->string('category')->toString())
-                ->orWhereHas('parent', fn ($parent) => $parent->where('slug', $request->string('category')->toString())))))
+            ->when($selectedCategory !== '', fn ($query) => $query->whereHas('category', fn ($category) => $category->where(fn ($match) => $match
+                ->where('slug', $selectedCategory)
+                ->orWhereHas('parent', fn ($parent) => $parent->where('slug', $selectedCategory)))))
             ->when($request->filled('q'), fn ($query) => $query->where('name', 'like', '%'.mb_substr($request->string('q')->toString(), 0, 100).'%'));
 
         $sliderMaximum = max(10_000, (int) (clone $catalogue)->max('price_minor'), $minimum ?? 0, $maximum ?? 0);
@@ -51,9 +74,22 @@ class ShopController extends Controller
         $products = $catalogue
             ->when($minimum !== null, fn ($query) => $query->where('price_minor', '>=', $minimum))
             ->when($maximum !== null, fn ($query) => $query->where('price_minor', '<=', $maximum))
-            ->latest()->paginate(12)->withQueryString();
+            ->latest()->orderByDesc('id')->paginate(12)->withQueryString();
+        abort_if($products->currentPage() > $products->lastPage(), 404);
 
-        return view('shop.catalogue', ['products' => $products, 'categories' => ProductCategory::catalogue(), 'sliderMaximum' => $sliderMaximum, 'maker' => $maker]);
+        $categoryLinks = ProductCategory::withPublishedProducts()
+            ->where('parent_id', $browseCategory?->id)->orderBy('name')->get();
+
+        return view('shop.catalogue', [
+            'products' => $products,
+            'categories' => ProductCategory::catalogue(),
+            'categoryLinks' => $categoryLinks,
+            'browseCategory' => $browseCategory,
+            'categoryDescription' => $browseCategory ? ShopCatalogueSeo::description($browseCategory) : null,
+            'selectedCategory' => $selectedCategory,
+            'sliderMaximum' => $sliderMaximum,
+            'maker' => $maker,
+        ]);
     }
 
     public function show(Product $product)

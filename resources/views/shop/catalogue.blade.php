@@ -23,6 +23,9 @@
         .shop-catalogue .shop-card .shop-btn{margin-top:auto;text-align:center;padding-inline:10px}
         .shop .shop-maker-title{font-size:clamp(1.625rem,3vw,2.25rem);margin-bottom:6px;overflow-wrap:anywhere}
         .shop-maker-name{margin-bottom:6px;overflow-wrap:anywhere}
+        .shop-category-links ul{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:18px 0 0;padding:0}
+        .shop-category-links a{display:inline-flex;align-items:center;min-height:44px;padding:8px 12px;border:1px solid #d7cab3;border-radius:8px;background:#fffdf6;font-size:.875rem;line-height:1.4;overflow-wrap:anywhere}
+        .shop-category-links a:hover{background:#f3e8d5;border-color:#9b7845}
         @media(max-width:900px){.shop-catalogue{grid-template-columns:minmax(0,1fr)}}
 
         .shop-catalogue .articles-pager {
@@ -124,6 +127,10 @@
         <h1 class="shop-maker-title">Вироби майстра</h1>
         <p class="shop-maker-name">{{ $maker->name }}</p>
         <small><a href="{{ route('shop.index') }}">Усі товари</a></small>
+    @elseif ($browseCategory)
+        @include('shop.breadcrumbs', ['trail' => \App\Support\ShopCatalogueSeo::categoryTrail($browseCategory)])
+        <h1>{{ $browseCategory->name }}</h1>
+        <p>{{ $categoryDescription }}</p>
     @else
         <h1>Крамниця</h1>
         <p>Книги, речі та видання, що підтримують живу традицію.</p>
@@ -133,8 +140,16 @@
             <p><a href="{{ route('maker.index') }}">Кабінет майстра</a></p>
         @endguest
     @endif
+    @if (!$maker && $categoryLinks->isNotEmpty())
+        <nav class="shop-category-links" aria-label="{{ $browseCategory ? 'Підкатегорії крамниці' : 'Категорії крамниці' }}">
+            <ul>
+                @foreach ($categoryLinks as $categoryLink)
+                    <li><a href="{{ $categoryLink->publicUrl() }}">{{ $categoryLink->name }}</a></li>
+                @endforeach
+            </ul>
+        </nav>
+    @endif
     @php
-        $selectedCategory = request()->string('category', strict: true)->toString();
         $priceFrom = old('price_from', request('price_from'));
         $priceTo = old('price_to', request('price_to'));
         $hasFilters = request()->anyFilled(['q', 'category', 'price_from', 'price_to']);
@@ -194,7 +209,7 @@
             </fieldset>
             <button class="shop-btn" type="submit">Застосувати</button>
             @if ($hasFilters)
-                <a class="shop-filters-reset" href="{{ route('shop.index', ($maker ?? null) ? ['maker' => $maker->id] : []) }}">Скинути фільтри</a>
+                <a class="shop-filters-reset" href="{{ $browseCategory?->publicUrl() ?? route('shop.index', $maker ? ['maker' => $maker->id] : []) }}">Скинути фільтри</a>
             @endif
         </form>
         <div>
@@ -202,7 +217,7 @@
                 @forelse($products as $product)
                     <article class="shop-card">
                         <a href="{{ route('shop.product', $product) }}">@if($product->images)<img src="{{ $product->imageUrl($product->images[0], 400) }}" srcset="{{ $product->imageSrcset($product->images[0]) }}" sizes="(min-width: 1240px) 260px, (min-width: 901px) 22vw, (min-width: 541px) 44vw, 85vw" alt="{{ $product->name }}" loading="lazy" decoding="async" width="400" height="400">@else<img src="{{ asset('assets/brand/image-placeholder.svg') }}" width="400" height="400" alt="" loading="lazy" decoding="async">@endif</a>
-                        <h2><a href="{{ route('shop.product', $product) }}">{{ $product->name }}</a></h2>
+                        <h2><a href="{{ route('shop.product', $product, false) }}" data-shop-product>{{ $product->name }}</a></h2>
                         <span class="shop-price">{{ \App\Support\Money::display($product->price_minor) }}</span>
                         <small>{{ $product->availabilityLabel() }}</small>
                         <a class="shop-btn" href="{{ route('shop.product', $product) }}">Переглянути</a>

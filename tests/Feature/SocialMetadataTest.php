@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\ContentPage;
 use App\Models\Product;
+use App\Services\ProductImages;
 use App\Support\Publications;
 use App\Support\Seo;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -85,9 +86,38 @@ class SocialMetadataTest extends TestCase
             }
         }
         $product = Product::create(['name' => 'Книга', 'slug' => 'schema-book', 'price_minor' => 32000, 'stock' => 0, 'is_active' => true]);
-        $graph = collect($this->graph($this->get('/kramnychka/'.$product->slug)->assertOk()->getContent()));
-        $this->assertSame($graph->firstWhere('@type', 'Product')['@id'], $graph->firstWhere('@type', 'WebPage')['mainEntity']['@id']);
-        $this->assertSame('https://schema.org/OutOfStock', $graph->firstWhere('@type', 'Product')['offers']['availability']);
+        $response = $this->get('/kramnychka/'.$product->slug)->assertOk()
+            ->assertSee('property="product:availability" content="out of stock"', false)
+            ->assertSee('name="description" content="Книга. 320,00 ₴. Немає в наявності."', false);
+        $graph = collect($this->graph($response->getContent()));
+        $itemPage = $graph->firstWhere('@type', 'ItemPage');
+        $schema = $graph->firstWhere('@type', 'Product');
+        $this->assertSame($schema['@id'], $itemPage['mainEntity']['@id']);
+        $this->assertSame($itemPage['@id'], $schema['mainEntityOfPage']['@id']);
+        $this->assertSame('https://schema.org/OutOfStock', $schema['offers']['availability']);
+        $this->assertArrayNotHasKey('image', $schema);
+    }
+
+    public function test_product_can_share_a_remaining_photo_variant_without_publishing_missing_images(): void
+    {
+        $disk = Storage::fake('public');
+        $photo = 'products/wood.jpg';
+        $upload = UploadedFile::fake()->image('wood.jpg', 900, 900);
+        $disk->put($photo, file_get_contents($upload->getRealPath()));
+        $product = Product::create([
+            'name' => 'Дерев’яний оберіг', 'slug' => 'wooden-amulet', 'price_minor' => 40000, 'stock' => 1,
+            'is_active' => true, 'images' => ['products/missing.jpg', $photo],
+        ]);
+        $disk->delete([$photo, ProductImages::variant($photo, 1200)]);
+        $selected = 'https://ridnavira.com.ua/storage/'.ProductImages::variant($photo, 800);
+
+        $response = $this->get('/kramnychka/'.$product->slug)->assertOk()
+            ->assertSee('property="og:image" content="'.$selected.'"', false)
+            ->assertSee('property="og:image:width" content="800"', false)
+            ->assertSee('property="og:image:height" content="800"', false)
+            ->assertSee('property="og:image:type" content="image/webp"', false);
+        $schema = collect($this->graph($response->getContent()))->firstWhere('@type', 'Product');
+        $this->assertSame([$selected], $schema['image']);
     }
 
     public function test_icons_have_real_files_correct_dimensions_and_head_links(): void

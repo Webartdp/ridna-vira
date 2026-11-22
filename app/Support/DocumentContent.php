@@ -15,7 +15,8 @@ final class DocumentContent
             return '';
         }
 
-        $dom = Cms::document($html);
+        $fragmentHtml = preg_replace('~<head(?=\s|>)[^>]*>.*?</head\s*>|<!doctype\b[^>]*>|</?(?:html|head|body)(?=\s|>)[^>]*>~is', '', $html);
+        $dom = Cms::document($fragmentHtml);
 
         $xpath = new \DOMXPath($dom);
         $root = $dom->getElementById('cms-root');
@@ -23,7 +24,7 @@ final class DocumentContent
         // The old portal puts navigation, a duplicate title and the document in one table.
         $legacyTable = $xpath->query('.//table[.//a[normalize-space(.) = "До розділу"] and .//h1 and .//blockquote]', $root)->item(0);
         $body = $legacyTable ? $xpath->query('.//blockquote[not(ancestor::blockquote)]', $legacyTable)->item(0) : null;
-        if (! $body && $legacyOnly) {
+        if (! $body && $legacyOnly && $fragmentHtml === $html) {
             return $html;
         }
         if ($body) {
@@ -34,7 +35,7 @@ final class DocumentContent
             $legacyTable->parentNode->replaceChild($fragment, $legacyTable);
         }
 
-        foreach (['script', 'style', 'link', 'meta', 'base', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'noscript'] as $tagName) {
+        foreach (['script', 'style', 'title', 'link', 'meta', 'base', 'iframe', 'object', 'embed', 'form', 'input', 'button', 'noscript'] as $tagName) {
             $nodes = iterator_to_array($root->getElementsByTagName($tagName));
             foreach ($nodes as $node) {
                 $node->parentNode?->removeChild($node);

@@ -4,10 +4,13 @@ namespace App\Support;
 
 use App\Models\ContentPage;
 use App\Models\Product;
+use App\Models\ProductCategory;
 use App\Models\SiteSetting;
 use App\Services\ProductImages;
 use Carbon\CarbonImmutable;
+use Carbon\Exceptions\InvalidFormatException;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -17,6 +20,14 @@ final class Seo
     public static function url(string $path): string
     {
         return rtrim(config('app.url'), '/').'/'.ltrim($path, '/');
+    }
+
+    public static function structuredData(array $graph): string
+    {
+        return json_encode(
+            ['@context' => 'https://schema.org', '@graph' => $graph],
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR
+        );
     }
 
     public static function privatePath(string $path): bool
@@ -55,9 +66,10 @@ final class Seo
     public static function text(string $html, int $limit = 165): string
     {
         $html = preg_replace('~<(script|style)\b[^>]*>.*?</\1>~is', '', $html);
-        $text = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags(str_replace(['</p>', '</h2>', '</li>', '<br>', '<br/>'], ' ', $html)), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
+        $html = preg_replace('~</(?:p|div|h[1-6]|li|dd|dt|td|th|blockquote)\s*>|<br\s*/?>~i', ' ', $html);
+        $text = trim(preg_replace('/\s+/u', ' ', html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8')));
 
-        return Str::limit($text, $limit, '…');
+        return Str::limit($text, $limit, '…', preserveWords: true);
     }
 
     public static function defaults(string $path, string $title, string $body = '', ?string $excerpt = null): array
@@ -66,7 +78,10 @@ final class Seo
             return $static;
         }
         $title = self::text($title, 220);
-        $description = self::text($body !== '' ? (Cms::fragment($body) ?? $body) : ($excerpt ?? ''));
+        $description = self::text($excerpt ?? '');
+        if (mb_strlen($description) < 35 && $body !== '') {
+            $description = self::text(Cms::fragment($body) ?? $body);
+        }
         if (mb_strlen($description) < 35) {
             $section = match (true) {
                 str_contains($path, '/bohy/') => 'Образ, символіка та місце в українській духовній традиції.',
@@ -74,6 +89,8 @@ final class Seo
                 str_contains($path, '/sviatyni/') => 'Історія та матеріали про священне місце духовної спадщини України.',
                 str_contains($path, '/obriady/') => 'Зміст і порядок проведення обряду в традиції Рідної Віри.',
                 str_contains($path, '/molytvy/') => 'Текст молитви чи слави в українській духовній традиції.',
+                str_starts_with($path, '/dokumenti/') => 'Документ Духовного центру «Рідна Віра» для читання та завантаження.',
+                str_starts_with($path, '/statti/') => 'Стаття з бібліотеки Духовного центру «Рідна Віра».',
                 str_contains($path, '/kramnychka/') => 'Опис, актуальна ціна та наявність у крамниці Духовного центру.',
                 default => 'Матеріал Духовного центру про українську духовну спадщину та живу традицію.',
             };
@@ -83,14 +100,20 @@ final class Seo
         return [str_contains($title, 'Рідна Віра') ? $title : $title.' — Рідна Віра', $description];
     }
 
-    private static function productImages(Product $product): array
+    /** @return list<string> */
+    public static function productImages(Product $product): array
     {
         $disk = Storage::disk('public');
         $images = [];
         foreach ($product->images ?? [] as $photo) {
-            if ($disk->exists($photo) || $disk->exists(ProductImages::variant($photo, 1200))) {
-                $url = $product->imageUrl($photo, 1200);
+            $files = [ProductImages::variant($photo, 1200), $photo, ProductImages::variant($photo, 800), ProductImages::variant($photo, 400)];
+            foreach ($files as $file) {
+                if (! $disk->exists($file)) {
+                    continue;
+                }
+                $url = $disk->url($file);
                 $images[] = preg_match('~^https?://~i', $url) ? $url : self::url($url);
+                break;
             }
         }
 
@@ -102,26 +125,39 @@ final class Seo
         $path = '/'.trim($request->path(), '/');
         $product = $request->route('product');
         $product = $product instanceof Product ? $product : null;
+        $shopCatalogue = $request->routeIs('shop.index', 'shop.category');
+        $browseCategory = $request->routeIs('shop.category') ? $request->route('category') : null;
+        $browseCategory = $browseCategory instanceof ProductCategory ? $browseCategory : null;
         $page = ! $product && Cms::ready() ? ContentPage::where('path', $path)->first() : null;
         preg_match('~<main\b[^>]*>(.*?)</main>~s', $html, $main);
         $body = $main[1] ?? '';
         $document = Cms::document($body);
-        $title = $page?->title ?? $product?->name ?? $document->getElementsByTagName('h1')->item(0)?->textContent;
+        $heading = $document->getElementsByTagName('h1')->item(0)?->textContent;
+        $title = $product?->name ?? $heading ?? $page?->title;
+        $legacyDocumentTitle = $request->routeIs('documents.download') && ($page?->title === 'Документ' || trim($heading ?? '') === 'Документ');
+        if ($legacyDocumentTitle && trim($title ?? '') === 'Документ') {
+            $documentTitle = (new \DOMXPath($document))->query('//header[contains(concat(" ", normalize-space(@class), " "), " document-sheet__header ")]//h2')->item(0)?->textContent;
+            $title = $documentTitle ?: $title;
+        }
         if (! $title) {
             preg_match('~<title>(.*?)</title>~s', $html, $oldTitle);
             $title = self::text($oldTitle[1] ?? 'Рідна Віра');
         }
         $productCategory = $product?->category;
-        $productDescription = $product ? self::text($product->description ?? '', 5000) : null;
+        $productDescription = $product ? self::text(CmsHtml::clean($product->description ?? ''), 5000) : null;
         if ($product) {
-            [$seoTitle, $description] = self::defaults($path, $title);
             $summary = Str::limit($productDescription, 165, '…');
-            if (mb_strlen($summary) < 35 && ($summary !== '' || $productCategory)) {
-                $details = $title.($productCategory ? ' · '.$productCategory->name : '');
-                $summary = self::text($summary ? rtrim($summary, '.!?').'. '.$details : $details.' — крамниця «Рідна Віра».');
+            if (mb_strlen($summary) < 35) {
+                $details = $product->name.($productCategory ? ' · '.$productCategory->name : '');
+                $summary = self::text($summary !== ''
+                    ? rtrim($summary, '.!?').'. '.$details
+                    : $details.'. '.Money::display($product->price_minor).'. '.$product->availabilityLabel().'.');
             }
-            $seoTitle = $product->seo_title ?: $seoTitle;
-            $description = $product->seo_description ?: ($summary ?: $description);
+            $seoTitle = $product->seo_title ?: self::text($product->name, 90).' — Крамниця «Рідна Віра»';
+            $description = $product->seo_description ?: $summary;
+        } elseif ($browseCategory) {
+            $seoTitle = ShopCatalogueSeo::title($browseCategory);
+            $description = ShopCatalogueSeo::description($browseCategory);
         } else {
             // Read prose, never navigation or the footer, when creating a search snippet.
             $prose = Cms::fragment($body);
@@ -134,18 +170,26 @@ final class Seo
                 }
                 $prose = implode(' ', $paragraphs);
             }
-            [$seoTitle, $description] = self::defaults($path, $title, $prose, $page?->excerpt);
-            $seoTitle = $page?->seo_title ?: $seoTitle;
-            $description = $page?->seo_description ?: $description;
+            [$seoTitle, $description] = self::defaults($path, $title, $prose, $page?->is_override ? $page->excerpt : null);
+            if (! $legacyDocumentTitle || ! in_array($page?->seo_title, ['Документ', 'Документ — Рідна Віра'], true)) {
+                $seoTitle = $page?->seo_title ?: $seoTitle;
+            }
+            $storedDescription = $page?->seo_description;
+            $legacyDescription = $legacyDocumentTitle && preg_match('/^Документ\. Матеріал Духовного центру|До розділу/u', $storedDescription ?? '');
+            if (! $legacyDescription) {
+                $description = $storedDescription ?: $description;
+            }
         }
         $query = [];
-        if (! $product) {
-            $pagination = max(1, (int) $request->query('page', 1));
-            if ($pagination > 1) {
-                $query['page'] = $pagination;
-                $seoTitle .= ' — Сторінка '.$pagination;
-                $description .= ' Сторінка '.$pagination.'.';
-            }
+        $pagination = $request->routeIs('articles.index', 'news.index', 'creativity.index', 'shop.index', 'shop.category')
+            ? LengthAwarePaginator::resolveCurrentPage()
+            : 1;
+        if ($pagination > 1) {
+            $query['page'] = $pagination;
+            $seoTitle .= ' — Сторінка '.$pagination;
+            $description = rtrim($description).(preg_match('~[.!?…]$~u', $description) ? ' ' : '. ').'Сторінка '.$pagination.'.';
+        }
+        if ($request->routeIs('creativity.index')) {
             $category = $request->query('category');
             if (is_string($category) && $category !== '') {
                 $query['category'] = mb_substr($category, 0, 200);
@@ -177,20 +221,26 @@ final class Seo
         }
         $imageInfo = self::imageInfo($image);
         $type = $product ? 'product' : (preg_match('~^/(?:novyny|statti|tvorchist)/[^/]+$~D', $path) ? 'article' : 'website');
-        $noindex = self::privatePath($path) || (! $product && ($path === '/statti'
-            ? $request->anyFilled(['q', 'author', 'search', 'category'])
-            : $request->hasAny(['q', 'search', 'category'])));
-        if ($path === '/kramnychka') {
-            $noindex = $request->anyFilled(['q', 'search', 'category', 'price_from', 'price_to', 'maker']);
+        $noindex = self::privatePath($path)
+            || ($request->routeIs('articles.index') && $request->anyFilled(['q', 'author']))
+            || ($request->routeIs('creativity.index') && $request->filled('category'));
+        if ($shopCatalogue) {
+            $noindex = $request->filled('category') || $request->anyFilled(ShopCatalogueSeo::FILTERS);
         }
         $published = $page?->published_at?->toIso8601String();
         if (! $published && $type === 'article') {
             $date = $document->getElementsByTagName('time')->item(0)?->getAttribute('datetime');
             if ($date && preg_match('/^\d{4}-\d{2}-\d{2}(?:T[0-9:+.Z-]+)?$/D', $date)) {
-                $published = CarbonImmutable::parse($date)->toIso8601String();
+                try {
+                    $published = CarbonImmutable::parse($date)->toIso8601String();
+                } catch (InvalidFormatException) {
+                    // An invalid legacy date should not make the public page unavailable.
+                }
             }
         }
-        $modified = $page?->is_override ? $page->updated_at?->toIso8601String() : null;
+        $modified = $page?->is_override && (! $page->published_at || $page->updated_at?->gte($page->published_at))
+            ? $page->updated_at?->toIso8601String()
+            : null;
         $sectionLabel = ContentPage::sections()[$page?->section] ?? match (true) {
             str_starts_with($path, '/novyny/') => 'Новини', str_starts_with($path, '/statti/') => 'Статті', str_starts_with($path, '/tvorchist/') => 'Творчість', default => null
         };
@@ -211,6 +261,8 @@ final class Seo
             $org['sameAs'] = array_values(array_column($socialLinks, 'url'));
         }
         $pageType = match (true) {
+            $product !== null => 'ItemPage',
+            $shopCatalogue => 'CollectionPage',
             $type === 'article' => str_starts_with($path, '/novyny/') ? 'NewsArticle' : 'Article', $path === '/zviazok' => 'ContactPage', str_starts_with($path, '/pro-tsentr') => 'AboutPage', isset(config('seo.pages')[$path]) && ! in_array($path, ['/', '/umovy-kramnytsi']) => 'CollectionPage', default => 'WebPage'
         };
         $schemaPage = ['@type' => $pageType, '@id' => $canonical.'#page', 'url' => $canonical, 'name' => $seoTitle, 'description' => $description, 'inLanguage' => 'uk', 'isPartOf' => ['@id' => self::url('/').'#website'], 'primaryImageOfPage' => ['@id' => $canonical.'#image'], 'about' => ['@id' => $org['@id']]];
@@ -223,6 +275,10 @@ final class Seo
             if ($sectionLabel) {
                 $schemaPage['articleSection'] = $sectionLabel;
             }
+            $author = (new \DOMXPath($document))->query('//*[@data-article-author]')->item(0)?->textContent;
+            if ($author = self::text($author ?? '', 220)) {
+                $schemaPage['author'] = ['@type' => 'Person', 'name' => $author];
+            }
             if ($published) {
                 $schemaPage['datePublished'] = $published;
             }
@@ -230,14 +286,22 @@ final class Seo
                 $schemaPage['dateModified'] = $modified;
             }
         }
+        if ($product) {
+            $schemaPage['about'] = $schemaPage['mainEntity'] = ['@id' => $canonical.'#product'];
+        } elseif ($shopCatalogue && ! $noindex && ($itemList = ShopCatalogueSeo::itemList($document))) {
+            $schemaPage['mainEntity'] = $itemList;
+        }
         $graph = [$org, ['@type' => 'WebSite', '@id' => self::url('/').'#website', 'url' => self::url('/'), 'name' => 'Рідна Віра', 'inLanguage' => 'uk', 'publisher' => ['@id' => $org['@id']]], $schemaPage];
         $graph[] = ['@type' => 'ImageObject', '@id' => $canonical.'#image', 'url' => $image, 'contentUrl' => $image, ...Arr::only($imageInfo, ['width', 'height'])];
         if ($path !== '/') {
             $crumbs = [['@type' => 'ListItem', 'position' => 1, 'name' => 'Головна', 'item' => self::url('/')]];
-            if ($product) {
-                foreach (array_slice($product->breadcrumbTrail(), 1, -1) as $crumb) {
+            if ($product || $browseCategory) {
+                $trail = $product ? $product->breadcrumbTrail() : ShopCatalogueSeo::categoryTrail($browseCategory);
+                foreach (array_slice($trail, 1, -1) as $crumb) {
                     $crumbs[] = ['@type' => 'ListItem', 'position' => count($crumbs) + 1, 'name' => $crumb['name'], 'item' => self::url($crumb['path'])];
                 }
+            } elseif ($request->routeIs('documents.download')) {
+                $crumbs[] = ['@type' => 'ListItem', 'position' => 2, 'name' => 'Управління', 'item' => self::url('/pro-tsentr/upravlinnia')];
             } else {
                 $parts = explode('/', trim($path, '/'));
                 $parent = '';
@@ -251,11 +315,32 @@ final class Seo
             $crumbs[] = ['@type' => 'ListItem', 'position' => count($crumbs) + 1, 'name' => self::text($title, 220), 'item' => $canonical];
             $graph[] = ['@type' => 'BreadcrumbList', 'itemListElement' => $crumbs];
         }
+        $offer = null;
         if ($product) {
-            $graph[2]['mainEntity'] = ['@id' => $canonical.'#product'];
-            $productSchema = ['@type' => 'Product', '@id' => $canonical.'#product', 'url' => $canonical, 'name' => $product->name,
-                'description' => $product->seo_description ?: ($productDescription ?: $description), 'sku' => $product->sku ?: (string) $product->id,
-                'offers' => ['@type' => 'Offer', 'url' => $canonical, 'priceCurrency' => 'UAH', 'price' => number_format($product->price_minor / 100, 2, '.', ''), 'availability' => 'https://schema.org/'.($product->made_to_order ? 'MadeToOrder' : ($product->stock > 0 ? 'InStock' : 'OutOfStock'))]];
+            $availability = match (true) {
+                $product->made_to_order => 'MadeToOrder',
+                $product->purchaseLimit() > 0 => 'InStock',
+                default => 'OutOfStock',
+            };
+            $offer = [
+                '@type' => 'Offer',
+                'url' => $canonical,
+                'priceCurrency' => 'UAH',
+                'price' => Money::decimal($product->price_minor),
+                'availability' => 'https://schema.org/'.$availability,
+            ];
+            $productSchema = [
+                '@type' => 'Product',
+                '@id' => $canonical.'#product',
+                'url' => $canonical,
+                'mainEntityOfPage' => ['@id' => $canonical.'#page'],
+                'name' => $product->name,
+                'description' => $productDescription ?: $summary,
+                'offers' => $offer,
+            ];
+            if (filled($product->sku)) {
+                $productSchema['sku'] = $product->sku;
+            }
             if ($productImages) {
                 $productSchema['image'] = $productImages;
             }
@@ -267,6 +352,6 @@ final class Seo
             $graph[] = $productSchema;
         }
 
-        return compact('seoTitle', 'description', 'canonical', 'image', 'imageInfo', 'type', 'noindex', 'graph', 'published', 'modified', 'sectionLabel', 'video');
+        return compact('seoTitle', 'description', 'canonical', 'image', 'imageInfo', 'type', 'noindex', 'graph', 'published', 'modified', 'sectionLabel', 'video', 'offer');
     }
 }

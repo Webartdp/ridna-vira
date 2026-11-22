@@ -17,18 +17,19 @@ final class PublicationController extends Controller
     public function index(Request $request, string $section): View
     {
         $entries = $this->publications->entries($section);
-        $category = (string) $request->query('category', '');
+        $category = $section === 'creativity' ? $request->string('category', strict: true)->toString() : '';
         $categories = array_values(array_unique(array_filter(array_column($entries, 'category'))));
-        if ($category !== '' && $section === 'creativity') {
+        if ($category !== '') {
             $entries = array_values(array_filter($entries, static fn ($entry) => $entry['category'] === $category));
         }
-        $page = max(1, (int) $request->query('page', 1));
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        abort_if($page > max(1, (int) ceil(count($entries) / 12)), 404);
 
         return view('pages.publications', [
             'section' => $section, 'title' => $section === 'news' ? 'Новини' : 'Творчість',
             'categories' => $categories, 'category' => $category,
             'entries' => new LengthAwarePaginator(array_slice($entries, ($page - 1) * 12, 12), count($entries), 12, $page,
-                ['path' => $request->url(), 'query' => $request->query()]),
+                ['path' => $request->url(), 'query' => $category === '' ? [] : ['category' => $category]]),
         ]);
     }
 

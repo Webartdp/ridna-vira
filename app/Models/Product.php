@@ -94,7 +94,7 @@ class Product extends Model
             ['name' => 'Крамниця', 'path' => route('shop.index', absolute: false)],
         ];
         foreach (array_filter([$this->category?->parent, $this->category]) as $category) {
-            $trail[] = ['name' => $category->name, 'path' => route('shop.index', ['category' => $category->slug], false)];
+            $trail[] = ['name' => $category->name, 'path' => $category->publicUrl()];
         }
         $trail[] = ['name' => $this->name, 'path' => route('shop.product', $this, false)];
 

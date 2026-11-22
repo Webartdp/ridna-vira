@@ -3,10 +3,16 @@
 @section('description', $page->excerpt ?? '')
 @push('styles') @include('shop.styles') @include('partials.ritual-styles') @endpush
 @section('content')
-@php($book = $page->section === 'books' ? \App\Support\BookLibrary::find(basename($page->path)) : null)
+@php
+    $book = $page->section === 'books' ? \App\Support\BookLibrary::find(basename($page->path)) : null;
+    $body = $page->section === 'documents'
+        ? \App\Support\DocumentContent::clean($page->body ?? '', legacyOnly: true)
+        : ($page->body ?? '');
+@endphp
 <article class="shop"><p><a href="{{ url('/') }}">Рідна Віра</a> / {{ \App\Models\ContentPage::sections()[$page->section] ?? 'Матеріали' }}</p><h1>{{ $page->title }}</h1>
+@if(!empty($page->author))<p data-article-author>{{ $page->author }}</p>@endif
 @if($page->image || $book)<figure style="margin:0 0 28px; {{ $book ? 'max-width:280px' : '' }}">@include('partials.publication-image', ['visual' => $page->image ? \App\Support\ContentImages::visual($page->image) : ($book['image'] ?? null), 'imageAlt' => $page->title])</figure>@endif
-<div class="shop-panel prose">{!! \App\Support\CmsHtml::render($page->body ?? '') !!}</div>
+<div class="shop-panel prose">{!! \App\Support\CmsHtml::render($body) !!}</div>
 @if($page->section === 'books')
     <p>{{ collect([$book['author'] ?? null, $book['year'] ?? null, !empty($book['pages']) ? $book['pages'].' с.' : null])->filter()->implode(' · ') }}</p>
     <p>@foreach($book['formats'] as $format => $download)<a class="shop-button" href="{{ $download }}">Завантажити {{ strtoupper($format) }}</a> @endforeach</p>

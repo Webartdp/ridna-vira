@@ -4,7 +4,7 @@
 <link rel="canonical" href="{{ $seo['canonical'] }}">
 <meta property="og:locale" content="uk_UA">
 <meta property="og:site_name" content="Рідна Віра">
-<meta property="og:type" content="{{ $seo['type'] === 'article' ? 'article' : 'website' }}">
+<meta property="og:type" content="{{ $seo['type'] }}">
 <meta property="og:title" content="{{ $seo['seoTitle'] }}">
 <meta property="og:description" content="{{ $seo['description'] }}">
 <meta property="og:url" content="{{ $seo['canonical'] }}">
@@ -19,6 +19,15 @@
 @endif
 @endforeach
 <meta property="og:image:alt" content="{{ $seo['seoTitle'] }}">
+@if($seo['offer'])
+<meta property="product:price:amount" content="{{ $seo['offer']['price'] }}">
+<meta property="product:price:currency" content="{{ $seo['offer']['priceCurrency'] }}">
+<meta property="product:availability" content="{{ match ($seo['offer']['availability']) {
+    'https://schema.org/MadeToOrder' => 'available for order',
+    'https://schema.org/InStock' => 'in stock',
+    default => 'out of stock',
+} }}">
+@endif
 @if($seo['type'] === 'article')
 @if($seo['published'])<meta property="article:published_time" content="{{ $seo['published'] }}">@endif
 @if($seo['modified'])<meta property="article:modified_time" content="{{ $seo['modified'] }}">@endif
@@ -37,5 +46,5 @@
 <meta name="twitter:image" content="{{ $seo['image'] }}">
 <meta name="twitter:image:alt" content="{{ $seo['seoTitle'] }}">
 @unless($seo['noindex'])
-<script type="application/ld+json">{!! json_encode(['@context' => 'https://schema.org', '@graph' => $seo['graph']], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_THROW_ON_ERROR) !!}</script>
+<script type="application/ld+json">{!! \App\Support\Seo::structuredData($seo['graph']) !!}</script>
 @endunless

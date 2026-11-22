@@ -18,12 +18,15 @@
             <header class="article-reader__header">
                 <p class="article-reader__eyebrow">Статті та дослідження</p>
                 <h1 id="article-page-title">{{ $articleTitle }}</h1>
+                @if ($articleAuthor !== '')
+                    <p data-article-author>{{ $articleAuthor }}</p>
+                @endif
             </header>
             @if ($content !== null && trim($content) !== '')
                 <div class="article-prose">{!! $content !!}</div>
             @else
                 <div class="article-attachment">
-                    <p>Відкрийте або збережіть матеріал, щоб прочитати його повністю.</p>
+                    <p>«{{ $articleTitle }}» — матеріал із бібліотеки Духовного центру «Рідна Віра». @if ($hasFile) Його можна завантажити у форматі {{ $extension }}. @endif</p>
                     @if ($hasFile)
                         <a class="figma-button" href="{{ route('articles.download', $articleSlug) }}">Завантажити {{ $extension }}</a>
                     @endif

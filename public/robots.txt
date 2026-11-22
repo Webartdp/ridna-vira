@@ -10,7 +10,7 @@ Disallow: /mcp
 Disallow: /livewire
 Disallow: /koshyk
 Disallow: /zamovlennia
-Disallow: /oplata
+Disallow: /oplata/
 Disallow: /up
 
 Sitemap: https://ridnavira.com.ua/sitemap.xml

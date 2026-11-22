@@ -27,10 +27,14 @@ class SearchMetadata
             return $response;
         }
         $seo = Seo::metadata($request, $html);
-        $html = preg_replace('~<title>.*?</title>|<meta\b[^>]*name=["\x27]description["\x27][^>]*>~is', '', $html);
         $head = view('partials.seo', compact('seo'))->render();
+        $html = preg_replace_callback('~(<head\b[^>]*>)(.*?)(</head>)~is', static function (array $parts) use ($head) {
+            $contents = preg_replace('~<title>.*?</title>|<meta\b[^>]*name=["\x27]description["\x27][^>]*>~is', '', $parts[2]);
+
+            return $parts[1].$contents.$head.$parts[3];
+        }, $html, 1);
         $original = $response instanceof Response ? $response->getOriginalContent() : null;
-        $response->setContent(str_replace('</head>', $head.'</head>', $html));
+        $response->setContent($html);
         if ($response instanceof Response) {
             $response->original = $original;
         }

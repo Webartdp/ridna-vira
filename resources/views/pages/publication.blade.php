@@ -13,7 +13,11 @@
         <header class="article-reader__header">
             <p class="article-reader__eyebrow">{{ $sectionTitle }}</p>
             <h1 class="ritual-page-title" id="publication-title">{{ $entry['title'] }}</h1>
-            <p class="publication-meta">@if (!empty($entry['date']))<time datetime="{{ $entry['date'] }}">{{ date('d.m.Y', strtotime($entry['date'])) }}</time>@endif {{ $entry['location'] ?? $entry['author'] ?? '' }}</p>
+            <p class="publication-meta">
+                @if (!empty($entry['date']))<time datetime="{{ $entry['date'] }}">{{ date('d.m.Y', strtotime($entry['date'])) }}</time>@endif
+                @if (!empty($entry['location'])){{ $entry['location'] }}@endif
+                @if (!empty($entry['author']))<span data-article-author>{{ $entry['author'] }}</span>@endif
+            </p>
         </header>
         <div class="article-prose publication-prose">{!! $content !!}</div>
         @if (!empty($entry['videos']))

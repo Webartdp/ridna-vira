@@ -86,7 +86,7 @@ class ShopTest extends TestCase
             ->assertSee('<meta name="robots" content="noindex, follow">', false);
 
         foreach ([$parent, $child] as $category) {
-            $this->get(route('shop.index', ['category' => $category->slug, 'price_from' => '125,50', 'price_to' => '125.50']))
+            $this->get(route('shop.category', ['category' => $category->slug, 'price_from' => '125,50', 'price_to' => '125.50']))
                 ->assertOk()
                 ->assertSee('Мідний браслет')
                 ->assertDontSee('Срібний браслет')
@@ -110,8 +110,8 @@ class ShopTest extends TestCase
         $navigation = $document->query('//main//nav[.//a[normalize-space(.) = "Різьблені підвіски"]]')->item(0);
         $this->assertNotNull($navigation);
         $this->assertMatchesRegularExpression('~Головна.*Крамниця.*Дерев’яні прикраси.*Різьблені підвіски.*Дубова підвіска~su', $navigation->textContent);
-        $this->assertStringEndsWith(route('shop.index', ['category' => $category->slug], false), $document->query('.//a[normalize-space(.) = "Дерев’яні прикраси"]', $navigation)->item(0)->getAttribute('href'));
-        $this->assertStringEndsWith(route('shop.index', ['category' => $child->slug], false), $document->query('.//a[normalize-space(.) = "Різьблені підвіски"]', $navigation)->item(0)->getAttribute('href'));
+        $this->assertSame($category->publicUrl(), $document->query('.//a[normalize-space(.) = "Дерев’яні прикраси"]', $navigation)->item(0)->getAttribute('href'));
+        $this->assertSame($child->publicUrl(), $document->query('.//a[normalize-space(.) = "Різьблені підвіски"]', $navigation)->item(0)->getAttribute('href'));
         $this->assertStringEndsWith(route('shop.index', ['maker' => $maker->id], false), $document->query('//main//a[normalize-space(.) = "Олена Різьбярка"]')->item(0)->getAttribute('href'));
 
         $schema = $document->query('//script[@type = "application/ld+json"]')->item(0);

@@ -99,6 +99,8 @@ Route::get('/tvorchist/{publication}', [PublicationController::class, 'show'])
     ->where('publication', '[a-z0-9\-]+')->defaults('section', 'creativity')->name('creativity.show');
 
 Route::get('/kramnychka', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/kramnychka/katehorii/{category:slug}', [ShopController::class, 'category'])
+    ->where('category', '[a-z0-9-]+')->name('shop.category');
 Route::get('/kramnychka/{product:slug}', [ShopController::class, 'show'])->name('shop.product');
 Route::get('/koshyk/nova-poshta/mista', [NovaPoshtaController::class, 'cities'])->middleware('throttle:30,1')->name('shop.nova-poshta.cities');
 Route::get('/koshyk/nova-poshta/viddilennia', [NovaPoshtaController::class, 'warehouses'])->middleware('throttle:40,1')->name('shop.nova-poshta.warehouses');

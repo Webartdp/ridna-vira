@@ -77,6 +77,12 @@ class ArticleTest extends TestCase
         $this->get('/statti?author='.urlencode('Невідомий автор'))->assertOk()
             ->assertSee('За цим запитом статей не знайдено.')
             ->assertSee('Скинути пошук');
+
+        $authored = $this->get('/statti/traditions')->assertOk()
+            ->assertSee('<p data-article-author>Башлакова В.</p>', false)
+            ->assertSee('"author":{"@type":"Person","name":"Башлакова В."}', false);
+        preg_match('~<meta name="description" content="([^"]+)">~', $authored->getContent(), $description);
+        $this->assertStringContainsString('Традиції слов’ян', $description[1]);
     }
 
     public function test_articles_are_paginated_and_non_html_materials_still_download(): void

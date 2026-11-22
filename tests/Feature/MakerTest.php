@@ -121,8 +121,8 @@ class MakerTest extends TestCase
         $this->get(route('maker.products.edit', $product))->assertOk()
             ->assertSee('value="'.$category->id.'" selected', false);
         $product->update(['is_active' => true]);
-        $this->get(route('shop.index', ['category' => $category->parent->slug]))->assertOk()->assertSee($product->name);
-        $this->get(route('shop.index', ['category' => $category->slug]))->assertOk()->assertSee($product->name);
+        $this->get($category->parent->publicUrl())->assertOk()->assertSee($product->name);
+        $this->get($category->publicUrl())->assertOk()->assertSee($product->name);
         $this->get(route('shop.index', ['category' => 'dlia-kapyshcha']))->assertOk()->assertDontSee($product->name);
         $this->actingAs(User::factory()->create(['role' => 'admin']))->get('/admin/product-categories')
             ->assertOk()->assertSee('Основна категорія');
