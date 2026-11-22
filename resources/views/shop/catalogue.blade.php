@@ -24,6 +24,90 @@
         .shop .shop-maker-title{font-size:clamp(1.625rem,3vw,2.25rem);margin-bottom:6px;overflow-wrap:anywhere}
         .shop-maker-name{margin-bottom:6px;overflow-wrap:anywhere}
         @media(max-width:900px){.shop-catalogue{grid-template-columns:minmax(0,1fr)}}
+
+        .shop-catalogue .articles-pager {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid #d7cab3;
+            font-size: .875rem;
+            line-height: 1;
+        }
+
+        .shop-catalogue .articles-pager__pages {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .shop-catalogue :is(.articles-pager__step, .articles-pager__number) {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 44px;
+            border: 1px solid #cbb797;
+            border-radius: 8px;
+            background: #fffdf6;
+            color: #493a23;
+            text-decoration: none;
+        }
+
+        .shop-catalogue .articles-pager__number {
+            min-width: 44px;
+            padding: 0 8px;
+        }
+
+        .shop-catalogue .articles-pager__step {
+            justify-self: end;
+            gap: 8px;
+            padding: 0 12px;
+            white-space: nowrap;
+        }
+
+        .shop-catalogue .articles-pager__step--next { justify-self: start; }
+        .shop-catalogue .articles-pager__step span { font: 1.125rem/1 system-ui, sans-serif; }
+        .shop-catalogue .articles-pager__gap { padding-inline: 2px; color: #765e3e; }
+
+        .shop-catalogue .articles-pager a:hover {
+            border-color: #9b7845;
+            background: #f3e8d5;
+            color: #382c1a;
+        }
+
+        .shop-catalogue .articles-pager a:focus-visible {
+            outline: 2px solid #785629;
+            outline-offset: 2px;
+        }
+
+        .shop-catalogue .articles-pager__number.is-current {
+            border-color: #493a23;
+            background: #493a23;
+            color: #fffdf6;
+            font-weight: 700;
+        }
+
+        .shop-catalogue .articles-pager__step.is-disabled {
+            border-color: #dfd4c2;
+            background: transparent;
+            color: #756959;
+        }
+
+        @media (max-width: 600px) {
+            .shop-catalogue .articles-pager {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .shop-catalogue .articles-pager__pages { grid-area: 1 / 1 / 2 / -1; }
+        }
     </style>
 @endpush
 @push('scripts')
