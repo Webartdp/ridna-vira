@@ -237,6 +237,12 @@
                 @endforelse
             </div>
             {{ $products->links('partials.articles-pagination', ['paginationLabel' => 'Сторінки крамниці']) }}
+            @if ($catalogueCopy)
+                @include('shop.catalogue-copy', [
+                    'heading' => $browseCategory ? 'Про розділ «'.$browseCategory->name.'»' : 'Про крамницю «Рідна Віра»',
+                    'paragraphs' => $catalogueCopy,
+                ])
+            @endif
         </div>
     </div>
 </section>

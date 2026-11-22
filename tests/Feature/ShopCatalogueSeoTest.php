@@ -68,6 +68,32 @@ class ShopCatalogueSeoTest extends TestCase
         $this->get('/kramnychka?page=3')->assertNotFound();
     }
 
+    public function test_shop_copy_is_server_rendered_after_the_first_page_paginator(): void
+    {
+        $this->withoutVite();
+        $category = ProductCategory::where('slug', 'oberehy-dlia-domu')->firstOrFail();
+        $subcategory = $category->children()->where('slug', 'oberehy-dlia-domu-motanky')->firstOrFail();
+        for ($i = 1; $i <= 13; $i++) {
+            $this->product($subcategory, 'seo-motanka-copy-'.$i, 'Мотанка №'.$i);
+        }
+
+        $paragraphs = config('shop_catalogue_copy.categories.'.$category->slug);
+        $this->assertNotEmpty($paragraphs);
+        $this->get($category->publicUrl())->assertOk()->assertSeeInOrder([
+            'aria-label="Сторінки крамниці"',
+            'id="shop-catalogue-copy-title"',
+            ...array_map(fn (string $paragraph) => e($paragraph), $paragraphs),
+            'Читати повністю',
+        ], false)->assertSee('aria-expanded="true" aria-controls="shop-catalogue-copy-text" hidden', false);
+
+        $this->get($subcategory->publicUrl())->assertOk()
+            ->assertSee(config('shop_catalogue_copy.categories.'.$subcategory->slug.'.0'))
+            ->assertDontSee($paragraphs[0]);
+        $this->get('/kramnychka')->assertOk()->assertSee(config('shop_catalogue_copy.catalogue.0'));
+        $this->get($category->publicUrl().'?page=2')->assertOk()->assertDontSee('id="shop-catalogue-copy-title"', false);
+        $this->get($category->publicUrl().'?price_from=100')->assertOk()->assertDontSee('id="shop-catalogue-copy-title"', false);
+    }
+
     private function product(ProductCategory $category, string $slug, string $name, bool $active = true): Product
     {
         return Product::create([

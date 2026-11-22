@@ -79,6 +79,9 @@ class ShopController extends Controller
 
         $categoryLinks = ProductCategory::withPublishedProducts()
             ->where('parent_id', $browseCategory?->id)->orderBy('name')->get();
+        $catalogueCopy = $products->onFirstPage() && ! $request->anyFilled([...ShopCatalogueSeo::FILTERS, 'category'])
+            ? config($browseCategory ? 'shop_catalogue_copy.categories.'.$browseCategory->slug : 'shop_catalogue_copy.catalogue', [])
+            : [];
 
         return view('shop.catalogue', [
             'products' => $products,
@@ -86,6 +89,7 @@ class ShopController extends Controller
             'categoryLinks' => $categoryLinks,
             'browseCategory' => $browseCategory,
             'categoryDescription' => $browseCategory ? ShopCatalogueSeo::description($browseCategory) : null,
+            'catalogueCopy' => $catalogueCopy,
             'selectedCategory' => $selectedCategory,
             'sliderMaximum' => $sliderMaximum,
             'maker' => $maker,
