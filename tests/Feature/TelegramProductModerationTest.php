@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
@@ -152,6 +153,60 @@ class TelegramProductModerationTest extends TestCase
         $this->poll($this->callbackUpdate($deletedData));
         $this->assertFalse($deleted->refresh()->is_active);
         $this->assertNull($deleted->moderation_token);
+    }
+
+    public function test_failed_status_response_does_not_block_the_following_publish_update(): void
+    {
+        $product = $this->submitDraft();
+        $update = $this->callbackUpdate($this->latestPublishData());
+        Http::swap(new Factory);
+        Http::preventStrayRequests();
+        Http::fake([
+            self::API.'getUpdates' => Http::sequence()
+                ->push(['ok' => true, 'result' => [
+                    ['update_id' => $update['update_id'] - 1, 'message' => [
+                        'chat' => ['id' => self::ADMIN_CHAT, 'type' => 'private'],
+                        'text' => '/status',
+                    ]],
+                    $update,
+                ]])
+                ->push(['ok' => true, 'result' => []]),
+            self::API.'sendMessage' => Http::response(['ok' => false], 503),
+            self::API.'answerCallbackQuery' => Http::response(['ok' => true]),
+            self::API.'editMessageReplyMarkup' => Http::response(['ok' => true]),
+        ]);
+
+        $this->artisan('telegram:alerts')->assertSuccessful();
+        $this->artisan('telegram:alerts')->assertSuccessful();
+
+        $this->assertTrue($product->refresh()->is_active);
+        $this->assertSame($update['update_id'] + 1, $this->requests('getUpdates')->last()['offset']);
+        $this->assertSame('Виріб опубліковано в крамниці.', $this->requests('answerCallbackQuery')->sole()['text']);
+    }
+
+    public function test_publication_confirmation_is_sent_if_telegram_cannot_update_the_button(): void
+    {
+        $product = $this->submitDraft();
+        $data = $this->latestPublishData();
+        Http::swap(new Factory);
+        Http::preventStrayRequests();
+        Http::fake([
+            self::API.'getUpdates' => Http::sequence()
+                ->push(['ok' => true, 'result' => [$this->callbackUpdate($data)]])
+                ->push(['ok' => true, 'result' => [$this->callbackUpdate($data)]]),
+            self::API.'answerCallbackQuery' => Http::response(['ok' => false], 400),
+            self::API.'editMessageReplyMarkup' => Http::response(['ok' => false], 400),
+            self::API.'sendMessage' => Http::response(['ok' => true]),
+        ]);
+
+        $this->artisan('telegram:alerts')->assertSuccessful();
+        $this->artisan('telegram:alerts')->assertSuccessful();
+
+        $this->assertTrue($product->refresh()->is_active);
+        $confirmation = $this->requests('sendMessage')->sole();
+        $this->assertStringContainsString('Виріб опубліковано', $confirmation['text']);
+        $this->assertSame('https://ridna.example.test'.route('shop.product', $product, false),
+            $confirmation['reply_markup']['inline_keyboard'][0][0]['url']);
     }
 
     private function submitDraft(array $fields = []): Product

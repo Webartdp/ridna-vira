@@ -3,6 +3,7 @@
 use App\Http\Middleware\EnsureActiveAccount;
 use App\Http\Middleware\RenderContentPage;
 use App\Http\Middleware\SearchMetadata;
+use App\Services\AdminTelegramWebhook;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(SearchMetadata::class);
-        $middleware->validateCsrfTokens(except: ['oplata/wayforpay', 'oplata/povernennia/*']);
+        $middleware->validateCsrfTokens(except: ['oplata/wayforpay', 'oplata/povernennia/*', ltrim(AdminTelegramWebhook::PATH, '/')]);
         $middleware->web(append: [EnsureActiveAccount::class, RenderContentPage::class]);
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('account.index'));

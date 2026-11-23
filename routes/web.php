@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminTelegramWebhookController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\BookFileController;
 use App\Http\Controllers\CommunityController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\ShrineController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Middleware\RenderContentPage;
 use App\Models\ContentPage;
+use App\Services\AdminTelegramWebhook;
 use App\Support\Cms;
 use Illuminate\Support\Facades\Route;
 
@@ -111,6 +113,7 @@ Route::get('/zamovlennia/{token}', [ShopController::class, 'order'])->where('tok
 Route::post('/zamovlennia/{token}/oplata', [ShopController::class, 'pay'])->where('token', '[A-Za-z0-9]{64}')->middleware('throttle:10,1')->name('shop.pay');
 Route::match(['get', 'post'], '/oplata/povernennia/{token}', [ShopController::class, 'returned'])->where('token', '[A-Za-z0-9]{64}')->name('shop.return');
 Route::post('/oplata/wayforpay', [ShopController::class, 'webhook'])->name('shop.webhook');
+Route::post(AdminTelegramWebhook::PATH, AdminTelegramWebhookController::class)->name('telegram.admin.webhook');
 
 Route::fallback(function () {
     abort_unless(Cms::ready(), 404);

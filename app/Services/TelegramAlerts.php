@@ -187,7 +187,9 @@ final class TelegramAlerts
         }
 
         return (int) Cache::lock('telegram:process-alerts', 180)->get(function (): int {
-            $this->answerUpdates();
+            if (! app(AdminTelegramWebhook::class)->enabled()) {
+                $this->answerUpdates();
+            }
 
             return $this->deliver();
         });
@@ -334,22 +336,34 @@ final class TelegramAlerts
         }
 
         foreach ($response->json('result', []) as $update) {
-            $callback = $update['callback_query'] ?? null;
-            if (is_array($callback)) {
-                $this->answerProductCallback($callback);
-            } elseif (TelegramBot::privateChatId($update) === (string) config('services.telegram.chat_id')) {
-                $command = explode(' ', trim((string) data_get($update, 'message.text')), 2)[0];
-                $answer = match ($command) {
-                    '/start', '/help' => "🔔 <b>Рідна Віра · Сповіщення сайту</b>\n\nЯ надсилаю нові замовлення, платежі, вироби та звернення.\nЩоб схвалити виріб майстра, натисніть «Опублікувати» під сповіщенням.\n/status — перевірити підключення",
-                    '/status' => '✅ <b>Бот підключено до сайту.</b>',
-                    default => null,
-                };
-                if ($answer !== null && $this->send($answer)?->json('ok') !== true) {
-                    break;
-                }
-            }
-
+            $this->acceptUpdate($update);
             Cache::put($offsetKey, (int) $update['update_id'] + 1, now()->addDays(2));
+        }
+    }
+
+    public function acceptUpdate(array $update): void
+    {
+        $callback = $update['callback_query'] ?? null;
+        if (is_array($callback)) {
+            $this->answerProductCallback($callback);
+
+            return;
+        }
+
+        if (TelegramBot::privateChatId($update) !== (string) config('services.telegram.chat_id')) {
+            return;
+        }
+        $command = explode(' ', trim((string) data_get($update, 'message.text')), 2)[0];
+        $answer = match ($command) {
+            '/start', '/help' => "🔔 <b>Рідна Віра · Сповіщення сайту</b>\n\nЯ надсилаю нові замовлення, платежі, вироби та звернення.\nЩоб схвалити виріб майстра, натисніть «Опублікувати» під сповіщенням.\n/status — перевірити підключення",
+            '/status' => '✅ <b>Бот підключено до сайту.</b>',
+            default => null,
+        };
+        if ($answer !== null) {
+            $response = $this->send($answer);
+            if ($response?->json('ok') !== true) {
+                Log::warning('Telegram administrator command reply failed.', ['status' => $response?->status()]);
+            }
         }
     }
 
@@ -377,47 +391,67 @@ final class TelegramAlerts
         }
 
         [, $productId, $revision] = $action;
-        [$text, $product] = DB::transaction(function () use ($productId, $revision): array {
+        [$text, $product, $published] = DB::transaction(function () use ($productId, $revision): array {
             $product = Product::whereKey($productId)
                 ->whereHas('maker', fn ($query) => $query->where('role', 'maker')->where('is_active', true)->whereNotNull('email_verified_at'))
                 ->lockForUpdate()->first();
             if (! $product) {
-                return ['Виріб недоступний.', null];
+                return ['Виріб недоступний.', null, false];
             }
             if ($product->is_active) {
-                return ['Виріб уже опубліковано.', $product];
+                return ['Виріб уже опубліковано.', $product, false];
             }
             if ($product->moderation_token === null || ! hash_equals($product->moderation_token, $revision)) {
-                return ['Ця версія виробу більше не на модерації.', null];
+                return ['Ця версія виробу більше не на модерації.', null, false];
             }
 
             $product->is_active = true;
             $product->save();
 
-            return ['Виріб опубліковано в крамниці.', $product];
+            return ['Виріб опубліковано в крамниці.', $product, true];
         }, 3);
 
-        $this->request('answerCallbackQuery', [
+        $answer = $this->request('answerCallbackQuery', [
             'callback_query_id' => $callbackId,
             'text' => $text,
             'show_alert' => $product === null,
         ]);
+        $answered = $answer?->json('ok') === true;
+        if (! $answered) {
+            Log::warning('Telegram moderation acknowledgement failed.', ['status' => $answer?->status()]);
+        }
+        if (! $product) {
+            if (! $answered) {
+                $this->send($text);
+            }
 
-        if ($product && ($messageId = data_get($callback, 'message.message_id'))) {
-            $this->request('editMessageReplyMarkup', [
+            return;
+        }
+
+        $replyMarkup = ['inline_keyboard' => [[[
+            'text' => 'Опубліковано · Відкрити в крамниці',
+            'url' => rtrim((string) config('app.url'), '/').route('shop.product', $product, false),
+        ]]]];
+        $edited = null;
+        if ($messageId = data_get($callback, 'message.message_id')) {
+            $edited = $this->request('editMessageReplyMarkup', [
                 'chat_id' => $chatId,
                 'message_id' => $messageId,
-                'reply_markup' => ['inline_keyboard' => [[[
-                    'text' => 'Опубліковано · Відкрити в крамниці',
-                    'url' => rtrim((string) config('app.url'), '/').route('shop.product', $product, false),
-                ]]]],
+                'reply_markup' => $replyMarkup,
             ]);
+        }
+        if ($published && $edited?->json('ok') !== true) {
+            Log::warning('Telegram publication button update failed.', ['product_id' => $product->id, 'status' => $edited?->status()]);
+            $message = $this->send('✅ <b>Виріб опубліковано</b>'."\n".e($product->name), $replyMarkup);
+            if ($message?->json('ok') !== true) {
+                Log::warning('Telegram publication confirmation failed.', ['product_id' => $product->id, 'status' => $message?->status()]);
+            }
         }
     }
 
-    private function send(string $message): ?Response
+    private function send(string $message, ?array $replyMarkup = null): ?Response
     {
-        return TelegramBot::send((string) config('services.telegram.bot_token'), (string) config('services.telegram.chat_id'), $message);
+        return TelegramBot::send((string) config('services.telegram.bot_token'), (string) config('services.telegram.chat_id'), $message, $replyMarkup);
     }
 
     private function request(string $method, array $data): ?Response
