@@ -14,8 +14,9 @@ class Product extends Model
 
     public const MAKER_MARKUP_PERCENT = 38;
 
+    protected $guarded = ['id', 'moderation_token'];
 
-    protected $guarded = ['id'];
+    protected $hidden = ['moderation_token'];
 
     protected static function booted(): void
     {
@@ -23,11 +24,22 @@ class Product extends Model
             if ($product->maker_price_minor !== null) {
                 $product->price_minor = self::makerRetailPrice($product->maker_price_minor);
             }
+            $listingChanged = $product->isDirty([
+                'maker_id', 'name', 'slug', 'sku', 'product_category_id', 'description', 'images',
+                'maker_price_minor', 'price_minor', 'made_to_order', 'stock',
+            ]);
+            if ($product->moderation_token !== null
+                && ($product->is_active || ($listingChanged && ! $product->isDirty('moderation_token')))) {
+                $product->moderation_token = null;
+            }
             if ($product->isDirty('images')) {
                 foreach ($product->images ?? [] as $image) {
                     app(ProductImages::class)->generate($image);
                 }
             }
+        });
+        static::restoring(function (self $product): void {
+            $product->moderation_token = null;
         });
     }
 

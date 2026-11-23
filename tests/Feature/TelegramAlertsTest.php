@@ -120,7 +120,7 @@ class TelegramAlertsTest extends TestCase
         }
     }
 
-    public function test_valid_maker_submission_and_previously_published_edit_send_moderation_alerts_immediately(): void
+    public function test_maker_submissions_and_changed_edits_send_moderation_alerts_immediately(): void
     {
         Storage::fake('public');
         $maker = User::factory()->create(['role' => 'maker', 'name' => 'Майстриня', 'email' => 'maker@example.test']);
@@ -141,14 +141,17 @@ class TelegramAlertsTest extends TestCase
         $product = Product::sole();
         $update = [...$details, 'name' => 'Миска з розписом', 'stock_before' => 2];
         $this->put(route('maker.products.update', $product), $update)->assertRedirect(route('maker.index'));
-        $this->assertDatabaseCount('telegram_alerts', 1);
+        $this->assertDatabaseCount('telegram_alerts', 2);
 
-        $product->update(['is_active' => true]);
         $this->put(route('maker.products.update', $product), $update)->assertRedirect(route('maker.index'));
         $this->assertDatabaseCount('telegram_alerts', 2);
-        Http::assertSentCount(2);
+        $product->refresh();
+        $product->update(['is_active' => true]);
+        $this->put(route('maker.products.update', $product), $update)->assertRedirect(route('maker.index'));
+        $this->assertDatabaseCount('telegram_alerts', 3);
+        Http::assertSentCount(3);
         $messages = $this->sentMessages();
-        $this->assertCount(2, $messages);
+        $this->assertCount(3, $messages);
         $this->assertStringContainsString('Миска з розписом', $messages->last()['text']);
     }
 
@@ -162,7 +165,9 @@ class TelegramAlertsTest extends TestCase
 
         $this->assertDatabaseCount('telegram_alerts', 1);
         defer()->invoke();
-        $message = $this->sentMessages()->sole()['text'];
+        $notification = $this->sentMessages()->sole();
+        $this->assertArrayNotHasKey('reply_markup', $notification->data());
+        $message = $notification['text'];
         $this->assertStringContainsString('Новий товар додано в адмінці', $message);
         $this->assertStringContainsString('Крамнична книга', $message);
         $this->assertStringContainsString('275,50', $message);
@@ -274,6 +279,26 @@ class TelegramAlertsTest extends TestCase
         $this->assertSame('424242', $message['chat_id']);
         $this->assertStringContainsString('Бот підключено', $message['text']);
         Http::assertSent(fn (Request $request) => str_ends_with($request->url(), '/getUpdates') && $request['offset'] === 103);
+    }
+
+    public function test_bot_waits_before_polling_again_when_telegram_rate_limits_updates(): void
+    {
+        Http::swap(new Factory);
+        Http::preventStrayRequests();
+        Http::fake([
+            'https://api.telegram.org/bot123456:abc_DE-f/getUpdates' => Http::sequence()
+                ->push(['ok' => false, 'parameters' => ['retry_after' => 30]], 429)
+                ->push(['ok' => true, 'result' => []]),
+        ]);
+
+        $this->artisan('telegram:alerts')->assertSuccessful();
+        $this->travel(5)->seconds();
+        $this->artisan('telegram:alerts')->assertSuccessful();
+        Http::assertSentCount(1);
+
+        $this->travel(30)->seconds();
+        $this->artisan('telegram:alerts')->assertSuccessful();
+        Http::assertSentCount(2);
     }
 
     private function sentMessages(): Collection

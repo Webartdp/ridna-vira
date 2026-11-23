@@ -9,6 +9,7 @@ use App\Services\Checkout;
 use App\Services\MakerTelegram;
 use App\Services\WayForPay;
 use App\Support\Money;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Collection;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use PHPUnit\Framework\Attributes\WithEnvironmentVariable;
 use Tests\TestCase;
 
 use function Illuminate\Support\defer;
@@ -25,6 +27,7 @@ class MakerTelegramTest extends TestCase
     use RefreshDatabase;
 
     private const MAKER_API = 'https://api.telegram.org/bot876543:makers_TEST/';
+
     private const ADMIN_API = 'https://api.telegram.org/bot123456:admin_TEST/';
 
     protected function setUp(): void
@@ -123,11 +126,20 @@ class MakerTelegramTest extends TestCase
         $this->assertDatabaseMissing('maker_telegram_links', ['chat_id' => '111111']);
     }
 
+    #[WithEnvironmentVariable('TELEGRAM_BOT_TOKEN', '123456:admin_TEST')]
+    #[WithEnvironmentVariable('TELEGRAM_CHAT_ID', '424242')]
     public function test_scheduler_polls_both_telegram_bots_in_the_current_process(): void
     {
         $this->fakeTelegram();
 
-        $this->artisan('schedule:run')->assertSuccessful();
+        $events = app(Schedule::class)->dueEvents($this->app)
+            ->filter(fn ($event) => str_starts_with($event->description ?? '', 'telegram:'));
+        $this->assertCount(2, $events);
+        $this->assertSame(5, $events->firstWhere('description', 'telegram:alerts')->repeatSeconds);
+        foreach ($events as $event) {
+            $this->assertTrue($event->filtersPass($this->app));
+            $event->run($this->app);
+        }
 
         Http::assertSent(fn (Request $request) => $request->url() === self::MAKER_API.'getUpdates');
         Http::assertSent(fn (Request $request) => $request->url() === self::ADMIN_API.'getUpdates');

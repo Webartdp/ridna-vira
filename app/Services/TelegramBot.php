@@ -38,7 +38,7 @@ final class TelegramBot
         }
     }
 
-    public static function send(string $token, string $chatId, string $message): ?Response
+    public static function send(string $token, string $chatId, string $message, ?array $replyMarkup = null): ?Response
     {
         return self::request($token, 'sendMessage', [
             'chat_id' => $chatId,
@@ -46,6 +46,7 @@ final class TelegramBot
             'parse_mode' => 'HTML',
             'link_preview_options' => ['is_disabled' => true],
             'protect_content' => true,
+            ...($replyMarkup === null ? [] : ['reply_markup' => $replyMarkup]),
         ]);
     }
 }

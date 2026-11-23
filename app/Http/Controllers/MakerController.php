@@ -70,7 +70,8 @@ class MakerController extends Controller
     public function hide(Request $request, Product $product)
     {
         $this->authorizeOwner($request, $product);
-        Product::whereKey($product->id)->where('maker_id', $request->user()->id)->update(['is_active' => false]);
+        Product::whereKey($product->id)->where('maker_id', $request->user()->id)
+            ->update(['is_active' => false, 'moderation_token' => null]);
 
         return back()->with('status', 'Виріб приховано.');
     }
@@ -146,7 +147,6 @@ class MakerController extends Controller
                 if (count($photos) < 1 || count($photos) > 8) {
                     throw ValidationException::withMessages(['images' => 'Залиште або завантажте від 1 до 8 фотографій.']);
                 }
-                $wasPublished = $locked->is_active;
                 $stock = $data['stock'] ?? null;
                 $locked->fill([
                     ...array_intersect_key($data, ['product_category_id' => true]),
@@ -157,10 +157,14 @@ class MakerController extends Controller
                     'made_to_order' => $stock === null,
                     'stock' => $stock ?? 0,
                     'is_active' => false,
-                ])->save();
-                if ($locked->wasRecentlyCreated || $wasPublished) {
-                    app(TelegramAlerts::class)->productAdded($locked, $request->user(), $data['description']);
+                ]);
+                if (! $locked->isDirty() && $locked->moderation_token !== null) {
+                    return;
                 }
+
+                $locked->moderation_token = Str::random(24);
+                $locked->save();
+                app(TelegramAlerts::class)->productAdded($locked, $request->user(), $data['description']);
             }, 3);
         } catch (Throwable $error) {
             $disk = Storage::disk('public');

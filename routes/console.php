@@ -9,8 +9,10 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::call(fn (): bool => Artisan::call('shop:expire-reservations') === 0)
     ->name('shop:expire-reservations')->everyMinute()->withoutOverlapping();
 
-Schedule::call(fn (): bool => Artisan::call('telegram:alerts') === 0)
-    ->name('telegram:alerts')->everyMinute()->when(fn () => app(TelegramAlerts::class)->configured());
+if (app(TelegramAlerts::class)->configured()) {
+    Schedule::call(fn (): bool => Artisan::call('telegram:alerts') === 0)
+        ->name('telegram:alerts')->everyFiveSeconds();
+}
 Schedule::call(fn (): bool => Artisan::call('telegram:makers') === 0)
     ->name('telegram:makers')->everyMinute()->when(fn () => app(MakerTelegram::class)->configured());
 

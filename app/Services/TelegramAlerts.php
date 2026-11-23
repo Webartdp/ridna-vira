@@ -25,6 +25,10 @@ final class TelegramAlerts
 {
     private const TEXT_LIMIT = 1800;
 
+    private const UPDATE_TYPES = ['message', 'callback_query'];
+
+    private const MODERATION_ACTION = '/^product:([1-9][0-9]{0,19}):mod:([a-zA-Z0-9]{24})$/D';
+
     private function hasBotToken(): bool
     {
         return TelegramBot::validToken((string) config('services.telegram.bot_token'));
@@ -119,7 +123,9 @@ final class TelegramAlerts
         }
 
         $isMakerProduct = $product->maker_id !== null;
-        $event = $product->wasRecentlyCreated ? 'created' : 'updated:'.Str::uuid();
+        $event = $isMakerProduct && ! $product->is_active && $product->moderation_token
+            ? 'mod:'.$product->moderation_token
+            : ($product->wasRecentlyCreated ? 'created' : 'updated:'.Str::uuid());
         $heading = match (true) {
             ! $isMakerProduct => '🧺 Новий товар додано в адмінці',
             $product->wasRecentlyCreated => '🧺 Новий виріб на модерації',
@@ -158,7 +164,7 @@ final class TelegramAlerts
             return null;
         }
 
-        $response = $this->request('getUpdates', ['allowed_updates' => ['message'], 'limit' => 100]);
+        $response = $this->request('getUpdates', ['allowed_updates' => self::UPDATE_TYPES, 'limit' => 100]);
         if ($response?->json('ok') !== true) {
             return null;
         }
@@ -181,10 +187,9 @@ final class TelegramAlerts
         }
 
         return (int) Cache::lock('telegram:process-alerts', 180)->get(function (): int {
-            $sent = $this->deliver();
-            $this->answerCommands();
+            $this->answerUpdates();
 
-            return $sent;
+            return $this->deliver();
         });
     }
 
@@ -265,7 +270,10 @@ final class TelegramAlerts
                 continue;
             }
             $token = (string) config($makers ? 'services.maker_telegram.bot_token' : 'services.telegram.bot_token');
-            $response = TelegramBot::send($token, $chatId, $message);
+            $replyMarkup = ! $makers && preg_match(self::MODERATION_ACTION, $alert->event_key)
+                ? ['inline_keyboard' => [[['text' => 'Опублікувати', 'callback_data' => $alert->event_key]]]]
+                : null;
+            $response = TelegramBot::send($token, $chatId, $message, $replyMarkup);
             $attempts = $alert->attempts + 1;
 
             if ($response?->json('ok') === true) {
@@ -303,23 +311,36 @@ final class TelegramAlerts
             ->value('chat_id');
     }
 
-    private function answerCommands(): void
+    private function answerUpdates(): void
     {
-        $offsetKey = 'telegram:offset:'.hash('sha256', (string) config('services.telegram.bot_token'));
+        $botKey = hash('sha256', (string) config('services.telegram.bot_token'));
+        $offsetKey = 'telegram:offset:'.$botKey;
+        $retryKey = 'telegram:poll-retry:'.$botKey;
+        if (Cache::has($retryKey)) {
+            return;
+        }
+
         $response = $this->request('getUpdates', [
             'offset' => (int) Cache::get($offsetKey, 0),
-            'allowed_updates' => ['message'],
+            'allowed_updates' => self::UPDATE_TYPES,
             'limit' => 10,
+            'timeout' => 3,
         ]);
+        if ($response?->status() === 429) {
+            Cache::put($retryKey, true, max(5, min(86400, (int) $response->json('parameters.retry_after'))));
+        }
         if ($response?->json('ok') !== true) {
             return;
         }
 
         foreach ($response->json('result', []) as $update) {
-            if (TelegramBot::privateChatId($update) === (string) config('services.telegram.chat_id')) {
+            $callback = $update['callback_query'] ?? null;
+            if (is_array($callback)) {
+                $this->answerProductCallback($callback);
+            } elseif (TelegramBot::privateChatId($update) === (string) config('services.telegram.chat_id')) {
                 $command = explode(' ', trim((string) data_get($update, 'message.text')), 2)[0];
                 $answer = match ($command) {
-                    '/start', '/help' => "🔔 <b>Рідна Віра · Сповіщення сайту</b>\n\nЯ надсилаю нові замовлення, платежі, вироби та звернення.\n/status — перевірити підключення",
+                    '/start', '/help' => "🔔 <b>Рідна Віра · Сповіщення сайту</b>\n\nЯ надсилаю нові замовлення, платежі, вироби та звернення.\nЩоб схвалити виріб майстра, натисніть «Опублікувати» під сповіщенням.\n/status — перевірити підключення",
                     '/status' => '✅ <b>Бот підключено до сайту.</b>',
                     default => null,
                 };
@@ -329,6 +350,68 @@ final class TelegramAlerts
             }
 
             Cache::put($offsetKey, (int) $update['update_id'] + 1, now()->addDays(2));
+        }
+    }
+
+    private function answerProductCallback(array $callback): void
+    {
+        $callbackId = $callback['id'] ?? null;
+        if (! is_string($callbackId) || $callbackId === '') {
+            return;
+        }
+
+        $chatId = (string) config('services.telegram.chat_id');
+        $data = $callback['data'] ?? null;
+        if (data_get($callback, 'message.chat.type') !== 'private'
+            || (string) data_get($callback, 'message.chat.id') !== $chatId
+            || (string) data_get($callback, 'from.id') !== $chatId
+            || ! is_string($data) || ! preg_match(self::MODERATION_ACTION, $data, $action)
+        ) {
+            $this->request('answerCallbackQuery', [
+                'callback_query_id' => $callbackId,
+                'text' => 'Ця дія недоступна.',
+                'show_alert' => true,
+            ]);
+
+            return;
+        }
+
+        [, $productId, $revision] = $action;
+        [$text, $product] = DB::transaction(function () use ($productId, $revision): array {
+            $product = Product::whereKey($productId)
+                ->whereHas('maker', fn ($query) => $query->where('role', 'maker')->where('is_active', true)->whereNotNull('email_verified_at'))
+                ->lockForUpdate()->first();
+            if (! $product) {
+                return ['Виріб недоступний.', null];
+            }
+            if ($product->is_active) {
+                return ['Виріб уже опубліковано.', $product];
+            }
+            if ($product->moderation_token === null || ! hash_equals($product->moderation_token, $revision)) {
+                return ['Ця версія виробу більше не на модерації.', null];
+            }
+
+            $product->is_active = true;
+            $product->save();
+
+            return ['Виріб опубліковано в крамниці.', $product];
+        }, 3);
+
+        $this->request('answerCallbackQuery', [
+            'callback_query_id' => $callbackId,
+            'text' => $text,
+            'show_alert' => $product === null,
+        ]);
+
+        if ($product && ($messageId = data_get($callback, 'message.message_id'))) {
+            $this->request('editMessageReplyMarkup', [
+                'chat_id' => $chatId,
+                'message_id' => $messageId,
+                'reply_markup' => ['inline_keyboard' => [[[
+                    'text' => 'Опубліковано · Відкрити в крамниці',
+                    'url' => rtrim((string) config('app.url'), '/').route('shop.product', $product, false),
+                ]]]],
+            ]);
         }
     }
 
