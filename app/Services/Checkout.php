@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Mail\OrderPaid;
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\SiteSetting;
 use App\Support\Money;
@@ -15,22 +16,30 @@ use Illuminate\Validation\ValidationException;
 
 class Checkout
 {
-    public function create(array $customer, array $cart, string $token, ?int $userId = null): Order
+    public function create(array $customer, array $cart, string $token, ?int $userId = null, ?string $paymentCode = null): Order
     {
-        return DB::transaction(function () use ($customer, $cart, $token, $userId) {
+        return DB::transaction(function () use ($customer, $cart, $token, $userId, $paymentCode) {
             if ($existing = Order::withTrashed()->where('checkout_token', $token)->first()) {
                 abort_if($existing->trashed(), 409, 'Це замовлення видалено. Поверніться до кошика.');
 
                 return $existing;
-            }
-            if ($cart === []) {
-                throw ValidationException::withMessages(['cart' => 'Кошик порожній.']);
             }
             $products = Product::whereIn('id', array_keys($cart))->orderBy('id')->lockForUpdate()->get()->keyBy('id');
             if ($existing = Order::withTrashed()->where('checkout_token', $token)->lockForUpdate()->first()) {
                 abort_if($existing->trashed(), 409, 'Це замовлення видалено. Поверніться до кошика.');
 
                 return $existing;
+            }
+            if ($paymentCode !== null) {
+                $method = PaymentMethod::where('code', $paymentCode)->where('is_active', true)->sharedLock()->first();
+                if (! $method) {
+                    throw ValidationException::withMessages(['payment_method' => 'Цей спосіб оплати недоступний. Оберіть інший.']);
+                }
+                abort_if($method->driver === PaymentMethod::WAYFORPAY && ! app(WayForPay::class)->ready(), 503, 'Онлайн-оплата тимчасово недоступна.');
+                $customer = [...$customer, ...$method->orderSnapshot()];
+            }
+            if ($cart === []) {
+                throw ValidationException::withMessages(['cart' => 'Кошик порожній.']);
             }
             $total = 0;
             $items = [];
@@ -76,7 +85,7 @@ class Checkout
     {
         DB::transaction(function () use ($order, $status, $cancel) {
             $locked = Order::withTrashed()->lockForUpdate()->findOrFail($order->id);
-            if ($locked->trashed() || ! $locked->hasUnpaidReservation() || ($locked->isCashOnDelivery() && ! $cancel)) {
+            if ($locked->trashed() || ! $locked->hasUnpaidReservation() || (! $locked->isWayForPay() && ! $cancel)) {
                 return;
             }
 
@@ -127,11 +136,24 @@ class Checkout
         }, 3);
     }
 
+    public function confirmManualPayment(Order $order): void
+    {
+        DB::transaction(function () use ($order) {
+            $locked = Order::lockForUpdate()->findOrFail($order->id);
+            if (! $locked->canConfirmManualPayment()) {
+                throw ValidationException::withMessages(['order' => 'Це замовлення не очікує ручного підтвердження оплати.']);
+            }
+
+            $locked->update(['payment_status' => 'paid', 'paid_at' => now()]);
+            $this->notifyPaid($locked, '✅ Оплату підтверджено вручну');
+        }, 3);
+    }
+
     public function payment(array $data): Order
     {
         return DB::transaction(function () use ($data) {
             $order = Order::withTrashed()->where('reference', $data['orderReference'])->lockForUpdate()->firstOrFail();
-            abort_if($order->isCashOnDelivery(), 409);
+            abort_unless($order->isWayForPay(), 409);
             try {
                 $amount = Money::minor((string) $data['amount']);
             } catch (\InvalidArgumentException) {
@@ -156,22 +178,27 @@ class Checkout
                 $this->enqueueOrderAlert($order, 'review', '⚠️ Оплата після завершення резерву — перевірте замовлення');
             }
             if (! $wasPaid && $order->payment_status === 'paid') {
-                $this->enqueueOrderAlert($order, 'paid', '✅ Онлайн-оплату підтверджено');
-                app(MakerOrderNotifications::class)->enqueue($order);
-                DB::afterCommit(function () use ($order) {
-                    $recipients = array_unique(array_filter([$order->email, SiteSetting::read('order_email')]));
-                    foreach ($recipients as $recipient) {
-                        try {
-                            Mail::to($recipient)->send(new OrderPaid($order));
-                        } catch (\Throwable $exception) {
-                            Log::warning('Order confirmation could not be delivered.', ['order_id' => $order->id, 'exception' => $exception::class]);
-                        }
-                    }
-                });
+                $this->notifyPaid($order, '✅ Онлайн-оплату підтверджено');
             }
 
             return $order;
         }, 3);
+    }
+
+    private function notifyPaid(Order $order, string $heading): void
+    {
+        $this->enqueueOrderAlert($order, 'paid', $heading);
+        app(MakerOrderNotifications::class)->enqueue($order);
+        DB::afterCommit(function () use ($order) {
+            $recipients = array_unique(array_filter([$order->email, SiteSetting::read('order_email')]));
+            foreach ($recipients as $recipient) {
+                try {
+                    Mail::to($recipient)->send(new OrderPaid($order));
+                } catch (\Throwable $exception) {
+                    Log::warning('Order confirmation could not be delivered.', ['order_id' => $order->id, 'exception' => $exception::class]);
+                }
+            }
+        });
     }
 
     private function enqueueOrderAlert(Order $order, string $event, string $heading, array $items = []): void
@@ -194,10 +221,9 @@ class Checkout
             ];
         }
 
-        $paymentMethods = Order::paymentMethods();
         $details += [
             'Сума' => Money::display($order->total_minor),
-            'Спосіб оплати' => $paymentMethods[$order->payment_method] ?? $paymentMethods['wayforpay'],
+            'Спосіб оплати' => $order->paymentMethodLabel(),
         ];
         app(TelegramAlerts::class)->enqueue('order:'.$order->reference.':'.$event, $heading, array_filter($details, filled(...)), '/admin/orders?search='.rawurlencode($order->displayNumber()));
     }

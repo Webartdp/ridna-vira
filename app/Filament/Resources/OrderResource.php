@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Models\Order;
+use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Services\Checkout;
 use App\Support\Money;
@@ -60,8 +61,11 @@ class OrderResource extends Resource
             TextInput::make('customer_name')->label('Покупець')->required()->maxLength(150),
             TextInput::make('phone')->label('Телефон')->tel()->required()->maxLength(30)->regex('/^\+?[\d ()-]{9,30}$/'),
             TextInput::make('email')->label('Пошта')->email()->required()->maxLength(190),
-            TextInput::make('payment_method')->label('Спосіб оплати')->formatStateUsing(fn ($state) => Order::paymentMethods()[$state] ?? $state)->disabled(),
+            TextInput::make('payment_method')->label('Спосіб оплати')
+                ->formatStateUsing(fn (?Order $record) => $record?->paymentMethodLabel())->disabled(),
             TextInput::make('payment_status')->label('Оплата')->formatStateUsing(fn ($state) => Order::paymentLabels()[$state] ?? $state)->disabled(),
+            Textarea::make('payment_instructions')->label('Інструкції з оплати для покупця')->disabled()->columnSpanFull()
+                ->visible(fn (?Order $record): bool => filled($record?->payment_instructions)),
             TextInput::make('delivery_method')->label('Спосіб доставки')
                 ->formatStateUsing(fn ($state) => $state === 'nova_poshta' ? 'Нова пошта' : $state)->disabled(),
             Textarea::make('delivery_address')->label('Адреса доставки або відділення')->required()->maxLength(1000),
@@ -91,7 +95,7 @@ class OrderResource extends Resource
                     TextInput::make('quantity')->label('Кількість')->required()->integer()->minValue(1)->maxValue(99),
                 ]),
             Select::make('fulfilment_status')->label('Виконання')->required()->options(['new' => 'Нове', 'processing' => 'Готується', 'shipped' => 'Відправлено', 'completed' => 'Виконано', 'cancelled' => 'Скасовано'])
-                ->helperText('Оплату WayForPay підтверджує сервіс. Післяплату підтвердіть після фактичного надходження коштів.'),
+                ->helperText('Підтвердження WayForPay надходить автоматично. Післяплату й оплату за реквізитами підтвердіть після надходження коштів.'),
             TextInput::make('tracking_number')->label('Номер відправлення')->maxLength(190),
             Textarea::make('admin_notes')->label('Внутрішні нотатки')->maxLength(10000)->columnSpanFull(),
         ]);
@@ -106,7 +110,7 @@ class OrderResource extends Resource
                 ->copyable(),
             TextColumn::make('customer_name')->label('Покупець')->searchable(), TextColumn::make('phone')->label('Телефон')->searchable(),
             TextColumn::make('total_minor')->label('Сума')->formatStateUsing(fn ($state) => Money::display((int) $state))->sortable(),
-            TextColumn::make('payment_method')->label('Спосіб оплати')->formatStateUsing(fn ($state) => Order::paymentMethods()[$state] ?? $state),
+            TextColumn::make('payment_method')->label('Спосіб оплати')->formatStateUsing(fn (Order $record) => $record->paymentMethodLabel()),
             TextColumn::make('payment_status')->label('Оплата')->formatStateUsing(fn (Order $record) => $record->paymentStatusLabel())->badge()->color(fn ($state) => match ($state) {
                 'paid' => 'success', 'review' => 'danger', default => 'warning'
             }),
@@ -126,6 +130,12 @@ class OrderResource extends Resource
                     ->requiresConfirmation()
                     ->modalDescription('Підтвердіть лише після вручення посилки та фактичного надходження післяплати.')
                     ->action(fn (Order $record) => app(Checkout::class)->confirmCashOnDelivery($record)),
+                Action::make('confirmManualPayment')->label('Підтвердити оплату')
+                    ->authorize(fn () => auth()->user()?->canManage('shop'))
+                    ->visible(fn (Order $record): bool => $record->canConfirmManualPayment())
+                    ->requiresConfirmation()
+                    ->modalDescription(fn (Order $record): string => 'Підтвердіть надходження '.Money::display($record->total_minor).' за це замовлення.')
+                    ->action(fn (Order $record) => app(Checkout::class)->confirmManualPayment($record)),
                 Action::make('cancel')->label('Скасувати й повернути залишок')
                     ->authorize(fn () => auth()->user()?->canManage('shop'))
                     ->requiresConfirmation()
@@ -146,7 +156,8 @@ class OrderResource extends Resource
     {
         return (string) Order::where('fulfilment_status', 'new')->where(fn ($query) => $query
             ->whereIn('payment_status', ['paid', 'review'])
-            ->orWhere(fn ($cash) => $cash->where('payment_method', 'cod')->where('payment_status', 'pending')))->count();
+            ->orWhere(fn ($unpaid) => $unpaid->whereIn('payment_method', [PaymentMethod::COD, PaymentMethod::MANUAL])
+                ->where('payment_status', 'pending')))->count();
     }
 
     public static function getPages(): array

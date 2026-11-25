@@ -24,7 +24,8 @@
         .checkout-fields{display:grid;gap:16px;min-width:0}
         .checkout-layout h2{font-size:1.5rem;margin:0 0 14px}
         .checkout-payment-method{padding:12px 14px;background:#f4ecdc;border:1px solid #e2d4bb;border-radius:8px}
-        .checkout-payment-method small{margin:2px 0 8px}.checkout-payment-method label{margin:0}
+        .checkout-payment-option+.checkout-payment-option{margin-top:8px}
+        .checkout-payment-option small{margin:2px 0 0}.checkout-payment-option label{margin:0;overflow-wrap:anywhere}
         .shop .checkout-payment-method input[type=radio]{width:auto;margin-right:6px;accent-color:#493a23}
         .checkout-totals{margin:18px 0 0}
         .checkout-totals>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0}
@@ -110,16 +111,23 @@
 
         <section class="shop-panel checkout-summary" aria-labelledby="checkout-payment">
             <h2 id="checkout-payment">Оплата</h2>
-            @php($selectedPayment = $paymentsReady ? old('payment_method', 'wayforpay') : 'cod')
-            <fieldset class="checkout-payment-method">
-                <legend class="visually-hidden">Спосіб оплати</legend>
-                <label><input type="radio" form="checkout-form" name="payment_method" value="cod" required @checked($selectedPayment === 'cod')> При отриманні</label>
-                <small>Післяплата Нової пошти за тарифами перевізника.</small>
-                <label><input type="radio" form="checkout-form" name="payment_method" value="wayforpay" required @checked($selectedPayment === 'wayforpay') @disabled(!$paymentsReady)> Онлайн карткою через WayForPay</label>
-                @if (!$paymentsReady)
-                    <small>Онлайн-оплата тимчасово недоступна.</small>
-                @endif
-            </fieldset>
+            @php($selectedPayment = $availablePaymentCodes->containsStrict(old('payment_method')) ? old('payment_method') : $availablePaymentCodes->first())
+            @if ($paymentMethods->isNotEmpty())
+                <fieldset class="checkout-payment-method">
+                    <legend class="visually-hidden">Спосіб оплати</legend>
+                    @foreach ($paymentMethods as $method)
+                        @php($available = $availablePaymentCodes->containsStrict($method->code))
+                        <div class="checkout-payment-option">
+                            <label><input type="radio" form="checkout-form" name="payment_method" value="{{ $method->code }}" required @checked($selectedPayment === $method->code) @disabled(!$available)> {{ $method->name }}</label>
+                            @if ($method->description)<small>{{ $method->description }}</small>@endif
+                            @unless ($available)<small>Онлайн-оплата тимчасово недоступна.</small>@endunless
+                        </div>
+                    @endforeach
+                </fieldset>
+            @endif
+            @if ($availablePaymentCodes->isEmpty())
+                <p class="shop-alert" role="status">Зараз немає доступних способів оплати.</p>
+            @endif
             <dl class="checkout-totals">
                 <div><dt>Товари</dt><dd data-cart-total>{{ \App\Support\Money::display($total) }}</dd></div>
                 <div><dt>Доставка</dt><dd>Окремо, за тарифами Нової пошти</dd></div>
@@ -134,7 +142,7 @@
             @if (!$ordersEnabled)
                 <div class="shop-alert" role="status">Оформлення замовлень тимчасово недоступне.</div>
             @endif
-            <button class="shop-btn checkout-submit" form="checkout-form" type="submit" @disabled(!$ordersEnabled || !$novaPoshtaReady)>Оформити замовлення</button>
+            <button class="shop-btn checkout-submit" form="checkout-form" type="submit" @disabled(!$ordersEnabled || !$novaPoshtaReady || $availablePaymentCodes->isEmpty())>Оформити замовлення</button>
         </section>
     </div>
     @include('shop.cart-quantity')

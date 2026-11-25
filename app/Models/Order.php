@@ -15,6 +15,8 @@ class Order extends Model
 
     protected $hidden = ['access_token', 'checkout_token'];
 
+    protected $attributes = ['payment_method' => PaymentMethod::WAYFORPAY];
+
     protected function casts(): array
     {
         return ['total_minor' => 'integer', 'reserved_until' => 'datetime', 'stock_released_at' => 'datetime', 'paid_at' => 'datetime'];
@@ -49,7 +51,22 @@ class Order extends Model
 
     public function isCashOnDelivery(): bool
     {
-        return $this->payment_method === 'cod';
+        return $this->payment_method === PaymentMethod::COD;
+    }
+
+    public function isWayForPay(): bool
+    {
+        return $this->payment_method === PaymentMethod::WAYFORPAY;
+    }
+
+    public function isManualPayment(): bool
+    {
+        return $this->payment_method === PaymentMethod::MANUAL;
+    }
+
+    public function paymentMethodLabel(): string
+    {
+        return $this->payment_method_label ?? self::paymentMethods()[$this->payment_method] ?? 'Спосіб оплати не вказано';
     }
 
     public function hasUnpaidReservation(): bool
@@ -61,6 +78,12 @@ class Order extends Model
     public function canEditItems(): bool
     {
         return ! $this->trashed() && $this->isCashOnDelivery() && $this->payment_status === 'pending'
+            && $this->hasUnpaidReservation() && in_array($this->fulfilment_status, ['new', 'processing'], true);
+    }
+
+    public function canConfirmManualPayment(): bool
+    {
+        return ! $this->trashed() && $this->isManualPayment() && $this->payment_status === 'pending'
             && $this->hasUnpaidReservation() && in_array($this->fulfilment_status, ['new', 'processing'], true);
     }
 
@@ -88,7 +111,11 @@ class Order extends Model
 
     public static function paymentMethods(): array
     {
-        return ['wayforpay' => 'Онлайн через WayForPay', 'cod' => 'При отриманні'];
+        return [
+            PaymentMethod::WAYFORPAY => 'Онлайн через WayForPay',
+            PaymentMethod::COD => 'При отриманні',
+            PaymentMethod::MANUAL => 'За інструкцією крамниці',
+        ];
     }
 
     public static function paymentLabels(): array
