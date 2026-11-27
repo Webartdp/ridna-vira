@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\CalendarDownloads;
 use App\Support\HomeImages;
 use App\Support\Seo;
 use App\Support\Site;
@@ -23,6 +24,9 @@ class SearchMetadata
         }
         $html = HomeImages::optimize($response->getContent(), $request->routeIs('home'));
         $html = Site::removeEncyclopediaLinksFromHtml($html);
+        if ($request->routeIs('faith.holiday')) {
+            $html = CalendarDownloads::rewriteLinks($html, $request->getHost());
+        }
         if (! str_contains($html, '</head>')) {
             return $response;
         }

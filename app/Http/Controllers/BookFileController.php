@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Support\BookLibrary;
+use App\Support\DownloadCanonical;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 final class BookFileController extends Controller
@@ -47,7 +48,18 @@ final class BookFileController extends Controller
         $title = (string) ($entry['title'] ?? $book);
         $fileName = $this->downloadFileName($title, $book, $format);
 
+        // Bundled formats with the same source name are editions of the same book.
+        $sources = BookLibrary::originals()[$book]['formats'] ?? [];
+        $canonicalFormat = $format;
+        if ($format === 'docx' && empty($entry['docx']) && empty($entry['pdf'])
+            && isset($sources['docx'], $sources['pdf'])
+            && pathinfo($sources['docx'], PATHINFO_FILENAME) === pathinfo($sources['pdf'], PATHINFO_FILENAME)
+            && BookLibrary::file($entry, 'pdf') !== null) {
+            $canonicalFormat = 'pdf';
+        }
+
         return response()->download($path, $fileName, [
+            'Link' => DownloadCanonical::header(route('faith.books.download', [$book, $canonicalFormat], absolute: false)),
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Support\Cms;
+use App\Support\DownloadCanonical;
 use App\Support\RitualReading;
 use Illuminate\Contracts\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -40,13 +41,25 @@ final class RitualController extends Controller
 
     public function download(string $ritual, string $format): BinaryFileResponse
     {
-        $file = collect($this->entry($ritual)['files'] ?? [])->firstWhere('format', $format);
+        $entry = $this->entry($ritual);
+        $file = collect($entry['files'] ?? [])->firstWhere('format', $format);
         abort_unless($file !== null && preg_match('~^documents/[a-zA-Z0-9._-]+$~', $file['path']), 404);
         $path = public_path('assets/rituals/'.$file['path']);
         abort_unless(is_file($path), 404);
 
+        $canonicalRitual = $entry['download_canonical_ritual'] ?? $ritual;
+        $canonicalEntry = $this->entry($canonicalRitual);
+        $canonicalFormat = $canonicalEntry['download_canonical_format'] ?? $format;
+        $canonicalFile = collect($canonicalEntry['files'] ?? [])->firstWhere('format', $canonicalFormat);
+        $canonicalDownload = $canonicalFile !== null && is_file(public_path('assets/rituals/'.$canonicalFile['path']))
+            ? [$canonicalRitual, $canonicalFormat] : [$ritual, $format];
+
         return response()->download($path, $ritual.'.'.$format, [
             'Content-Type' => $format === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'Link' => DownloadCanonical::header(
+                route('faith.rituals.download', $canonicalDownload, absolute: false),
+                ! empty($canonicalEntry['download_canonical_page']) ? route('faith.rituals.show', $canonicalRitual, absolute: false) : null,
+            ),
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }

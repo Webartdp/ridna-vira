@@ -6,6 +6,7 @@ use App\Filament\Resources\BookResource\Pages\EditBookEntry;
 use App\Models\ContentPage;
 use App\Models\User;
 use App\Support\BookLibrary;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
@@ -50,15 +51,45 @@ class BookLibraryTest extends TestCase
 
     public function test_uploaded_files_download_and_other_disk_paths_are_rejected(): void
     {
+        config(['app.url' => 'https://ridnavira.com.ua']);
         Storage::fake('public');
         Storage::disk('public')->put('books/new.pdf', '%PDF-1.4 test');
         $page = ContentPage::create(['section' => 'books', 'path' => '/ridna-vira/knyhy/new-book', 'title' => 'Нова книга', 'editor_mode' => 'reading', 'body' => '<p>Новий текст</p>', 'is_published' => true,
             'book' => ['author' => 'Автор', 'pdf' => 'books/new.pdf', 'pdf_enabled' => true, 'docx_enabled' => false]]);
-        $this->get($page->path.'/zavantazhyty/pdf')->assertOk()->assertDownload();
+        $this->get($page->path.'/zavantazhyty/pdf')->assertOk()->assertDownload()
+            ->assertHeader('Link', '<https://ridnavira.com.ua'.$page->path.'/zavantazhyty/pdf>; rel="canonical"');
         $this->get('/ridna-vira/knyhy')->assertSee('Нова книга');
         $this->get($page->path.'/zavantazhyty/docx')->assertNotFound();
         Storage::disk('public')->put('private.pdf', '%PDF secret');
         $page->update(['book' => ['pdf' => 'private.pdf', 'pdf_enabled' => true]]);
         $this->get($page->path.'/zavantazhyty/pdf')->assertNotFound();
+    }
+
+    public function test_an_original_docx_prefers_the_available_pdf_of_the_same_edition(): void
+    {
+        config(['app.url' => 'https://ridnavira.com.ua']);
+        $slug = array_key_first(BookLibrary::originals());
+        $path = '/ridna-vira/knyhy/'.$slug;
+        $originalStorage = storage_path();
+        $fixtureStorage = storage_path('framework/testing/book-edition-'.bin2hex(random_bytes(6)));
+        $directory = $fixtureStorage.'/app/content/books/'.$slug;
+        mkdir($directory, 0777, true);
+        file_put_contents($directory.'/'.$slug.'.pdf', '%PDF-1.4');
+        file_put_contents($directory.'/'.$slug.'.docx', 'PK original DOCX');
+        $this->app->useStoragePath($fixtureStorage);
+
+        try {
+            $this->get($path.'/zavantazhyty/docx')->assertOk()->assertDownload()
+                ->assertHeader('Link', '<https://ridnavira.com.ua'.$path.'/zavantazhyty/pdf>; rel="canonical"');
+
+            $page = ContentPage::where('path', $path)->firstOrFail();
+            $page->update(['book' => [...$page->book, 'pdf_enabled' => false]]);
+
+            $this->get($path.'/zavantazhyty/docx')->assertOk()->assertDownload()
+                ->assertHeader('Link', '<https://ridnavira.com.ua'.$path.'/zavantazhyty/docx>; rel="canonical"');
+        } finally {
+            $this->app->useStoragePath($originalStorage);
+            (new Filesystem)->deleteDirectory($fixtureStorage);
+        }
     }
 }

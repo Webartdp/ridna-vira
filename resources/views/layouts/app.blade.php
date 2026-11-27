@@ -13,6 +13,9 @@
     <meta name="description" content="@yield('description', 'Офіційний портал Духовного центру Рідна Віра')">
     @vite(['resources/scss/app.scss', 'resources/js/app.js'])
     @stack('styles')
+    @if(request()->routeIs('home'))
+        @include('partials.home-latest-product-styles')
+    @endif
     @if ($shopPolicyLinks)
         <style>
             .shop-policy-links{display:flex;flex-wrap:wrap;gap:6px 16px;margin:12px 0;font-size:.875rem}
@@ -75,7 +78,14 @@
     </nav>
 </header>
 
-<main>@yield('content')</main>
+<main>
+    @yield('content')
+    @if(request()->routeIs('home') && !app()->bound('cms.importing'))
+        <!-- cms-live:home-latest-products -->
+        @include('partials.home-latest-products')
+        <!-- /cms-live:home-latest-products -->
+    @endif
+</main>
 
 <footer class="site-footer{{ $shopPolicyLinks ? ' site-footer--shop-policies' : '' }}">
     <div class="site-footer__ornament">

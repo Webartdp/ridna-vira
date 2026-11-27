@@ -2,6 +2,7 @@
 
 use App\Services\MakerTelegram;
 use App\Services\TelegramAlerts;
+use App\Support\CalendarDownloads;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -19,3 +20,8 @@ Schedule::call(fn (): bool => Artisan::call('telegram:makers') === 0)
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('calendar:deduplicate-downloads', function () {
+    $count = CalendarDownloads::rebuild();
+    $this->info("Кількість посилань, зведених до спільної адреси: {$count}");
+})->purpose('Link to a single copy of each identical imported calendar download');

@@ -25,6 +25,7 @@
       "summary": "Спільне славлення Рідних Богів: підготовка, очищення, молитви та єднання громади.",
       "category": "life",
       "page": "pages/bohoslavlennia.html",
+      "download_canonical_page": true,
       "files": [
         {
           "path": "documents/97d2c9f32d-pashnyk_bogoslav.pdf",
@@ -54,6 +55,7 @@
       "summary": "Опис посвячення, ім’янаречення та прилучення до духовної традиції Роду.",
       "category": "life",
       "page": "pages/posviachennia.html",
+      "download_canonical_page": true,
       "files": [
         {
           "path": "documents/76ef1aa34b-pashnyk_posviata.pdf",
@@ -159,6 +161,7 @@
       "summary": "Підготовка й перебіг обряду створення родини, благословення та шлюбні обітниці.",
       "category": "life",
       "page": "pages/vinchannia.html",
+      "download_canonical_format": "pdf",
       "files": [
         {
           "path": "documents/0a1d510265-pashnyk_vinchannia.pdf",
@@ -236,6 +239,7 @@
       "summary": "Прощання з померлим, поховальні дії та вшанування пам’яті Предків.",
       "category": "life",
       "page": "pages/pokhovannia.html",
+      "download_canonical_page": true,
       "files": [
         {
           "path": "documents/ba26ebd915-pashnyk_pohovannia.pdf",
@@ -441,6 +445,7 @@
       "summary": "Літнє сонцестояння, обрядові вогні, вода та купальські звичаї.",
       "category": "calendar",
       "page": "pages/kupalo.html",
+      "download_canonical_page": true,
       "files": [
         {
           "path": "documents/1225daa0a6-pashnyk_kupalo.pdf",
@@ -822,6 +827,7 @@
       ]
     },
     "kupalo-knyha": {
+      "download_canonical_ritual": "kupalo",
       "title": "Купало",
       "source": "kny/pashnyk/pashnyk_kupalo.pdf",
       "author": "Укладач Пашник С. Д.",
@@ -836,6 +842,7 @@
       ]
     },
     "slavlennia-peruna": {
+      "download_canonical_ritual": "perun",
       "title": "Славлення Перуна",
       "source": "kny/pashnyk/pashnyk_perun.pdf",
       "author": "Укладач Пашник С. Д.",
@@ -850,6 +857,7 @@
       ]
     },
     "vinchannia-knyha": {
+      "download_canonical_ritual": "vinchannia",
       "title": "Вінчання",
       "source": "kny/pashnyk/pashnyk_vinchannia.pdf",
       "author": "Укладачі Пашник С. Д., Яковенко Я. В.",
@@ -864,6 +872,7 @@
       ]
     },
     "pokhovannia-knyha": {
+      "download_canonical_ritual": "pokhovannia",
       "title": "Поховання",
       "source": "kny/pashnyk/pashnyk_pohovannia.pdf",
       "author": "Укладач Пашник С. Д.",

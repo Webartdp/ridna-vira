@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Support\Cms;
+use App\Support\DownloadCanonical;
 use Illuminate\Contracts\View\View;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -46,13 +47,18 @@ final class PrayerController extends Controller
 
     public function download(string $prayer, string $format): BinaryFileResponse
     {
-        $file = collect($this->entry($prayer)['files'] ?? [])->firstWhere('format', $format);
+        $entry = $this->entry($prayer);
+        $file = collect($entry['files'] ?? [])->firstWhere('format', $format);
         abort_unless($file !== null && preg_match('~^files/[a-zA-Z0-9._-]+$~', $file['path']), 404);
         $path = public_path('assets/prayers/'.$file['path']);
         abort_unless(is_file($path), 404);
 
         return response()->download($path, $prayer.'.'.$format, [
             'Content-Type' => $format === 'pdf' ? 'application/pdf' : 'image/vnd.djvu',
+            'Link' => DownloadCanonical::header(
+                route('faith.prayers.download', [$prayer, $format], absolute: false),
+                ! empty($entry['download_canonical_page']) ? route('faith.prayers.show', $prayer, absolute: false) : null,
+            ),
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }

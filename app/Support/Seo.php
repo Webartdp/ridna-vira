@@ -72,6 +72,26 @@ final class Seo
         return Str::limit($text, $limit, '…', preserveWords: true);
     }
 
+    private static function productSummary(string $description): string
+    {
+        $limit = 165;
+        if (mb_strwidth($description) > $limit
+            && preg_match('/^(.+[.!?…][»”"]?)(?= )/u', mb_strimwidth($description, 0, $limit + 1), $match)
+            && mb_strlen($match[1]) >= 35) {
+            $description = $match[1];
+        }
+
+        // Normalize all-caps Ukrainian words while preserving short abbreviations and model codes.
+        $description = preg_replace_callback(
+            '/(?<![\p{L}\p{N}_-])(?:[А-ЯІЇЄҐ]{5,}|АБО|БЕЗ|БІЛЯ|ВІД|ДЛЯ|ДО|ЗА|ЗІ|ІЗ|МІЖ|НА|НАД|ПІД|ПРИ|ПРО|ТА|ЦЕ|ЦЕЙ|ЦЯ|ЩО|ЯК)(?![\p{L}\p{N}_-])/u',
+            fn (array $word) => mb_strtolower($word[0]),
+            $description,
+        );
+        $description = preg_replace_callback('/(?:^|[.!?…][»”"]? )\p{Ll}/u', fn (array $start) => mb_strtoupper($start[0]), $description);
+
+        return Str::limit($description, $limit, '…', preserveWords: true);
+    }
+
     public static function defaults(string $path, string $title, string $body = '', ?string $excerpt = null): array
     {
         if ($static = config('seo.pages.'.$path)) {
@@ -146,7 +166,7 @@ final class Seo
         $productCategory = $product?->category;
         $productDescription = $product ? self::text(CmsHtml::clean($product->description ?? ''), 5000) : null;
         if ($product) {
-            $summary = Str::limit($productDescription, 165, '…');
+            $summary = self::productSummary($productDescription);
             if (mb_strlen($summary) < 35) {
                 $details = $product->name.($productCategory ? ' · '.$productCategory->name : '');
                 $summary = self::text($summary !== ''

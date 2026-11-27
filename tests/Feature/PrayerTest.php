@@ -113,4 +113,16 @@ class PrayerTest extends TestCase
         $this->get('/ridna-vira/molytvy/rodynni/zavantazhyty/pdf')->assertNotFound();
         $this->get('/ridna-vira/molytvy/molytovnyk/zavantazhyty/exe')->assertNotFound();
     }
+
+    public function test_download_canonicals_respect_where_the_full_prayer_text_is_available(): void
+    {
+        config(['app.url' => 'https://ridnavira.com.ua']);
+
+        $this->get('/ridna-vira/molytvy/ukrainski-zamovliannia/zavantazhyty/djvu')->assertOk()->assertDownload()
+            ->assertHeader('Content-Type', 'image/vnd.djvu')
+            ->assertHeader('Link', '<https://ridnavira.com.ua/ridna-vira/molytvy/ukrainski-zamovliannia>; rel="canonical"');
+        $this->get('/ridna-vira/molytvy/molytovnyk/zavantazhyty/pdf')->assertOk()->assertDownload()
+            ->assertHeader('Content-Type', 'application/pdf')
+            ->assertHeader('Link', '<https://ridnavira.com.ua/ridna-vira/molytvy/molytovnyk/zavantazhyty/pdf>; rel="canonical"');
+    }
 }

@@ -1330,6 +1330,7 @@
         }
       ],
       "page": "pages/ukrainski-zamovliannia.json",
+      "download_canonical_page": true,
       "source_text_fingerprint": "a1c5196c97a8bc710f9fe5e4f2bffda64c95f82b7ce959fe0aa7b5b151577d8b"
     }
   },

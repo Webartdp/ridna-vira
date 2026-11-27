@@ -131,6 +131,35 @@ class SeoTest extends TestCase
         $this->assertArrayNotHasKey('aggregateRating', $productSchema);
     }
 
+    public function test_automatic_product_snippet_uses_complete_opening_sentences(): void
+    {
+        $body = '<p>ПАВУКА стародавній український оберіг. Павука робиться з житньої соломи та нитки, шляхом нанизання і з’єднання.</p>'
+            .'<p>Павука символізує ВСЕСВІТ. ЦЕ САКРАЛЬНА ГЕОМЕТРІЯ ДЛЯ ОЗДОБЛЕННЯ ОСЕЛІ.</p>';
+        $product = Product::create([
+            'name' => 'Павука Алатир', 'slug' => 'seo-pavuka', 'price_minor' => 25950, 'stock' => 1,
+            'is_active' => true, 'description' => $body,
+        ]);
+        $summary = 'Павука стародавній український оберіг. Павука робиться з житньої соломи та нитки, шляхом нанизання і з’єднання. Павука символізує всесвіт.';
+        $response = $this->get('/kramnychka/'.$product->slug)->assertOk()
+            ->assertSee('name="description" content="'.$summary.'"', false)
+            ->assertSee('property="og:description" content="'.$summary.'"', false);
+        preg_match('~<script type="application/ld\+json">(.*?)</script>~s', $response->getContent(), $json);
+        $productSchema = collect(json_decode($json[1], true, 512, JSON_THROW_ON_ERROR)['@graph'])->firstWhere('@type', 'Product');
+        $this->assertStringContainsString('Павука символізує ВСЕСВІТ. ЦЕ САКРАЛЬНА ГЕОМЕТРІЯ', $productSchema['description']);
+        $this->assertSame($body, $product->fresh()->description);
+    }
+
+    public function test_automatic_product_snippet_truncates_a_long_sentence_at_a_word_boundary(): void
+    {
+        $product = Product::create([
+            'name' => 'Тканий пояс', 'slug' => 'seo-poias', 'price_minor' => 25950, 'stock' => 1,
+            'is_active' => true,
+            'description' => 'Тканий пояс із вовни з ручним оздобленням, традиційним візерунком і китицями на кінцях, виготовлений на дерев’яному верстаті для повсякденного та святкового традиційного вбрання.',
+        ]);
+        $this->get('/kramnychka/'.$product->slug)->assertOk()
+            ->assertSee('для повсякденного та святкового…"', false);
+    }
+
     public function test_sitemap_excludes_drafts_future_deleted_private_and_inactive_products(): void
     {
         foreach (['/novyny/draft' => ['is_published' => false], '/novyny/future' => ['published_at' => now()->addDay()], '/novyny/deleted' => [], '/novyny/public' => [], '/ridna-vira/bohy/perun' => ['is_published' => false], '/zamovlennia/secret' => []] as $path => $attrs) {

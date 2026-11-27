@@ -93,4 +93,23 @@ class RitualTest extends TestCase
         $this->get('/ridna-vira/obriady/bohoslavlennia/zavantazhyty/exe')->assertNotFound();
         $this->get('/ridna-vira/obriady/osviachennia-pomeshkannia/zavantazhyty/pdf')->assertNotFound();
     }
+
+    public function test_download_canonicals_point_to_the_equivalent_reading_or_complete_edition(): void
+    {
+        config(['app.url' => 'https://ridnavira.com.ua']);
+        $root = '/ridna-vira/obriady/';
+        $paths = [
+            'bohoslavlennia/zavantazhyty/pdf' => 'bohoslavlennia',
+            'bohoslavlennia/zavantazhyty/docx' => 'bohoslavlennia',
+            'kupalo-knyha/zavantazhyty/pdf' => 'kupalo',
+            'slavlennia-peruna/zavantazhyty/pdf' => 'perun/zavantazhyty/pdf',
+            'vinchannia/zavantazhyty/docx' => 'vinchannia/zavantazhyty/pdf',
+            'symvolika-volossia/zavantazhyty/pdf' => 'symvolika-volossia/zavantazhyty/pdf',
+        ];
+
+        foreach ($paths as $path => $canonical) {
+            $this->get($root.$path)->assertOk()->assertDownload()
+                ->assertHeader('Link', '<https://ridnavira.com.ua'.$root.$canonical.'>; rel="canonical"');
+        }
+    }
 }

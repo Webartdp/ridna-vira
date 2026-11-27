@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Support\ArticleContent;
 use App\Support\Cms;
+use App\Support\DownloadCanonical;
 use App\Support\Publications;
 use Collator;
 use Illuminate\Contracts\View\View;
@@ -106,6 +107,10 @@ final class ArticleController extends Controller
         $fileName = $this->downloadFileName($title, $article, $extension);
 
         return response()->download($path, $fileName, [
+            'Link' => DownloadCanonical::header(
+                route('articles.download', $article, absolute: false),
+                $extension === 'html' ? route('articles.show', $article, absolute: false) : null,
+            ),
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }

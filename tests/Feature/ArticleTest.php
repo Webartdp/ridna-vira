@@ -13,7 +13,7 @@ class ArticleTest extends TestCase
     {
         parent::setUp();
         $this->withoutVite();
-        config(['cache.default' => 'array']);
+        config(['app.url' => 'https://ridnavira.com.ua', 'cache.default' => 'array']);
         $this->fixtureStorage = storage_path('framework/testing/articles-'.bin2hex(random_bytes(6)));
         mkdir($this->fixtureStorage.'/app/content/articles', 0777, true);
         $this->app->useStoragePath($this->fixtureStorage);
@@ -47,7 +47,8 @@ class ArticleTest extends TestCase
             ->assertDontSee('bgcolor', false)
             ->assertDontSee('<font', false)
             ->assertDontSee('HTML');
-        $this->get('/statti/ridna-vira-abc123/zavantazhyty')->assertOk();
+        $this->get('/statti/ridna-vira-abc123/zavantazhyty')->assertOk()->assertDownload()
+            ->assertHeader('Link', '<https://ridnavira.com.ua/statti/ridna-vira-abc123>; rel="canonical"');
         $this->assertSame($original, file_get_contents($root.'legacy.html'));
         $this->assertSame($manifest, file_get_contents($root.'manifest.json'));
     }
@@ -98,6 +99,7 @@ class ArticleTest extends TestCase
         $this->get('/statti')->assertOk()->assertSee('Дослідження 01')->assertDontSee('Дослідження 19')->assertDontSee('(pdf)');
         $this->get('/statti?page=2')->assertOk()->assertSee('Дослідження 19')->assertDontSee('Дослідження 01');
         $this->get('/statti/study-19')->assertOk()->assertSee('Завантажити PDF');
-        $this->get('/statti/study-19/zavantazhyty')->assertOk();
+        $this->get('/statti/study-19/zavantazhyty?utm_source=old')->assertOk()->assertDownload()
+            ->assertHeader('Link', '<https://ridnavira.com.ua/statti/study-19/zavantazhyty>; rel="canonical"');
     }
 }

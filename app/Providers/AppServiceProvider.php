@@ -16,6 +16,8 @@ use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -41,6 +43,13 @@ class AppServiceProvider extends ServiceProvider
         }
         Gate::policy(User::class, UserPolicy::class);
         Gate::policy(Order::class, OrderPolicy::class);
+        View::composer('partials.home-latest-products', function (\Illuminate\View\View $view): void {
+            $products = Schema::hasTable('products')
+                ? Product::where('is_active', true)->latest()->orderByDesc('id')->limit(4)->get(['name', 'slug', 'images', 'price_minor'])
+                : collect();
+
+            $view->with('products', $products);
+        });
         ResetPassword::createUrlUsing(fn ($user, string $token) => route('password.reset', ['token' => $token, 'email' => $user->email]));
         VerifyEmail::toMailUsing(fn ($user, string $url) => (new MailMessage)
             ->subject('Підтвердження пошти — Рідна Віра')->greeting('Вітаємо!')

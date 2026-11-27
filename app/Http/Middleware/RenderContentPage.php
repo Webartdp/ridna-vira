@@ -42,8 +42,13 @@ class RenderContentPage
             if (preg_match('~<main\b[^>]*>(.*?)</main>~s', $html, $match)) {
                 [, $islands] = Cms::islands($match[1]);
                 $saved = $page->body ?? '';
+                $afterContent = '';
                 if ($path === '/') {
                     $saved = CommunityDirectory::refreshHomeSlots($saved, $islands);
+                    // Keep the live catalogue section last even for older saved home layouts.
+                    $productsSlot = '[[live:home-latest-products]]';
+                    $afterContent = $islands[$productsSlot] ?? '';
+                    $saved = str_replace($productsSlot, '', $saved);
                 }
                 if ($path === '/ridna-vira/knyhy') {
                     $saved = BookLibrary::refreshLayout($saved);
@@ -73,7 +78,7 @@ class RenderContentPage
                 }
                 $body = ContentImages::render($body, $page);
                 // Preserve freshly rendered forms, maps and feeds instead of saving expiring tokens or stale lists.
-                $html = preg_replace_callback('~(<main\b[^>]*>).*?(</main>)~s', fn ($parts) => $parts[1].$body.$parts[2], $html, 1);
+                $html = preg_replace_callback('~(<main\b[^>]*>).*?(</main>)~s', fn ($parts) => $parts[1].$body.$afterContent.$parts[2], $html, 1);
                 $html = preg_replace_callback('~<title>.*?</title>~s', fn () => '<title>'.e($page->title).' — Рідна Віра</title>', $html, 1);
                 $response->setContent($html);
             }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Support\DocumentContent;
+use App\Support\DownloadCanonical;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -56,6 +57,10 @@ final class DocumentDownloadController extends Controller
         $downloadName = trim($safeTitle).($extension !== '' ? '.'.$extension : '');
 
         return response()->download($absolutePath, $downloadName, [
+            'Link' => DownloadCanonical::header(
+                route('documents.download.file', $document, absolute: false),
+                $extension === 'html' ? route('documents.download', $document, absolute: false) : null,
+            ),
             'X-Content-Type-Options' => 'nosniff',
         ]);
     }

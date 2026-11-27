@@ -25,6 +25,8 @@ for script in "${scripts[@]}"; do
   php "$script"
 done
 
+php artisan calendar:deduplicate-downloads
+
 echo
 echo "Повний імпорт свят завершено."
 echo "Звіти:"
